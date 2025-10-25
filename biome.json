@@ -9,22 +9,23 @@
 		"ignoreUnknown": false,
 		"includes": [
 			"**",
-			"!**/.next",
-			"!**/dist",
-			"!**/.turbo",
-			"!**/dev-dist",
+			"!!**/.next",
+			"!!**/dist",
+			"!!**/.turbo",
+			"!!**/dev-dist",
 			"!**/.zed",
 			"!**/.vscode",
 			"!**/routeTree.gen.ts",
-			"!**/src-tauri",
-			"!**/.nuxt",
+			"!!**/src-tauri",
+			"!!**/.nuxt",
 			"!bts.jsonc",
 			"!**/.expo",
 			"!**/.wrangler",
 			"!**/.alchemy",
-			"!**/.svelte-kit",
+			"!!**/.svelte-kit",
 			"!**/wrangler.jsonc",
-			"!**/.source"
+			"!!**/.source",
+			"!**/apps/mini/**/*.json"
 		]
 	},
 	"formatter": {

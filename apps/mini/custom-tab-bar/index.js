@@ -8,7 +8,9 @@ Component({
 
 	methods: {
 		onChange(event) {
-			this.setData({ active: event.detail.value });
+			this.setData({
+				active: event.detail.value,
+			});
 			wx.switchTab({
 				url: this.data.list[event.detail.value].url.startsWith("/")
 					? this.data.list[event.detail.value].url
@@ -24,7 +26,9 @@ Component({
 					(item.url.startsWith("/") ? item.url.substr(1) : item.url) ===
 					`${route}`,
 			);
-			this.setData({ active });
+			this.setData({
+				active,
+			});
 		},
 	},
 });

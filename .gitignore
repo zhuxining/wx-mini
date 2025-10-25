@@ -1,6 +1,5 @@
 # Dependencies
 node_modules
-miniprogram_npm
 .pnp
 .pnp.js
 
@@ -49,3 +48,4 @@ coverage
 .cache
 tmp
 temp
+node_modules

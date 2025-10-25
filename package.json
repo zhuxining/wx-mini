@@ -8,40 +8,34 @@
 			"packages/*"
 		],
 		"catalog": {
-			"zod": "^4.0.2",
-			"@orpc/server": "^1.10.0",
-			"@orpc/client": "^1.10.0",
-			"@orpc/openapi": "^1.10.0",
-			"@orpc/zod": "^1.10.0",
-			"better-auth": "^1.3.28",
-			"dotenv": "^17.2.2",
-			"tsdown": "^0.15.5"
+			"zod": "^lastest",
+			"@orpc/server": "^lastest",
+			"@orpc/client": "^lastest",
+			"@orpc/openapi": "^lastest",
+			"@orpc/zod": "^lastest",
+			"better-auth": "^lastest",
+			"dotenv": "^lastest",
+			"tsdown": "^lastest"
 		}
 	},
 	"scripts": {
-		"check": "biome check --write .",
+		"fix:biome": "biome check --write .",
 		"prepare": "husky",
 		"dev": "turbo dev",
 		"build": "turbo build",
 		"check-types": "turbo check-types",
-		"dev:native": "turbo -F native dev",
 		"dev:web": "turbo -F web dev",
 		"db:push": "turbo -F @wx-mini/db db:push",
 		"db:studio": "turbo -F @wx-mini/db db:studio",
 		"db:generate": "turbo -F @wx-mini/db db:generate",
 		"db:migrate": "turbo -F @wx-mini/db db:migrate"
 	},
-	"dependencies": {
-		"dotenv": "^17.2.3",
-		"zod": "^4.1.12"
-	},
 	"devDependencies": {
 		"turbo": "^2.5.8",
 		"@biomejs/biome": "^2.3.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.6",
-		"tsdown": "^0.15.9",
-		"@types/node": "^22.18.12"
+		"@types/node": "^24.9.1"
 	},
 	"lint-staged": {
 		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
