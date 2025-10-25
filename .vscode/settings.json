@@ -1,0 +1,13 @@
+{
+	"biome.enabled": true,
+	"editor.formatOnSave": true,
+	"files.watcherExclude": {
+		"**/routeTree.gen.ts": true
+	},
+	"search.exclude": {
+		"**/routeTree.gen.ts": true
+	},
+	"files.readonlyInclude": {
+		"**/routeTree.gen.ts": true
+	}
+}
