@@ -12,6 +12,7 @@
 	},
 	"type": "module",
 	"scripts": {
+		"dev": "tsdown --watch ./src/routers/index.ts",
 		"build": "tsdown"
 	},
 	"devDependencies": {
