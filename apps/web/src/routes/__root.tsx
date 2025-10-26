@@ -65,16 +65,10 @@ function RootDocument() {
 		};
 		const listener = (event: MediaQueryListEvent) =>
 			handleChange(event.matches);
-		const legacyListener = (event: MediaQueryList | MediaQueryListEvent) =>
-			handleChange("matches" in event ? event.matches : mediaQuery.matches);
 
 		handleChange(mediaQuery.matches);
-		if (typeof mediaQuery.addEventListener === "function") {
-			mediaQuery.addEventListener("change", listener);
-			return () => mediaQuery.removeEventListener("change", listener);
-		}
-		mediaQuery.addListener(legacyListener);
-		return () => mediaQuery.removeListener(legacyListener);
+		mediaQuery.addEventListener("change", listener);
+		return () => mediaQuery.removeEventListener("change", listener);
 	}, []);
 
 	const { darkAlgorithm, defaultAlgorithm } = theme;
