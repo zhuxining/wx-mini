@@ -1,47 +1,48 @@
 {
 	"name": "wx-mini",
 	"private": true,
-	"type": "module",
 	"workspaces": {
 		"packages": [
 			"apps/*",
 			"packages/*"
 		],
 		"catalog": {
-			"zod": "^lastest",
-			"@orpc/server": "^lastest",
-			"@orpc/client": "^lastest",
-			"@orpc/openapi": "^lastest",
-			"@orpc/zod": "^lastest",
-			"better-auth": "^lastest",
-			"dotenv": "^lastest",
-			"tsdown": "^lastest"
+			"dotenv": "^17.2.2",
+			"zod": "^4.1.13",
+			"typescript": "^5",
+			"@types/node": "^22.13.14",
+			"@orpc/server": "^1.12.2",
+			"@orpc/client": "^1.12.2",
+			"@orpc/openapi": "^1.12.2",
+			"@orpc/zod": "^1.12.2",
+			"better-auth": "^1.4.9"
 		}
 	},
+	"type": "module",
 	"scripts": {
-		"fix:biome": "biome check --write .",
-		"prepare": "husky",
 		"dev": "turbo dev",
 		"build": "turbo build",
 		"check-types": "turbo check-types",
+		"dev:native": "turbo -F native dev",
 		"dev:web": "turbo -F web dev",
 		"db:push": "turbo -F @wx-mini/db db:push",
 		"db:studio": "turbo -F @wx-mini/db db:studio",
 		"db:generate": "turbo -F @wx-mini/db db:generate",
 		"db:migrate": "turbo -F @wx-mini/db db:migrate",
-		"ruler:apply": "bunx @intellectronica/ruler@latest apply --local-only"
+		"check": "biome check --write ."
+	},
+	"dependencies": {
+		"@wx-mini/env": "workspace:*",
+		"dotenv": "^17.2.3",
+		"zod": "^4.3.5"
 	},
 	"devDependencies": {
-		"turbo": "^2.6.3",
-		"@biomejs/biome": "^2.3.10",
-		"husky": "^9.1.7",
-		"lint-staged": "^16.2.7",
-		"@types/node": "^24.10.4"
+		"@biomejs/biome": "^2.3.11",
+		"@types/node": "^22.19.6",
+		"@wx-mini/config": "workspace:*",
+		"lefthook": "^2.0.15",
+		"turbo": "^2.7.4",
+		"typescript": "^5.9.3"
 	},
-	"lint-staged": {
-		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
-			"biome check --write ."
-		]
-	},
-	"packageManager": "bun@1.3.2"
+	"packageManager": "bun@1.3.6"
 }

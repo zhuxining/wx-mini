@@ -1,29 +1,24 @@
 {
 	"name": "@wx-mini/auth",
+	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
 			"default": "./src/index.ts"
 		},
 		"./*": {
-			"types": "./dist/*.d.ts",
 			"default": "./src/*.ts"
 		}
 	},
-	"type": "module",
-	"scripts": {
-		"build": "tsdown"
-	},
-	"devDependencies": {
-		"tsdown": "catalog:"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	},
+	"scripts": {},
 	"dependencies": {
+		"@wx-mini/db": "workspace:*",
+		"@wx-mini/env": "workspace:*",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
-		"zod": "catalog:",
-		"@wx-mini/db": "workspace:*"
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@wx-mini/config": "workspace:*",
+		"typescript": "catalog:"
 	}
 }

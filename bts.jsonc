@@ -3,23 +3,17 @@
 
 {
   "$schema": "https://r2.better-t-stack.dev/schema.json",
-  "version": "3.2.10",
-  "createdAt": "2025-10-25T08:44:53.936Z",
+  "version": "3.15.0",
+  "createdAt": "2026-01-14T12:58:58.868Z",
   "database": "postgres",
   "orm": "drizzle",
   "backend": "self",
   "runtime": "none",
-  "frontend": [
-    "tanstack-start"
-  ],
-  "addons": [
-    "biome",
-    "husky",
-    "turborepo",
-    "ruler"
-  ],
+  "frontend": ["tanstack-start"],
+  "addons": ["biome", "fumadocs", "lefthook", "turborepo"],
   "examples": [],
   "auth": "better-auth",
+  "payments": "none",
   "packageManager": "bun",
   "dbSetup": "none",
   "api": "orpc",

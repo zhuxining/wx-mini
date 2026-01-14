@@ -1,17 +1,9 @@
-import { Spin } from "antd";
+import { Loader2 } from "lucide-react";
 
 export default function Loader() {
 	return (
-		<div
-			style={{
-				width: "100%",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-				paddingTop: 32,
-			}}
-		>
-			<Spin size="large" />
+		<div className="flex h-full items-center justify-center pt-8">
+			<Loader2 className="animate-spin" />
 		</div>
 	);
 }

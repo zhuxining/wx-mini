@@ -1,3 +1,6 @@
+import { env } from "@wx-mini/env/server";
 import { drizzle } from "drizzle-orm/node-postgres";
 
-export const db = drizzle(process.env.DATABASE_URL || "");
+import * as schema from "./schema";
+
+export const db = drizzle(env.DATABASE_URL, { schema });

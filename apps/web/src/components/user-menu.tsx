@@ -1,119 +1,63 @@
-import { useNavigate } from "@tanstack/react-router";
-import type { MenuProps } from "antd";
+import { Link, useNavigate } from "@tanstack/react-router";
+
 import {
-	Avatar,
-	Button,
-	Dropdown,
-	Skeleton,
-	Space,
-	Typography,
-	theme,
-} from "antd";
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+
+import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 
 export default function UserMenu() {
 	const navigate = useNavigate();
 	const { data: session, isPending } = authClient.useSession();
-	const { token } = theme.useToken();
 
 	if (isPending) {
-		return <Skeleton.Button active size="small" />;
+		return <Skeleton className="h-9 w-24" />;
 	}
 
 	if (!session) {
 		return (
-			<Button
-				type="primary"
-				onClick={() =>
-					navigate({
-						to: "/login",
-					})
-				}
-			>
-				Sign In
-			</Button>
+			<Link to="/login">
+				<Button variant="outline">Sign In</Button>
+			</Link>
 		);
 	}
 
-	const menuItems: MenuProps["items"] = [
-		{
-			key: "user-email",
-			label: session.user.email,
-			disabled: true,
-		},
-		{
-			type: "divider",
-		},
-		{
-			key: "sign-out",
-			label: "Sign Out",
-			danger: true,
-		},
-	];
-
-	const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-		if (key === "sign-out") {
-			authClient.signOut({
-				fetchOptions: {
-					onSuccess: () => {
-						navigate({
-							to: "/",
-						});
-					},
-				},
-			});
-		}
-	};
-
-	const displayName = session.user.name ?? session.user.email;
-	const initials = displayName
-		.split(" ")
-		.map((part) => part[0])
-		.join("")
-		.slice(0, 2)
-		.toUpperCase();
-
 	return (
-		<Dropdown
-			menu={{
-				items: menuItems,
-				onClick: handleMenuClick,
-			}}
-			trigger={["click"]}
-			placement="bottomRight"
-		>
-			<Button
-				type="text"
-				style={{
-					display: "flex",
-					alignItems: "center",
-					gap: 12,
-					height: "auto",
-					paddingInline: 12,
-					color: "inherit",
-				}}
-			>
-				<Space align="center" size={12}>
-					<Avatar
-						size={32}
-						style={{
-							backgroundColor: token.colorPrimary,
-							color: token.colorWhite,
-							fontWeight: 600,
+		<DropdownMenu>
+			<DropdownMenuTrigger render={<Button variant="outline" />}>
+				{session.user.name}
+			</DropdownMenuTrigger>
+			<DropdownMenuContent className="bg-card">
+				<DropdownMenuGroup>
+					<DropdownMenuLabel>My Account</DropdownMenuLabel>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem>{session.user.email}</DropdownMenuItem>
+					<DropdownMenuItem
+						variant="destructive"
+						onClick={() => {
+							authClient.signOut({
+								fetchOptions: {
+									onSuccess: () => {
+										navigate({
+											to: "/",
+										});
+									},
+								},
+							});
 						}}
 					>
-						{initials}
-					</Avatar>
-					<Typography.Text
-						style={{
-							color: "inherit",
-							fontWeight: 500,
-						}}
-					>
-						{displayName}
-					</Typography.Text>
-				</Space>
-			</Button>
-		</Dropdown>
+						Sign Out
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }

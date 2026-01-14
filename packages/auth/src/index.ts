@@ -1,18 +1,19 @@
 import { db } from "@wx-mini/db";
 import * as schema from "@wx-mini/db/schema/auth";
-import { type BetterAuthOptions, betterAuth } from "better-auth";
+import { env } from "@wx-mini/env/server";
+import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { reactStartCookies } from "better-auth/react-start";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
 
-export const auth = betterAuth<BetterAuthOptions>({
+export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
 
 		schema: schema,
 	}),
-	trustedOrigins: [process.env.CORS_ORIGIN || ""],
+	trustedOrigins: [env.CORS_ORIGIN],
 	emailAndPassword: {
 		enabled: true,
 	},
-	plugins: [reactStartCookies()],
+	plugins: [tanstackStartCookies()],
 });

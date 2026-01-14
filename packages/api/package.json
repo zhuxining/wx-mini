@@ -1,34 +1,28 @@
 {
 	"name": "@wx-mini/api",
+	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
 			"default": "./src/index.ts"
 		},
 		"./*": {
-			"types": "./dist/*.d.ts",
 			"default": "./src/*.ts"
 		}
 	},
-	"type": "module",
-	"scripts": {
-		"dev": "tsdown --watch ./src/routers/index.ts",
-		"build": "tsdown"
-	},
-	"devDependencies": {
-		"tsdown": "catalog:"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	},
+	"scripts": {},
 	"dependencies": {
-		"@orpc/server": "catalog:",
 		"@orpc/client": "catalog:",
 		"@orpc/openapi": "catalog:",
+		"@orpc/server": "catalog:",
 		"@orpc/zod": "catalog:",
-		"dotenv": "catalog:",
-		"zod": "catalog:",
 		"@wx-mini/auth": "workspace:*",
-		"@wx-mini/db": "workspace:*"
+		"@wx-mini/db": "workspace:*",
+		"@wx-mini/env": "workspace:*",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@wx-mini/config": "workspace:*",
+		"typescript": "catalog:"
 	}
 }
