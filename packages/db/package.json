@@ -20,11 +20,11 @@
 		"@wx-mini/env": "workspace:*",
 		"dotenv": "catalog:",
 		"drizzle-orm": "^0.45.1",
-		"pg": "^8.16.3",
+		"pg": "^8.17.1",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@types/pg": "^8.15.6",
+		"@types/pg": "^8.16.0",
 		"@wx-mini/config": "workspace:*",
 		"drizzle-kit": "^0.31.8",
 		"typescript": "catalog:"
