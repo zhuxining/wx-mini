@@ -16,5 +16,17 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 	},
-	plugins: [tanstackStartCookies(), admin(), organization()],
+	plugins: [
+		tanstackStartCookies(),
+		admin(),
+		organization({
+			allowUserToCreateOrganization: true,
+			teams: {
+				enabled: true,
+			},
+			customRoles: {
+				enabled: true,
+			},
+		}),
+	],
 });
