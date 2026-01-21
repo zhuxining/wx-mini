@@ -18,7 +18,7 @@ export default function SignInForm({
 	const navigate = useNavigate({
 		from: "/",
 	});
-	const { isPending } = authClient.useSession();
+	const { isPending, data: session } = authClient.useSession();
 
 	const form = useForm({
 		defaultValues: {
@@ -26,30 +26,27 @@ export default function SignInForm({
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
-			await authClient.signIn.email(
-				{
-					email: value.email,
-					password: value.password,
-				},
-				{
-					onSuccess: () => {
-						const session = authClient.useSession();
-						const role = session.data?.user?.role;
-						if (typeof role === "string" && role.includes("admin")) {
-							navigate({
-								to: "/admin/dashboard",
-							});
-						} else {
-							navigate({
-								to: "/org/dashboard",
-							});
-						}
-					},
-					onError: (error) => {
-						toast.error(error.error.message || error.error.statusText);
-					},
-				},
-			);
+			const response = await authClient.signIn.email({
+				email: value.email,
+				password: value.password,
+			});
+
+			if (response.error) {
+				toast.error(response.error.message || response.error.statusText);
+				return;
+			}
+
+			// Use the user data from the response or session
+			const role = response.data?.user?.role || session.data?.user?.role;
+			if (typeof role === "string" && role.includes("admin")) {
+				navigate({
+					to: "/admin/dashboard",
+				});
+			} else {
+				navigate({
+					to: "/org/dashboard",
+				});
+			}
 		},
 		validators: {
 			onSubmit: z.object({

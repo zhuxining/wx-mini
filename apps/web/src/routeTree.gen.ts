@@ -21,6 +21,9 @@ import { Route as OrgDashboardIndexRouteImport } from './routes/org/dashboard/in
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminOrganizationsIndexRouteImport } from './routes/admin/organizations/index'
 import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard/index'
+import { Route as publicPricingIndexRouteImport } from './routes/(public)/pricing/index'
+import { Route as publicLandingIndexRouteImport } from './routes/(public)/landing/index'
+import { Route as publicAboutIndexRouteImport } from './routes/(public)/about/index'
 import { Route as OrgTeamsTeamIdRouteImport } from './routes/org/teams/$teamId'
 import { Route as InvitationsAcceptInvitationIdRouteImport } from './routes/invitations/accept/$invitationId'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
@@ -86,6 +89,21 @@ const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const publicPricingIndexRoute = publicPricingIndexRouteImport.update({
+  id: '/pricing/',
+  path: '/pricing/',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const publicLandingIndexRoute = publicLandingIndexRouteImport.update({
+  id: '/landing/',
+  path: '/landing/',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const publicAboutIndexRoute = publicAboutIndexRouteImport.update({
+  id: '/about/',
+  path: '/about/',
+  getParentRoute: () => publicRouteRoute,
+} as any)
 const OrgTeamsTeamIdRoute = OrgTeamsTeamIdRouteImport.update({
   id: '/teams/$teamId',
   path: '/teams/$teamId',
@@ -123,6 +141,9 @@ export interface FileRoutesByFullPath {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/invitations/accept/$invitationId': typeof InvitationsAcceptInvitationIdRoute
   '/org/teams/$teamId': typeof OrgTeamsTeamIdRoute
+  '/about/': typeof publicAboutIndexRoute
+  '/landing/': typeof publicLandingIndexRoute
+  '/pricing/': typeof publicPricingIndexRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/organizations/': typeof AdminOrganizationsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
@@ -141,6 +162,9 @@ export interface FileRoutesByTo {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/invitations/accept/$invitationId': typeof InvitationsAcceptInvitationIdRoute
   '/org/teams/$teamId': typeof OrgTeamsTeamIdRoute
+  '/about': typeof publicAboutIndexRoute
+  '/landing': typeof publicLandingIndexRoute
+  '/pricing': typeof publicPricingIndexRoute
   '/admin/dashboard': typeof AdminDashboardIndexRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
@@ -161,6 +185,9 @@ export interface FileRoutesById {
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/invitations/accept/$invitationId': typeof InvitationsAcceptInvitationIdRoute
   '/org/teams/$teamId': typeof OrgTeamsTeamIdRoute
+  '/(public)/about/': typeof publicAboutIndexRoute
+  '/(public)/landing/': typeof publicLandingIndexRoute
+  '/(public)/pricing/': typeof publicPricingIndexRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/organizations/': typeof AdminOrganizationsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
@@ -181,6 +208,9 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/invitations/accept/$invitationId'
     | '/org/teams/$teamId'
+    | '/about/'
+    | '/landing/'
+    | '/pricing/'
     | '/admin/dashboard/'
     | '/admin/organizations/'
     | '/admin/users/'
@@ -199,6 +229,9 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/invitations/accept/$invitationId'
     | '/org/teams/$teamId'
+    | '/about'
+    | '/landing'
+    | '/pricing'
     | '/admin/dashboard'
     | '/admin/organizations'
     | '/admin/users'
@@ -218,6 +251,9 @@ export interface FileRouteTypes {
     | '/api/rpc/$'
     | '/invitations/accept/$invitationId'
     | '/org/teams/$teamId'
+    | '/(public)/about/'
+    | '/(public)/landing/'
+    | '/(public)/pricing/'
     | '/admin/dashboard/'
     | '/admin/organizations/'
     | '/admin/users/'
@@ -323,6 +359,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/(public)/pricing/': {
+      id: '/(public)/pricing/'
+      path: '/pricing'
+      fullPath: '/pricing/'
+      preLoaderRoute: typeof publicPricingIndexRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
+    '/(public)/landing/': {
+      id: '/(public)/landing/'
+      path: '/landing'
+      fullPath: '/landing/'
+      preLoaderRoute: typeof publicLandingIndexRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
+    '/(public)/about/': {
+      id: '/(public)/about/'
+      path: '/about'
+      fullPath: '/about/'
+      preLoaderRoute: typeof publicAboutIndexRouteImport
+      parentRoute: typeof publicRouteRoute
+    }
     '/org/teams/$teamId': {
       id: '/org/teams/$teamId'
       path: '/teams/$teamId'
@@ -363,10 +420,16 @@ declare module '@tanstack/react-router' {
 
 interface publicRouteRouteChildren {
   publicIndexRoute: typeof publicIndexRoute
+  publicAboutIndexRoute: typeof publicAboutIndexRoute
+  publicLandingIndexRoute: typeof publicLandingIndexRoute
+  publicPricingIndexRoute: typeof publicPricingIndexRoute
 }
 
 const publicRouteRouteChildren: publicRouteRouteChildren = {
   publicIndexRoute: publicIndexRoute,
+  publicAboutIndexRoute: publicAboutIndexRoute,
+  publicLandingIndexRoute: publicLandingIndexRoute,
+  publicPricingIndexRoute: publicPricingIndexRoute,
 }
 
 const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
