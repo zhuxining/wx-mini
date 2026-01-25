@@ -1,74 +1,83 @@
-# API Package
+# API 包
 
-## OVERVIEW
+## 概述
 
-Type-safe oRPC server with middleware-based authentication, isomorphic handlers (SSR + client).
+类型安全的 oRPC 服务器，基于中间件的认证，同构处理器（SSR + 客户端）。
 
-**Status:** All endpoints implemented and configured (Phase 1-6 complete).
+---
 
-## STRUCTURE
+## 结构
 
 ```
 src/
-├── index.ts              # Main router export
-├── context.ts            # oRPC context with session extraction
-└── routers/              # API endpoint definitions
-    └── *.ts              # Individual routers
+├── index.ts              # 主路由导出
+├── context.ts            # oRPC 上下文，包含 session 提取
+└── routers/              # API 端点定义
+    ├── index.ts          # 基础过程导出
+    ├── admin.ts          # Admin API (15 endpoints)
+    └── organization.ts   # Organization API (28 endpoints)
 ```
 
-## WHERE TO LOOK
+---
 
-| Task           | Location                        |
-| -------------- | ------------------------------- |
-| Router entry   | index.ts                        |
-| Auth context   | context.ts                      |
-| Route handlers | routers/\*.ts                   |
-| Middleware     | context.ts (session extraction) |
+## 规范
 
-## CONVENTIONS
-
-### Procedure Composition
-
-Two base procedures with different auth requirements:
+### 过程组合
 
 ```typescript
-// No authentication required
+// 无需认证
 publicProcedure.handler(() => "OK");
 
-// Requires authenticated session
+// 需要认证的 session
 protectedProcedure.handler(({ context }) => {
   return { user: context.session?.user };
 });
 ```
 
-### Context Pattern
+### 上下文模式
 
-Session always available via `context.session`:
+Session 始终可通过 `context.session` 访问：
 
 ```typescript
 protectedProcedure.handler(({ context }) => {
   if (!context.session?.user) throw new Error("Unauthorized");
-  // Access: context.session.user.id, context.session.user.role
+  // 访问: context.session.user.id, context.session.user.role
 });
 ```
 
-### Isomorphic Handlers
+### 同构处理器
 
-Same handler code runs on server (SSR) and client (API calls) - no separate server/client implementations needed.
+相同的处理程序代码在服务端（SSR）和客户端（API 调用）上运行。
 
-## ANTI-PATTERNS
+---
 
-- **Don't skip session checks** in protected procedures - always verify `context.session`
-- **Don't create custom procedures** - use `publicProcedure` or `protectedProcedure` only
-- **Don't mix auth patterns** - rely on Better-Auth session, don't implement custom auth
+## API 端点文档
 
-## UNIQUE STYLES
+| API | 端点数 | 文档 |
+|-----|-------|------|
+| Admin API | 15 | [admin-api.md](../docs/admin-api.md) |
+| Organization API | 28 | [org-api.md](../docs/org-api.md) |
 
-- **Type-safe RPC**: Endpoints defined once, types flow to frontend via @orpc/client
-- **Middleware-based auth**: Session extracted once in context, not per-handler
-- **Zod validation**: All inputs validated via @orpc/zod
+---
 
-## NOTES
+## 反模式
 
-- Changes to routers automatically update frontend types via oRPC
-- Context session is from Better-Auth, checked in context.ts
+- **不要跳过 session 检查** - 在受保护的过程中始终验证 `context.session`
+- **不要创建自定义过程** - 仅使用 `publicProcedure` 或 `protectedProcedure`
+- **不要混合认证模式** - 依赖 Better-Auth session
+
+---
+
+## 独特风格
+
+- **类型安全的 RPC**: 端点定义一次，类型通过 @orpc/client 流向前端
+- **基于中间件的认证**: Session 在上下文中提取一次
+- **Zod 验证**: 所有输入通过 @orpc/zod 验证
+
+---
+
+## 相关文档
+
+- **权限检查详解**: [docs/authentication.md#权限检查模式](../../../docs/authentication.md#权限检查模式)
+- **组织上下文规则**: [docs/organization-model.md#组织上下文规则](../../../docs/organization-model.md#组织上下文规则)
+- **错误处理模式**: [docs/authentication.md#错误处理模式](../../../docs/authentication.md#错误处理模式)

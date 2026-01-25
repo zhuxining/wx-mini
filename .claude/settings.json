@@ -5,8 +5,8 @@
 				"matcher": "Write|Edit",
 				"hooks": [
 					{
-						"type": "prompt",
-						"prompt": "运行`bun run check`并修复问题",
+						"type": "command",
+						"command": "bun run check",
 						"timeout": 30
 					}
 				]
@@ -16,6 +16,7 @@
 	"enabledPlugins": {
 		"commit-commands@claude-plugins-official": true,
 		"feature-dev@claude-plugins-official": true,
+		"ralph-loop@claude-plugins-official": false,
 		"typescript-lsp@claude-plugins-official": true,
 		"react-best-practices@cc-practice": true,
 		"rest-api-standards@cc-practice": true

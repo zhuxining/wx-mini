@@ -7,6 +7,7 @@ import {
 	Users,
 } from "lucide-react";
 import type * as React from "react";
+import { NavMain } from "@/components/nav-main";
 import {
 	Sidebar,
 	SidebarContent,
@@ -14,7 +15,6 @@ import {
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { NavMain } from "../-components/nav-main";
 
 import { NavUser } from "../-components/nav-user";
 import { OrgSwitcher } from "./org-switcher";

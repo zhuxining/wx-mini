@@ -12,6 +12,24 @@ export default function Footer() {
 						to="/"
 						className="transition-colors hover:text-foreground hover:underline"
 					>
+						Home
+					</Link>
+					<Link
+						to="/pricing"
+						className="transition-colors hover:text-foreground hover:underline"
+					>
+						Pricing
+					</Link>
+					<Link
+						to="/about"
+						className="transition-colors hover:text-foreground hover:underline"
+					>
+						About
+					</Link>
+					<Link
+						to="/"
+						className="transition-colors hover:text-foreground hover:underline"
+					>
 						Terms
 					</Link>
 					<Link
@@ -19,12 +37,6 @@ export default function Footer() {
 						className="transition-colors hover:text-foreground hover:underline"
 					>
 						Privacy
-					</Link>
-					<Link
-						to="/"
-						className="transition-colors hover:text-foreground hover:underline"
-					>
-						Contact
 					</Link>
 				</nav>
 			</div>

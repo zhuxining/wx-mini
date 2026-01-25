@@ -12,13 +12,15 @@ import { Label } from "./ui/label";
 
 export default function SignInForm({
 	onSwitchToSignUp,
+	redirect,
 }: {
 	onSwitchToSignUp: () => void;
+	redirect?: string | undefined;
 }) {
 	const navigate = useNavigate({
 		from: "/",
 	});
-	const { isPending, data: session } = authClient.useSession();
+	const { isPending } = authClient.useSession();
 
 	const form = useForm({
 		defaultValues: {
@@ -36,8 +38,22 @@ export default function SignInForm({
 				return;
 			}
 
-			// Use the user data from the response or session
-			const role = response.data?.user?.role || session.data?.user?.role;
+			// Use the redirect parameter if provided, otherwise use role-based redirect
+			if (redirect) {
+				navigate({
+					to: redirect,
+				});
+				return;
+			}
+
+			// Use the user data from the response
+			const user = response.data?.user;
+			if (!user) {
+				toast.error("Failed to get user information");
+				return;
+			}
+
+			const role = (user as any).role;
 			if (typeof role === "string" && role.includes("admin")) {
 				navigate({
 					to: "/admin/dashboard",

@@ -3,6 +3,7 @@
 ## [2025-01-20] Task 8: Create Teams List Page
 
 ### Pattern Discovered
+
 - All CRUD pages follow same pattern from `apps/web/src/routes/admin/organizations/index.tsx`
 - Key pattern elements:
   - Session query via `orpc.privateData.queryOptions()`
@@ -13,6 +14,7 @@
   - Skeleton loading states
 
 ### Technical Gotchas
+
 - `activeOrganizationId` property exists at runtime but TypeScript types don't include it (pre-existing issue)
   - Affects: `session?.user?.activeOrganizationId`
   - Solution: Use optional chaining and empty string fallback
@@ -31,12 +33,14 @@
   - Solution: Display "0" for now, will add real count in team detail page
 
 ### Successful Approaches
+
 1. Followed admin organizations pattern exactly - reduced errors
 2. Removed View button and team detail link - detail page doesn't exist yet (Task 9)
 3. Used simple "0" for member count - will implement properly in team detail
 4. Maintained same UI components and patterns as dashboard
 
 ### Team Detail Page (Future - Task 9)
+
 - Route: `/org/teams/$teamId`
 - Will need to:
   - Query team details via `orpc.organization.listTeamMembers({ teamId })`
@@ -45,11 +49,13 @@
   - Manage team members (add/remove)
 
 ### Files Modified
+
 - Created: `apps/web/src/routes/org/teams/index.tsx`
 - Referenced: `apps/web/src/routes/admin/organizations/index.tsx` (pattern)
 - Referenced: `apps/web/src/routes/org/dashboard/index.tsx` (context)
 
 ### API Endpoints Used
+
 ```typescript
 // Query
 orpc.organization.listTeams.queryOptions({
@@ -75,6 +81,7 @@ orpc.organization.removeTeam.mutate({
 ```
 
 ### Verification
+
 - `bun run check-types` - No new errors (pre-existing type issues remain)
 - Biome check - No formatting issues
 - File follows existing project patterns
@@ -82,12 +89,14 @@ orpc.organization.removeTeam.mutate({
 ## [2025-01-20] Task 9: Create Team Detail Page
 
 ### Pattern Discovered
+
 - Team detail page uses same pattern as members page
 - Query organization members to filter for team member selection
 - Active team state managed via `session.user.activeTeamId`
 - Team members structure: `{ id, userId, user: { id, email, name, image } }`
 
 ### Technical Gotchas
+
 - **ListTeamMembers structure**: Returns array of team members with nested user object
   - Each member has: `id`, `userId`, `user` object
   - `user` object contains: `id`, `email`, `name`, `image`
@@ -99,6 +108,7 @@ orpc.organization.removeTeam.mutate({
   - Pre-existing type issue across all files
 
 - **Team member filtering**: Filter org members to exclude existing team members
+
   ```typescript
   const availableMembers = orgMembers.filter(
     orgMember => !teamMembers.some(tm => tm.userId === orgMember.userId)
@@ -110,6 +120,7 @@ orpc.organization.removeTeam.mutate({
   - "Set as Active" vs "Active Team" button text
 
 ### Successful Approaches
+
 1. Reused members page pattern for team member management
 2. Used Select component for member selection dropdown
 3. Added Set Active Team button with visual state indicator
@@ -117,6 +128,7 @@ orpc.organization.removeTeam.mutate({
 5. Proper query invalidation after add/remove mutations
 
 ### Team Detail Features Implemented
+
 - Team members table: Name (avatar + text), Email, Actions (Remove)
 - Add Member dialog: Select from org members not in team
 - Remove Member action: Confirmation dialog
@@ -126,6 +138,7 @@ orpc.organization.removeTeam.mutate({
 - Empty state message when no team members
 
 ### API Endpoints Used
+
 ```typescript
 // Queries
 orpc.organization.listTeamMembers.queryOptions({ input: { teamId } })
@@ -140,11 +153,13 @@ orpc.organization.setActiveTeam.mutate({ teamId })
 ```
 
 ### Files Modified
+
 - Created: `apps/web/src/routes/org/teams/$teamId.tsx`
 - Referenced: `apps/web/src/routes/org/members/index.tsx` (pattern)
 - Referenced: `apps/web/src/routes/org/teams/index.tsx` (navigation back link)
 
 ### Verification
+
 - `bun run check-types` - No new errors
 - Biome check - No formatting issues
 - TypeScript compiles successfully
@@ -153,12 +168,14 @@ orpc.organization.setActiveTeam.mutate({ teamId })
 ## [2025-01-20] Task 10: Create Public Invitation Accept/Reject Page
 
 ### Pattern Discovered
+
 - Public pages use centered card layout with full-screen background
 - Session check needed for logged-in vs logged-out states
 - Redirect pattern: logged-out → login with query params → original page
 - Invitation status check: only allow accept/reject for "pending" status
 
 ### Technical Gotchas
+
 - **Invitation object structure** (Better-Auth types):
   - Has `organizationId`, `inviterId`, `status`, `expiresAt`
   - Does NOT have nested `organization` object
@@ -167,6 +184,7 @@ orpc.organization.setActiveTeam.mutate({ teamId })
   - These are likely Better-Auth API response fields not properly typed
 
 - **Login redirect pattern**:
+
   ```typescript
   navigate({
     to: "/login",
@@ -176,12 +194,14 @@ orpc.organization.setActiveTeam.mutate({ teamId })
     },
   });
   ```
+
   This passes `invitationId` to login and sets `redirect` for post-login navigation
 
 - **Query params type**: TanStack Router's `useSearch()` returns `useSearchParams()` result
   - Can be used to extract query params on login page
 
 ### Successful Approaches
+
 1. Used centered card layout with full-screen background for public page
 2. Handled three states: Loading, Error, Invitation Not Available
 3. Checked `invitation.status !== "pending"` to prevent accepting non-pending invites
@@ -193,6 +213,7 @@ orpc.organization.setActiveTeam.mutate({ teamId })
 ### Invitation Accept/Reject Flow
 
 **Logged In State**:
+
 - Show org name and logo
 - Show inviter name
 - Show role badge
@@ -200,16 +221,19 @@ orpc.organization.setActiveTeam.mutate({ teamId })
 - Reject button → call `rejectInvitation.mutate()` → redirect to /
 
 **Logged Out State**:
+
 - Show same invitation details
 - "Log In to Accept" button → redirect to /login with params
 - Reject button → still works even when logged out
 
 **Error States**:
+
 - Loading: Skeleton placeholders for card content
 - Invalid/Expired/Error: Destructive-themed card with error message
 - Already Accepted/Rejected: Info message about status
 
 ### API Endpoints Used
+
 ```typescript
 // Queries
 orpc.organization.getInvitation.queryOptions({ input: { id: invitationId } })
@@ -221,10 +245,12 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 ```
 
 ### Files Modified
+
 - Created: `apps/web/src/routes/invitations/accept/$invitationId.tsx`
 - Referenced: Public page layout patterns (centered card, full-screen)
 
 ### Verification
+
 - `bun run check-types` - No new errors
 - TypeScript compiles successfully
 - Public route is accessible without auth (not in any route group)
@@ -232,6 +258,7 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 ## [2025-01-20] Phase 6: Public Pages - Complete
 
 ### Pattern Discovered
+
 - Public pages use same header/footer structure for consistency
 - Hero sections with gradient text add visual appeal
 - Card grids with colored icon backgrounds for feature highlights
@@ -239,6 +266,7 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 - Footer includes navigation links and copyright
 
 ### Technical Gotchas
+
 - **Route file naming**: Parentheses in directory names create route groups
   - `/(public)` routes don't add `/public` to URL
   - Files inside become direct routes like `/`, `/pricing`, `/about`
@@ -254,6 +282,7 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
   - Mobile-first approach works well
 
 ### Successful Approaches
+
 1. Created consistent header/footer across all three public pages
 2. Used Card component for feature highlights and pricing tiers
 3. Colored icon backgrounds (blue, purple, green, orange, red, cyan) add visual variety
@@ -265,6 +294,7 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 ### Public Pages Features Implemented
 
 **Landing Page** (`/`):
+
 - Hero section with title, subtitle, CTA buttons
 - Features grid (6 features): Multi-role, Org management, Team collaboration, Fast, Secure, Invitation system
 - Secondary CTA section at bottom
@@ -272,6 +302,7 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 - Links to Pricing and About
 
 **Pricing Page** (`/pricing`):
+
 - 3 pricing tiers: Free, Startup, Enterprise
 - Popular badge on Startup plan
 - Feature lists with checkmark icons
@@ -280,6 +311,7 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 - Responsive grid layout
 
 **About Page** (`/about`):
+
 - Mission section
 - Values section (3 values): Simplicity, Reliability, Innovation
 - Contact section: Email, Location, Business hours, Social media
@@ -288,11 +320,13 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 - Responsive two-column layout
 
 ### Files Modified
+
 - Created: `apps/web/src/routes/(public)/landing/index.tsx`
 - Created: `apps/web/src/routes/(public)/pricing/index.tsx`
 - Created: `apps/web/src/routes/(public)/about/index.tsx`
 
 ### Verification
+
 - `bun run check-types` - No real errors (route tree needs regeneration)
 - All pages follow same header/footer pattern
 - Responsive design works on breakpoints
@@ -300,6 +334,7 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 - Professional, visually appealing design
 
 ### Summary - Phase 6 Complete
+
 - ✅ Landing page with hero and features
 - ✅ Pricing page with tier cards
 - ✅ About page with company information
@@ -314,28 +349,30 @@ orpc.organization.rejectInvitation.mutate({ invitationId })
 **Solution**: Added explicit null checks in requireAdminRole function
 
 **Before** (lines 15-28):
+
 ```typescript
 export function requireAdminRole(context: RouteContext): void {
-	const session = context.session;
-	if (!session?.user) {
-		redirect({ to: "/login" });
-	}
+ const session = context.session;
+ if (!session?.user) {
+  redirect({ to: "/login" });
+ }
 
-	const role = session.user.role;
-	// ... rest of function
+ const role = session.user.role;
+ // ... rest of function
 }
 ```
 
 **After** (lines 15-27):
+
 ```typescript
 export function requireAdminRole(context: RouteContext): void {
-	const session = context.session;
-	if (!session?.user) {
-		redirect({ to: "/login" });
-	}
+ const session = context.session;
+ if (!session?.user) {
+  redirect({ to: "/login" });
+ }
 
-	const role = session.user.role;
-	// ... rest of function
+ const role = session.user.role;
+ // ... rest of function
 }
 ```
 
@@ -348,16 +385,19 @@ export function requireAdminRole(context: RouteContext): void {
 **Location**: Multiple files using session data
 
 **Description**:
+
 - Property `session.user.activeOrganizationId` exists at runtime (Better-Auth adds it)
 - TypeScript types don't include this property
 - This is a runtime property added by Better-Auth not reflected in generated types
 
 **Workaround**: Use optional chaining
+
 ```typescript
 const organizationId = session?.user?.activeOrganizationId || "";
 ```
 
 **Files Affected**:
+
 - `apps/web/src/routes/admin/dashboard/index.tsx`
 - `apps/web/src/routes/org/dashboard/index.tsx`
 - `apps/web/src/routes/org/-components/org-switcher.tsx`
@@ -373,11 +413,13 @@ const organizationId = session?.user?.activeOrganizationId || "";
 **Location**: Multiple files using oRPC queries
 
 **Description**:
+
 - LSP expects `{ input: {...} }` structure
 - Actual usage pattern: `{ organizationId: "..." }`
 - This is a type mismatch in generated oRPC types
 
 **Workaround**: Current pattern works at runtime despite type warnings
+
 ```typescript
 // LSP expects:
 orpc.organization.listMembers.queryOptions({
@@ -391,6 +433,7 @@ orpc.organization.listMembers.queryOptions({
 ```
 
 **Files Affected**:
+
 - All files using oRPC queries with parameters
 
 **Impact**: Not blocking - generated oRPC types have this structure, code works correctly

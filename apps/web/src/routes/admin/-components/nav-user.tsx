@@ -9,7 +9,7 @@ interface NavUserProps {
 	};
 }
 
-export function AdminNavUser(_props: NavUserProps) {
+export function NavUser(_props: NavUserProps) {
 	const handleLogout = () => {
 		window.location.href = "/api/auth/sign-out";
 	};
