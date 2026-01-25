@@ -1,4 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -25,7 +29,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -35,27 +38,28 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/teams/")({
+	beforeLoad: requireActiveOrg,
+	loader: async ({ context }) => {
+		// 预取团队数据
+		await context.queryClient.ensureQueryData(
+			orpc.organization.listTeams.queryOptions({ input: {} }),
+		);
+	},
 	component: TeamsListPage,
 });
 
 function TeamsListPage() {
-	const { data: session, isLoading: sessionLoading } = useQuery(
-		orpc.privateData.queryOptions(),
-	);
-
-	const {
-		data: teams,
-		isLoading: teamsLoading,
-		error,
-	} = useQuery(
-		orpc.organization.listTeams.queryOptions({
-			organizationId: session?.user?.activeOrganizationId || "",
-		}),
-	);
-
 	const queryClient = useQueryClient();
+
+	// 数据已在 loader 中预取，无加载状态
+	const { data: teams } = useSuspenseQuery(
+		orpc.organization.listTeams.queryOptions({ input: {} }),
+	);
+	const { data: session } = useSuspenseQuery(orpc.privateData.queryOptions());
+
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [isEditOpen, setIsEditOpen] = useState(false);
 	const [newTeamName, setNewTeamName] = useState("");
@@ -64,43 +68,7 @@ function TeamsListPage() {
 		name: string;
 	} | null>(null);
 
-	if (!session?.user) {
-		return null;
-	}
-
-	if (!session?.user?.activeOrganizationId) {
-		return (
-			<>
-				<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-					<div className="flex items-center gap-2 px-4">
-						<SidebarTrigger className="-ml-1" />
-						<Separator
-							orientation="vertical"
-							className="mr-2 data-[orientation=vertical]:h-4"
-						/>
-						<Breadcrumb>
-							<BreadcrumbList>
-								<BreadcrumbItem className="hidden md:block">
-									<BreadcrumbLink href="/org/dashboard">Org</BreadcrumbLink>
-								</BreadcrumbItem>
-								<BreadcrumbSeparator className="hidden md:block" />
-								<BreadcrumbItem>
-									<BreadcrumbPage>Teams</BreadcrumbPage>
-								</BreadcrumbItem>
-							</BreadcrumbList>
-						</Breadcrumb>
-					</div>
-				</header>
-				<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-					<Skeleton className="h-12 w-full" />
-					<Skeleton className="h-32 w-full" />
-					<Skeleton className="h-20 w-full" />
-				</div>
-			</>
-		);
-	}
-
-	const organizationId = session.user.activeOrganizationId;
+	const organizationId = session.user.activeOrganizationId ?? "";
 
 	const createTeam = useMutation(
 		orpc.organization.createTeam.mutationOptions({
@@ -109,9 +77,7 @@ function TeamsListPage() {
 				setIsCreateOpen(false);
 				setNewTeamName("");
 				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listTeams.queryOptions({
-						organizationId,
-					}).queryKey,
+					queryKey: orpc.organization.listTeams.key(),
 				});
 			},
 			onError: (err: Error) => {
@@ -127,9 +93,7 @@ function TeamsListPage() {
 				setIsEditOpen(false);
 				setEditingTeam(null);
 				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listTeams.queryOptions({
-						organizationId,
-					}).queryKey,
+					queryKey: orpc.organization.listTeams.key(),
 				});
 			},
 			onError: (err: Error) => {
@@ -143,9 +107,7 @@ function TeamsListPage() {
 			onSuccess: () => {
 				toast.success("Team deleted");
 				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listTeams.queryOptions({
-						organizationId,
-					}).queryKey,
+					queryKey: orpc.organization.listTeams.key(),
 				});
 			},
 			onError: (err: Error) => {
@@ -162,6 +124,7 @@ function TeamsListPage() {
 
 	const handleEdit = (team: { id: string; name: string }) => {
 		setEditingTeam(team);
+		setNewTeamName(team.name);
 		setIsEditOpen(true);
 	};
 
@@ -182,8 +145,6 @@ function TeamsListPage() {
 			deleteTeam.mutate({ teamId: id, organizationId });
 		}
 	};
-
-	const isLoading = sessionLoading || teamsLoading;
 
 	return (
 		<>
@@ -261,73 +222,61 @@ function TeamsListPage() {
 					</Dialog>
 				</div>
 
-				{isLoading ? (
-					<div className="space-y-2">
-						<Skeleton className="h-10 w-full" />
-						<Skeleton className="h-20 w-full" />
-						<Skeleton className="h-20 w-full" />
-					</div>
-				) : error ? (
-					<div className="rounded-md bg-destructive/15 p-4 text-destructive">
-						Error loading teams: {error.message}
-					</div>
-				) : (
-					<div className="rounded-md border">
-						<Table>
-							<TableHeader>
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Name</TableHead>
+								<TableHead>Members</TableHead>
+								<TableHead>Created At</TableHead>
+								<TableHead className="text-right">Actions</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{teams?.length === 0 ? (
 								<TableRow>
-									<TableHead>Name</TableHead>
-									<TableHead>Members</TableHead>
-									<TableHead>Created At</TableHead>
-									<TableHead className="text-right">Actions</TableHead>
+									<TableCell colSpan={4} className="h-24 text-center">
+										No teams found.
+									</TableCell>
 								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{teams?.length === 0 ? (
-									<TableRow>
-										<TableCell colSpan={4} className="h-24 text-center">
-											No teams found.
+							) : (
+								teams?.map((team) => (
+									<TableRow key={team.id}>
+										<TableCell className="font-medium">{team.name}</TableCell>
+										<TableCell>0</TableCell>
+										<TableCell>
+											{new Date(team.createdAt).toLocaleDateString()}
+										</TableCell>
+										<TableCell className="text-right">
+											<div
+												className="flex justify-end gap-2"
+												onClick={(e) => e.stopPropagation()}
+												onKeyDown={(e) => e.stopPropagation()}
+												role="none"
+											>
+												<Button
+													variant="ghost"
+													size="icon"
+													onClick={() => handleEdit(team)}
+												>
+													<Edit className="h-4 w-4" />
+												</Button>
+												<Button
+													variant="ghost"
+													size="icon"
+													className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+													onClick={() => handleDelete(team.id, team.name)}
+												>
+													<Trash2 className="h-4 w-4" />
+												</Button>
+											</div>
 										</TableCell>
 									</TableRow>
-								) : (
-									teams?.map((team) => (
-										<TableRow key={team.id}>
-											<TableCell className="font-medium">{team.name}</TableCell>
-											<TableCell>0</TableCell>
-											<TableCell>
-												{new Date(team.createdAt).toLocaleDateString()}
-											</TableCell>
-											<TableCell className="text-right">
-												<div
-													className="flex justify-end gap-2"
-													onClick={(e) => e.stopPropagation()}
-													onKeyDown={(e) => e.stopPropagation()}
-													role="none"
-												>
-													<Button
-														variant="ghost"
-														size="icon"
-														onClick={() => handleEdit(team)}
-													>
-														<Edit className="h-4 w-4" />
-													</Button>
-													<Button
-														variant="ghost"
-														size="icon"
-														className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-														onClick={() => handleDelete(team.id, team.name)}
-													>
-														<Trash2 className="h-4 w-4" />
-													</Button>
-												</div>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
-					</div>
-				)}
+								))
+							)}
+						</TableBody>
+					</Table>
+				</div>
 			</div>
 
 			<Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>

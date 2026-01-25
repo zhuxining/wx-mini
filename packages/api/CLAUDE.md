@@ -55,8 +55,8 @@ protectedProcedure.handler(({ context }) => {
 
 | API | 端点数 | 文档 |
 |-----|-------|------|
-| Admin API | 15 | [admin-api.md](../docs/admin-api.md) |
-| Organization API | 28 | [org-api.md](../docs/org-api.md) |
+| Admin API | 15 | [admin-api.md](./docs/admin-api.md) |
+| Organization API | 28 | [org-api.md](./docs/org-api.md) |
 
 ---
 
@@ -78,6 +78,6 @@ protectedProcedure.handler(({ context }) => {
 
 ## 相关文档
 
-- **权限检查详解**: [docs/authentication.md#权限检查模式](../../../docs/authentication.md#权限检查模式)
-- **组织上下文规则**: [docs/organization-model.md#组织上下文规则](../../../docs/organization-model.md#组织上下文规则)
-- **错误处理模式**: [docs/authentication.md#错误处理模式](../../../docs/authentication.md#错误处理模式)
+- **权限检查详解**: [docs/authentication.md#权限检查模式](../../docs/authentication.md#权限检查模式)
+- **组织上下文规则**: [docs/organization-model.md#组织上下文规则](../../docs/organization-model.md#组织上下文规则)
+- **错误处理模式**: [docs/authentication.md#错误处理模式](../../docs/authentication.md#错误处理模式)

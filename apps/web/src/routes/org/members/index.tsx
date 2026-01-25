@@ -1,4 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
@@ -42,7 +46,6 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -52,21 +55,32 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/members/")({
+	beforeLoad: requireActiveOrg,
+	loader: async ({ context }) => {
+		// 并行预取成员和邀请数据
+		await Promise.all([
+			context.queryClient.ensureQueryData(
+				orpc.organization.listMembers.queryOptions({ input: {} }),
+			),
+			context.queryClient.ensureQueryData(
+				orpc.organization.listInvitations.queryOptions({ input: {} }),
+			),
+		]);
+	},
 	component: OrgMembersPage,
 });
 
 function OrgMembersPage() {
 	const queryClient = useQueryClient();
 
-	const {
-		data: membersData,
-		isLoading: isLoadingMembers,
-		error: membersError,
-	} = useQuery(orpc.organization.listMembers.queryOptions({ input: {} }));
-
-	const { data: invitationsData } = useQuery(
+	// 数据已在 loader 中预取，无加载状态
+	const { data: membersData } = useSuspenseQuery(
+		orpc.organization.listMembers.queryOptions({ input: {} }),
+	);
+	const { data: invitationsData } = useSuspenseQuery(
 		orpc.organization.listInvitations.queryOptions({ input: {} }),
 	);
 
@@ -246,114 +260,98 @@ function OrgMembersPage() {
 					</Dialog>
 				</div>
 
-				{isLoadingMembers ? (
-					<div className="space-y-2">
-						<Skeleton className="h-10 w-full" />
-						<Skeleton className="h-20 w-full" />
-						<Skeleton className="h-20 w-full" />
-					</div>
-				) : membersError ? (
-					<div className="rounded-md bg-destructive/15 p-4 text-destructive">
-						Error loading members: {membersError.message}
-					</div>
-				) : (
-					<div className="rounded-md border">
-						<Table>
-							<TableHeader>
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>User</TableHead>
+								<TableHead>Role</TableHead>
+								<TableHead>Joined At</TableHead>
+								<TableHead className="text-right">Actions</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{membersData?.members.length === 0 ? (
 								<TableRow>
-									<TableHead>User</TableHead>
-									<TableHead>Role</TableHead>
-									<TableHead>Joined At</TableHead>
-									<TableHead className="text-right">Actions</TableHead>
+									<TableCell colSpan={4} className="h-24 text-center">
+										No members found.
+									</TableCell>
 								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{membersData?.members.length === 0 ? (
-									<TableRow>
-										<TableCell colSpan={4} className="h-24 text-center">
-											No members found.
+							) : (
+								membersData?.members.map((member) => (
+									<TableRow key={member.id}>
+										<TableCell>
+											<div className="flex items-center gap-3">
+												<Avatar className="h-9 w-9">
+													<AvatarImage src={member.user.image || ""} />
+													<AvatarFallback>
+														{member.user.name?.charAt(0) || "?"}
+													</AvatarFallback>
+												</Avatar>
+												<div className="flex flex-col">
+													<span className="font-medium">
+														{member.user.name}
+													</span>
+													<span className="text-muted-foreground text-xs">
+														{member.user.email}
+													</span>
+												</div>
+											</div>
+										</TableCell>
+										<TableCell>
+											<Badge variant="outline" className="capitalize">
+												{member.role}
+											</Badge>
+										</TableCell>
+										<TableCell>
+											{new Date(member.createdAt).toLocaleDateString()}
+										</TableCell>
+										<TableCell className="text-right">
+											<DropdownMenu>
+												<DropdownMenuTrigger
+													className={buttonVariants({
+														variant: "ghost",
+														size: "icon",
+													})}
+												>
+													<MoreHorizontal className="h-4 w-4" />
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuLabel>Change Role</DropdownMenuLabel>
+													<DropdownMenuSeparator />
+													<DropdownMenuItem
+														onClick={() =>
+															handleRoleChange(member.id, "member")
+														}
+													>
+														Member
+													</DropdownMenuItem>
+													<DropdownMenuItem
+														onClick={() => handleRoleChange(member.id, "admin")}
+													>
+														Admin
+													</DropdownMenuItem>
+													<DropdownMenuItem
+														onClick={() => handleRoleChange(member.id, "owner")}
+													>
+														Owner
+													</DropdownMenuItem>
+													<DropdownMenuSeparator />
+													<DropdownMenuItem
+														className="text-destructive focus:text-destructive"
+														onClick={() => handleRemove(member.id)}
+													>
+														<Trash2 className="mr-2 h-4 w-4" /> Remove
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
 										</TableCell>
 									</TableRow>
-								) : (
-									membersData?.members.map((member) => (
-										<TableRow key={member.id}>
-											<TableCell>
-												<div className="flex items-center gap-3">
-													<Avatar className="h-9 w-9">
-														<AvatarImage src={member.user.image || ""} />
-														<AvatarFallback>
-															{member.user.name?.charAt(0) || "?"}
-														</AvatarFallback>
-													</Avatar>
-													<div className="flex flex-col">
-														<span className="font-medium">
-															{member.user.name}
-														</span>
-														<span className="text-muted-foreground text-xs">
-															{member.user.email}
-														</span>
-													</div>
-												</div>
-											</TableCell>
-											<TableCell>
-												<Badge variant="outline" className="capitalize">
-													{member.role}
-												</Badge>
-											</TableCell>
-											<TableCell>
-												{new Date(member.createdAt).toLocaleDateString()}
-											</TableCell>
-											<TableCell className="text-right">
-												<DropdownMenu>
-													<DropdownMenuTrigger
-														className={buttonVariants({
-															variant: "ghost",
-															size: "icon",
-														})}
-													>
-														<MoreHorizontal className="h-4 w-4" />
-													</DropdownMenuTrigger>
-													<DropdownMenuContent align="end">
-														<DropdownMenuLabel>Change Role</DropdownMenuLabel>
-														<DropdownMenuSeparator />
-														<DropdownMenuItem
-															onClick={() =>
-																handleRoleChange(member.id, "member")
-															}
-														>
-															Member
-														</DropdownMenuItem>
-														<DropdownMenuItem
-															onClick={() =>
-																handleRoleChange(member.id, "admin")
-															}
-														>
-															Admin
-														</DropdownMenuItem>
-														<DropdownMenuItem
-															onClick={() =>
-																handleRoleChange(member.id, "owner")
-															}
-														>
-															Owner
-														</DropdownMenuItem>
-														<DropdownMenuSeparator />
-														<DropdownMenuItem
-															className="text-destructive focus:text-destructive"
-															onClick={() => handleRemove(member.id)}
-														>
-															<Trash2 className="mr-2 h-4 w-4" /> Remove
-														</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
-					</div>
-				)}
+								))
+							)}
+						</TableBody>
+					</Table>
+				</div>
 
 				{invitationsData && invitationsData.length > 0 && (
 					<div className="space-y-4">

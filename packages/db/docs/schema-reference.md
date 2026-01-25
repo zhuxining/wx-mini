@@ -548,5 +548,5 @@ const pendingInvitations = await db.query.invitations.findMany({
 ## 相关文档
 
 - **数据模型业务规则**: [docs/organization-model.md](../../../docs/organization-model.md)
-- **数据库包规范**: [packages/db/src/CLAUDE.md](../src/CLAUDE.md)
-- **Better-Auth 配置**: [packages/auth/CLAUDE.md](../../auth/src/CLAUDE.md)
+- **数据库包规范**: [packages/db/src/CLAUDE.md](../CLAUDE.md)
+- **Better-Auth 配置**: [packages/auth/CLAUDE.md](../../auth/CLAUDE.md)

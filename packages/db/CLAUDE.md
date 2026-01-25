@@ -92,5 +92,5 @@ bun run db:migrate      # Create migration file
 
 ## 相关文档
 
-- **Schema 参考文档**: [docs/schema-reference.md](../docs/schema-reference.md)
-- **组织数据模型**: [docs/organization-model.md](../../../docs/organization-model.md)
+- **Schema 参考文档**: [docs/schema-reference.md](./docs/schema-reference.md)
+- **组织数据模型**: [docs/organization-model.md](../../docs/organization-model.md)

@@ -137,6 +137,6 @@ const orgId = session?.user?.activeOrganizationId || "";
 
 ## 相关文档
 
-- **Better-Auth 插件参考**: [docs/plugin-reference.md](../docs/plugin-reference.md)
-- **认证流程详解**: [docs/authentication.md](../../../docs/authentication.md)
-- **组织数据模型**: [docs/organization-model.md](../../../docs/organization-model.md)
+- **Better-Auth 插件参考**: [docs/plugin-reference.md](./docs/plugin-reference.md)
+- **认证流程详解**: [docs/authentication.md](../../docs/authentication.md)
+- **组织数据模型**: [docs/organization-model.md](../../docs/organization-model.md)

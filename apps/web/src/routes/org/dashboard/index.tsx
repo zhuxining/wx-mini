@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	Card,
@@ -7,68 +7,55 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/dashboard/")({
+	beforeLoad: requireActiveOrg,
+	loader: async ({ context }) => {
+		const session = await context.queryClient.ensureQueryData(
+			orpc.privateData.queryOptions(),
+		);
+
+		const organizationId = session.user.activeOrganizationId;
+		if (!organizationId) return;
+
+		// 并行预取所有数据
+		await Promise.all([
+			context.queryClient.ensureQueryData(
+				orpc.organization.getFullOrganization.queryOptions({
+					input: { organizationId },
+				}),
+			),
+			context.queryClient.ensureQueryData(
+				orpc.organization.listMembers.queryOptions({ input: {} }),
+			),
+			context.queryClient.ensureQueryData(
+				orpc.organization.listTeams.queryOptions({ input: {} }),
+			),
+			context.queryClient.ensureQueryData(
+				orpc.organization.listInvitations.queryOptions({ input: {} }),
+			),
+		]);
+	},
 	component: OrgDashboard,
 });
 
 function OrgDashboard() {
-	const { data: session, isLoading: sessionLoading } = useQuery(
-		orpc.privateData.queryOptions(),
+	// 数据已在 loader 中预取，无加载状态
+	const { data: members } = useSuspenseQuery(
+		orpc.organization.listMembers.queryOptions({ input: {} }),
+	);
+	const { data: teams } = useSuspenseQuery(
+		orpc.organization.listTeams.queryOptions({ input: {} }),
+	);
+	const { data: invitations } = useSuspenseQuery(
+		orpc.organization.listInvitations.queryOptions({ input: {} }),
 	);
 
-	const { isLoading: orgLoading } = useQuery(
-		orpc.organization.getFullOrganization.queryOptions({
-			organizationId: session?.user?.activeOrganizationId || "",
-		}),
-	);
-
-	const { data: members, isLoading: membersLoading } = useQuery(
-		orpc.organization.listMembers.queryOptions({
-			organizationId: session?.user?.activeOrganizationId || "",
-		}),
-	);
-
-	const { data: teams, isLoading: teamsLoading } = useQuery(
-		orpc.organization.listTeams.queryOptions({
-			organizationId: session?.user?.activeOrganizationId || "",
-		}),
-	);
-
-	const { data: invitations, isLoading: invitationsLoading } = useQuery(
-		orpc.organization.listInvitations.queryOptions({
-			organizationId: session?.user?.activeOrganizationId || "",
-		}),
-	);
-
-	const _isLoading =
-		sessionLoading ||
-		orgLoading ||
-		membersLoading ||
-		teamsLoading ||
-		invitationsLoading;
-
-	if (!session?.user) {
-		return null;
-	}
-
-	if (!session?.user?.activeOrganizationId) {
-		return (
-			<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-				<Skeleton className="h-12 w-full" />
-				<Skeleton className="h-32 w-full" />
-				<Skeleton className="h-20 w-full" />
-				<Skeleton className="h-20 w-full" />
-				<Skeleton className="h-20 w-full" />
-			</div>
-		);
-	}
-
-	const membersCount = members?.length || 0;
-	const teamsCount = teams?.length || 0;
-	const pendingInvitationsCount = invitations?.length || 0;
+	const membersCount = members?.length ?? 0;
+	const teamsCount = teams?.length ?? 0;
+	const pendingInvitationsCount = invitations?.length ?? 0;
 
 	return (
 		<>

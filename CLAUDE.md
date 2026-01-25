@@ -20,11 +20,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 主题 | 详细文档 | 内容 |
 |------|---------|------|
-| **路由架构** | [routes/CLAUDE.md](apps/web/src/routes/CLAUDE.md) | 路由权限矩阵、分组规范、文件系统路由 |
-| **API 开发** | [api/CLAUDE.md](packages/api/src/CLAUDE.md) | 权限模式、错误处理、Zod 验证、端点目录 |
-| **认证流程** | [auth/CLAUDE.md](packages/auth/src/CLAUDE.md) | Session 结构、Better-Auth 配置、组织切换 |
-| **数据库** | [db/CLAUDE.md](packages/db/src/CLAUDE.md) | 数据模型、表结构、业务规则、关系定义 |
-| **组件开发** | [components/CLAUDE.md](apps/web/src/components/CLAUDE.md) | CRUD 模式、表单验证、状态管理、Toast 通知 |
+| **Web App 开发** | [apps/web/CLAUDE.md](apps/web/CLAUDE.md) | 路由架构、组件开发、数据获取、代码规范 |
+| **API 开发** | [api/CLAUDE.md](packages/api/CLAUDE.md) | 权限模式、错误处理、Zod 验证、端点目录 |
+| **认证流程** | [auth/CLAUDE.md](packages/auth/CLAUDE.md) | Session 结构、Better-Auth 配置、组织切换 |
+| **数据库** | [db/CLAUDE.md](packages/db/CLAUDE.md) | 数据模型、表结构、业务规则、关系定义 |
 
 **快速开始**:
 
@@ -83,12 +82,10 @@ bun run check            # 格式化和 lint (Biome)
 
 | 层级 | 技术 | 详细文档 |
 |------|------|---------|
-| **前端** | TanStack Start (SSR) + React 19 | 见各包文档 |
-| **路由** | 文件系统路由 + 权限守卫 | `apps/web/src/routes/CLAUDE.md` |
-| **API** | oRPC (端到端类型安全) | `packages/api/src/CLAUDE.md` |
-| **认证** | Better-Auth (Admin + Organization 插件) | `packages/auth/src/CLAUDE.md` |
-| **数据库** | PostgreSQL + Drizzle ORM | `packages/db/src/CLAUDE.md` |
-| **状态** | TanStack Query (SSR 友好) | `apps/web/src/components/CLAUDE.md` |
+| **Web App** | TanStack Start (SSR) + React 19 | [apps/web/CLAUDE.md](apps/web/CLAUDE.md) |
+| **API** | oRPC (端到端类型安全) | [packages/api/src/CLAUDE.md](packages/api/CLAUDE.md) |
+| **认证** | Better-Auth (Admin + Organization 插件) | [packages/auth/src/CLAUDE.md](packages/auth/CLAUDE.md) |
+| **数据库** | PostgreSQL + Drizzle ORM | [packages/db/src/CLAUDE.md](packages/db/CLAUDE.md) |
 
 **关键概念**:
 

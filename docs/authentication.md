@@ -367,7 +367,7 @@ await auth.api.revokeUserSessions({
 
 ## 相关文档
 
-- **Better-Auth 配置**: [packages/auth/CLAUDE.md](../packages/auth/src/CLAUDE.md)
-- **API 权限模式**: [packages/api/CLAUDE.md](../packages/api/src/CLAUDE.md)
+- **Better-Auth 配置**: [packages/auth/CLAUDE.md](../packages/auth/CLAUDE.md)
+- **API 权限模式**: [packages/api/CLAUDE.md](../packages/api/CLAUDE.md)
 - **组织数据模型**: [organization-model.md](./organization-model.md)
 - **路由权限**: [route-permissions.md](./route-permissions.md)
