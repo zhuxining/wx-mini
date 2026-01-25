@@ -6,7 +6,6 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -88,59 +87,47 @@ function OrgMembersPage() {
 	const [inviteEmail, setInviteEmail] = useState("");
 	const [inviteRole, setInviteRole] = useState("member");
 
-	const inviteMember = useMutation({
-		...orpc.organization.inviteMember.mutationOptions(),
-		onSuccess: () => {
-			toast.success("Invitation sent successfully");
-			setIsInviteOpen(false);
-			setInviteEmail("");
-			queryClient.invalidateQueries({
-				queryKey: orpc.organization.listInvitations.key(),
-			});
-		},
-		onError: (err: Error) => {
-			toast.error(`Failed to invite: ${err.message}`);
-		},
-	});
+	const inviteMember = useMutation(
+		orpc.organization.inviteMember.mutationOptions({
+			onSuccess: () => {
+				setIsInviteOpen(false);
+				setInviteEmail("");
+				queryClient.invalidateQueries({
+					queryKey: orpc.organization.listInvitations.key(),
+				});
+			},
+		}),
+	);
 
-	const removeMember = useMutation({
-		...orpc.organization.removeMember.mutationOptions(),
-		onSuccess: () => {
-			toast.success("Member removed");
-			queryClient.invalidateQueries({
-				queryKey: orpc.organization.listMembers.key(),
-			});
-		},
-		onError: (err: Error) => {
-			toast.error(`Failed to remove member: ${err.message}`);
-		},
-	});
+	const removeMember = useMutation(
+		orpc.organization.removeMember.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: orpc.organization.listMembers.key(),
+				});
+			},
+		}),
+	);
 
-	const updateRole = useMutation({
-		...orpc.organization.updateMemberRole.mutationOptions(),
-		onSuccess: () => {
-			toast.success("Role updated");
-			queryClient.invalidateQueries({
-				queryKey: orpc.organization.listMembers.key(),
-			});
-		},
-		onError: (err: Error) => {
-			toast.error(`Failed to update role: ${err.message}`);
-		},
-	});
+	const updateRole = useMutation(
+		orpc.organization.updateMemberRole.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: orpc.organization.listMembers.key(),
+				});
+			},
+		}),
+	);
 
-	const cancelInvitation = useMutation({
-		...orpc.organization.cancelInvitation.mutationOptions(),
-		onSuccess: () => {
-			toast.success("Invitation cancelled");
-			queryClient.invalidateQueries({
-				queryKey: orpc.organization.listInvitations.key(),
-			});
-		},
-		onError: (err: Error) => {
-			toast.error(`Failed to cancel invitation: ${err.message}`);
-		},
-	});
+	const cancelInvitation = useMutation(
+		orpc.organization.cancelInvitation.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: orpc.organization.listInvitations.key(),
+				});
+			},
+		}),
+	);
 
 	const handleInvite = (e: React.FormEvent) => {
 		e.preventDefault();

@@ -1,3 +1,4 @@
+import type { Context } from "@org-sass/api/context";
 import { redirect } from "@tanstack/react-router";
 import type { RouterAppContext } from "@/routes/__root";
 import { orpc } from "./orpc";
@@ -5,7 +6,15 @@ import { orpc } from "./orpc";
 /**
  * 路由守卫上下文 - TanStack Router beforeLoad/loader 的 context
  */
-export type RouteGuardContext = Pick<RouterAppContext, "orpc" | "queryClient">;
+type BeforeLoadContext = {
+	context: RouterAppContext;
+};
+
+// 从 API Context 提取 session 用户类型，并添加组织插件字段
+export type SessionUser = NonNullable<Context["session"]>["user"] & {
+	activeOrganizationId?: string | null;
+	activeTeamId?: string | null;
+};
 
 /**
  * 要求用户已登录
@@ -13,17 +22,15 @@ export type RouteGuardContext = Pick<RouterAppContext, "orpc" | "queryClient">;
  * @throws 重定向到登录页（如果未登录）
  */
 export async function requireSession(
-	context: RouteGuardContext,
-): Promise<
-	NonNullable<Awaited<ReturnType<typeof orpc.privateData.queryOptions>>>["data"]
-> {
-	const result = await context.queryClient.ensureQueryData(
+	ctx: BeforeLoadContext,
+): Promise<{ message: string; user: SessionUser }> {
+	const result = await ctx.context.queryClient.ensureQueryData(
 		orpc.privateData.queryOptions(),
 	);
 
 	if (!result?.user) {
 		throw redirect({
-			to: "/sign-in",
+			to: "/login",
 			search: {
 				redirect: location.href,
 			},
@@ -36,18 +43,16 @@ export async function requireSession(
 /**
  * 要求用户有活跃组织
  * @returns 用户的 session 数据
- * @throws 重定向到创建组织页（如果没有活跃组织）
+ * @throws 重定向到首页（如果没有活跃组织）
  */
 export async function requireActiveOrg(
-	context: RouteGuardContext,
-): Promise<
-	NonNullable<Awaited<ReturnType<typeof orpc.privateData.queryOptions>>>["data"]
-> {
-	const session = await requireSession(context);
+	ctx: BeforeLoadContext,
+): Promise<{ message: string; user: SessionUser }> {
+	const session = await requireSession(ctx);
 
 	if (!session.user.activeOrganizationId) {
 		throw redirect({
-			to: "/org/create",
+			to: "/",
 		});
 	}
 
@@ -60,11 +65,9 @@ export async function requireActiveOrg(
  * @throws 重定向到组织仪表盘（如果不是管理员）
  */
 export async function requireAdmin(
-	context: RouteGuardContext,
-): Promise<
-	NonNullable<Awaited<ReturnType<typeof orpc.privateData.queryOptions>>>["data"]
-> {
-	const session = await requireSession(context);
+	ctx: BeforeLoadContext,
+): Promise<{ message: string; user: SessionUser }> {
+	const session = await requireSession(ctx);
 
 	const role = session.user.role;
 	if (

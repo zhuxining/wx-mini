@@ -76,14 +76,17 @@ org-sass/
 This project has some pre-existing TypeScript warnings that don't affect functionality:
 
 ### activeOrganizationId Property
+
 The `session.user.activeOrganizationId` property exists at runtime (added by Better-Auth) but isn't included in the generated TypeScript types.
 
 **Workaround**: Use optional chaining
+
 ```typescript
 const organizationId = session?.user?.activeOrganizationId || "";
 ```
 
 **Files Affected**:
+
 - `apps/web/src/routes/admin/dashboard/index.tsx`
 - `apps/web/src/routes/org/dashboard/index.tsx`
 - `apps/web/src/routes/org/-components/org-switcher.tsx`
@@ -93,9 +96,11 @@ const organizationId = session?.user?.activeOrganizationId || "";
 **Impact**: These warnings don't block functionality. Code works correctly at runtime.
 
 ### queryOptions Type Mismatch
+
 The generated oRPC types expect `{ input: {...} }` structure but the actual usage pattern passes objects directly.
 
 **Expected Pattern**:
+
 ```typescript
 orpc.organization.listMembers.queryOptions({
   input: { organizationId: "..." }
@@ -103,6 +108,7 @@ orpc.organization.listMembers.queryOptions({
 ```
 
 **Actual Usage (works at runtime)**:
+
 ```typescript
 orpc.organization.listMembers.queryOptions({
   organizationId: "..."
@@ -114,6 +120,7 @@ orpc.organization.listMembers.queryOptions({
 **Impact**: Not blocking - generated oRPC types have this structure, code works correctly at runtime.
 
 ### Route Registration
+
 New public pages (`/pricing`, `/about`, `/landing`) need the route tree to be regenerated for TypeScript to recognize them.
 
 **Resolution**: Run `bun run dev` to trigger TanStack Router's automatic route tree generation.

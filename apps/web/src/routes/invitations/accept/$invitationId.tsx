@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle, X } from "lucide-react";
 import { toast } from "sonner";
@@ -13,7 +13,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
 type Invitation = {
@@ -30,6 +29,13 @@ type Invitation = {
 };
 
 export const Route = createFileRoute("/invitations/accept/$invitationId")({
+	loader: async ({ context, params }) => {
+		await context.queryClient.ensureQueryData(
+			orpc.organization.getInvitation.queryOptions({
+				input: { id: params.invitationId },
+			}),
+		);
+	},
 	component: InvitationAcceptPage,
 });
 
@@ -37,15 +43,11 @@ function InvitationAcceptPage() {
 	const { invitationId } = Route.useParams();
 	const navigate = useNavigate();
 
-	const { data: session, isLoading: sessionLoading } = useQuery(
-		orpc.privateData.queryOptions(),
-	);
+	// Session 可能为空（用户可能未登录）
+	const { data: session } = useQuery(orpc.privateData.queryOptions());
 
-	const {
-		data: invitation,
-		isLoading: invitationLoading,
-		error: invitationError,
-	} = useQuery(
+	// 邀请数据已在 loader 中预取
+	const { data: invitation, error: invitationError } = useSuspenseQuery(
 		orpc.organization.getInvitation.queryOptions({
 			input: {
 				id: invitationId,
@@ -53,7 +55,6 @@ function InvitationAcceptPage() {
 		}),
 	) as {
 		data: Invitation | undefined;
-		isLoading: boolean;
 		error: Error | null;
 	};
 
@@ -97,31 +98,10 @@ function InvitationAcceptPage() {
 		navigate({
 			to: "/login",
 			search: {
-				invitationId,
-				redirect: "/invitations/accept/$invitationId",
+				redirect: location.href,
 			},
 		});
 	};
-
-	const isLoading = sessionLoading || invitationLoading;
-
-	if (isLoading) {
-		return (
-			<div className="flex min-h-screen items-center justify-center bg-muted/20">
-				<Card className="w-full max-w-md">
-					<CardHeader>
-						<Skeleton className="h-8 w-48" />
-						<Skeleton className="mt-2 h-4 w-full" />
-					</CardHeader>
-					<CardContent>
-						<Skeleton className="h-32 w-full" />
-						<Skeleton className="mt-4 h-12 w-full" />
-						<Skeleton className="mt-4 h-12 w-full" />
-					</CardContent>
-				</Card>
-			</div>
-		);
-	}
 
 	if (invitationError) {
 		return (

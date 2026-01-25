@@ -23,271 +23,90 @@ apps/web/src/
 
 ### 1.2 快速索引
 
-| 任务 | 查看章节 |
+| 任务 | 详细文档 |
 |------|----------|
-| 添加新路由 | → 2. 路由架构 |
-| 权限控制 | → 2.3 路由守卫 |
-| 数据获取 | → 2.4 数据获取模式 |
-| CRUD 页面 | → 3.3 CRUD 模式 |
-| 添加 UI 组件 | → 3.2 shadcn/ui 规范 |
+| 添加新路由 | → [docs/routing.md](docs/routing.md) |
+| 路由守卫和权限 | → [docs/routing.md](docs/routing.md) |
+| 数据获取模式 | → [docs/data-loading.md](docs/data-loading.md) |
+| CRUD 页面 | → [docs/crud-patterns.md](docs/crud-patterns.md) |
+| UI 交互模式 | → [docs/ui-patterns.md](docs/ui-patterns.md) |
+| 表单开发 | → [docs/form-patterns.md](docs/form-patterns.md) |
+| 添加 UI 组件 | → [docs/shadcn-usage.md](docs/shadcn-usage.md) |
+| 认证流程 | → [docs/authentication.md](docs/authentication.md) |
 
 ---
 
-## 2. 路由架构
+## 2. 路由系统
 
-### 2.1 文件系统路由
+基于 TanStack Router 的文件系统路由，支持权限守卫和数据预加载。
 
-TanStack Router 使用基于文件的路由系统。
+**核心功能**:
 
-**路由文件定义**:
+- 文件系统路由 - 通过文件结构自动生成路由
+- 权限守卫 - `requireSession`, `requireActiveOrg`, `requireAdmin`
+- 数据预加载 - `loader` + `useSuspenseQuery` 模式
+- oRPC 集成 - 端到端类型安全的 API 调用
 
-```typescript
-import { createFileRoute } from '@tanstack/react-router'
+**路由分组**:
 
-export const Route = createFileRoute('/admin/dashboard')({
-  component: AdminDashboard
-})
-```
+| 路由组 | 访问规则 | 守卫 |
+|--------|----------|------|
+| `(public)/` | 公开访问 | 无 |
+| `(auth)/` | 登录后 | `requireSession` |
+| `admin/*` | 仅 Admin | `requireAdmin` |
+| `org/*` | 有活跃组织 | `requireActiveOrg` |
 
-**文件组织规范**:
+**快速链接**:
 
-- `route.tsx` - 导出路由配置
-- `index.tsx` - 目录的默认路由
-- `$param.tsx` - 动态路由参数
-- `-components/` - 路由特定的共享组件（非路由）
-
-### 2.2 路由分组与权限矩阵
-
-| 路由组 | 访问规则 | 守卫函数 | 未授权处理 |
-|--------|----------|----------|------------|
-| `(public)/` | 公开访问 | 无 | - |
-| `(auth)/` | 登录后访问 | `requireSession` | → /sign-in |
-| `admin/*` | 仅 Admin | `requireAdmin` | → /org/dashboard |
-| `org/*` | 有活跃组织 | `requireActiveOrg` | → /org/create |
-
-**路由分组说明**:
-
-- **`(public)/`**: 公开页面 (`/`, `/landing`, `/pricing`, `/about`)
-- **`(auth)/`**: 认证流程 (`/sign-in` - 支持 `invitationId` 和 `redirect` 参数)
-- **`admin/`**: 管理员界面（仪表板、组织管理、用户管理）
-- **`org/`**: 组织成员界面（仪表板、成员管理、团队管理、设置）
-
-**登录后重定向优先级**:
-
-1. `redirect` 查询参数
-2. 用户角色: Admin → `/admin/dashboard`, User → `/org/dashboard`
-3. 默认: `/org/dashboard`
-
-### 2.3 路由守卫
-
-使用 `utils/route-guards.ts` 中的守卫函数：
-
-```typescript
-import { requireSession, requireActiveOrg, requireAdmin } from '@/utils/route-guards'
-
-// 要求已登录
-export const Route = createFileRoute('/profile')({
-  beforeLoad: requireSession,
-  component: Profile,
-})
-
-// 要求有活跃组织
-export const Route = createFileRoute('/org/dashboard/')({
-  beforeLoad: requireActiveOrg,
-  component: OrgDashboard,
-})
-
-// 要求管理员权限
-export const Route = createFileRoute('/admin/dashboard/')({
-  beforeLoad: requireAdmin,
-  component: AdminDashboard,
-})
-```
-
-**守卫行为**:
-
-| 守卫函数 | 条件 | 重定向目标 |
-|----------|------|------------|
-| `requireSession` | 未登录 | `/sign-in` |
-| `requireActiveOrg` | 无活跃组织 | `/org/create` |
-| `requireAdmin` | 非 Admin | `/org/dashboard` |
-
-### 2.4 数据获取模式
-
-**新推荐模式** (TanStack Router + Query 最佳实践):
-
-```typescript
-import { createFileRoute } from '@tanstack/react-router'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { orpc } from '@/utils/orpc'
-import { requireActiveOrg } from '@/utils/route-guards'
-
-export const Route = createFileRoute('/org/dashboard/')({
-  // 路由级权限守卫
-  beforeLoad: requireActiveOrg,
-
-  // 服务端预加载数据
-  loader: async ({ context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(orpc.privateData.queryOptions()),
-      context.queryClient.ensureQueryData(
-        orpc.organization.listMembers.queryOptions({ input: {} })
-      ),
-    ])
-  },
-
-  component: OrgDashboard,
-})
-
-function OrgDashboard() {
-  // 数据已在缓存中，无 loading 状态检查
-  const { data: session } = useSuspenseQuery(orpc.privateData.queryOptions())
-  const { data: members } = useSuspenseQuery(
-    orpc.organization.listMembers.queryOptions({ input: {} })
-  )
-
-  return <div>...</div>
-}
-```
-
-**oRPC 参数传递规范**:
-
-```typescript
-// ✅ 正确 - oRPC v2 使用 { input: {...} } 包装
-orpc.organization.listMembers.queryOptions({ input: {} })
-
-// ❌ 错误（旧方式）
-orpc.organization.listMembers.queryOptions()
-```
-
-**查询失效规范**:
-
-```typescript
-// ✅ 推荐 - 使用 .key() 方法
-queryClient.invalidateQueries({
-  queryKey: orpc.organization.listMembers.key(),
-})
-
-// ❌ 不推荐
-queryClient.invalidateQueries({
-  queryKey: orpc.organization.listMembers.queryOptions({ input: {} }).queryKey,
-})
-```
-
-### 2.5 组件共置
-
-**规范**:
-
-- 路由特定的组件位于相邻的 `-components/` 中
-- 命名: TS/JS 文件使用 PascalCase
-- 防止跨路由组的命名空间污染
-
-**规则**:
-
-- `-components/` 文件夹不会自动注册为路由（dash 前缀）
-- 组件应该与使用它的路由放在同一目录下
-- 跨路由组共享的组件 → `src/components/`
+- 完整文档 → [docs/routing.md](docs/routing.md)
+- 数据加载 → [docs/data-loading.md](docs/data-loading.md)
+- 认证流程 → [docs/authentication.md](docs/authentication.md)
 
 ---
 
 ## 3. 组件开发
 
-### 3.1 目录结构
+### 核心原则
+
+**数据获取**: loader 预取 + `useSuspenseQuery`
+
+- 在路由 `loader` 中预加载数据
+- 组件中使用 `useSuspenseQuery` 获取（无需 loading 状态）
+
+**状态管理**: TanStack Query 统一管理
+
+- 使用 `useMutation` 执行变更操作
+- 成功后使用 `invalidateQueries` 刷新数据
+
+**用户反馈**: 每个操作都有反馈
+
+- Toast 通知显示操作结果
+- 按钮显示加载状态
+
+**错误处理**: 多层防护
+
+- 边界组件捕获全局错误
+- 表单验证提示输入错误
+- API 错误通过 Toast 显示
+
+### 详细指南
+
+| 任务 | 详细文档 |
+|------|----------|
+| CRUD 页面 | [docs/crud-patterns.md](docs/crud-patterns.md) |
+| UI 交互 | [docs/ui-patterns.md](docs/ui-patterns.md) |
+| 表单开发 | [docs/form-patterns.md](docs/form-patterns.md) |
+| UI 组件 | [docs/shadcn-usage.md](docs/shadcn-usage.md) |
+
+### 组件目录
 
 ```
 src/components/
 ├── ui/                   # shadcn/ui (auto-generated, DO NOT EDIT)
-│   ├── button.tsx
-│   ├── dialog.tsx
-│   ├── input.tsx
-│   └── ...
 ├── loader.tsx            # Loading spinner
 ├── sign-in-form.tsx      # Login form
-├── sign-up-form.tsx      # Registration form
-├── user-menu.tsx         # User dropdown
-├── nav-user.tsx          # User navigation
-└── nav-main.tsx          # Main navigation
+└── ...
 ```
-
-### 3.2 shadcn/ui 规范
-
-**不要编辑 `ui/` 目录中的文件** - 这些文件由 shadcn CLI 自动生成。
-
-**添加新 UI 组件**:
-
-```bash
-bunx shadcn@latest add [component-name]
-```
-
-**已使用的 shadcn/ui 组件**:
-
-- `button`, `card`, `input`, `label`, `select`
-- `dialog`, `sheet`, `sidebar`, `collapsible`
-- `table`, `breadcrumb`, `separator`
-- `avatar`, `badge`, `tooltip`, `dropdown-menu`
-- `skeleton` (loading states)
-- `sonner` (toast notifications)
-
-### 3.3 CRUD 页面模式
-
-**关键要点**:
-
-- 使用 `useSuspenseQuery` 获取数据（已通过 loader 预取）
-- 使用 `useMutation` 执行变更
-- 成功后使用 `invalidateQueries` 刷新数据
-- 使用 `toast` (Sonner) 显示操作结果
-
-```typescript
-function MembersList() {
-  const queryClient = useQueryClient()
-  const { data: members } = useSuspenseQuery(
-    orpc.organization.listMembers.queryOptions({ input: {} })
-  )
-
-  const removeMember = useMutation({
-    ...orpc.organization.removeMember.mutationOptions(),
-    onSuccess: () => {
-      toast.success("Member removed")
-      queryClient.invalidateQueries({
-        queryKey: orpc.organization.listMembers.key(),
-      })
-    },
-  })
-
-  return (
-    <div>
-      {members.map(member => (
-        <div key={member.id}>
-          {member.name}
-          <button onClick={() => removeMember.mutate({ memberId: member.id })}>
-            Remove
-          </button>
-        </div>
-      ))}
-    </div>
-  )
-}
-```
-
-### 3.4 表单模式
-
-- 使用 `@tanstack/react-form` 管理表单状态
-- 使用 `zod` 定义验证规则
-- 使用 `form.Field` 渲染表单字段
-- 禁用提交按钮：`!state.canSubmit || state.isSubmitting`
-
-### 3.5 Toast/对话框模式
-
-**Toast 通知**:
-
-- 使用 `toast.success()`, `toast.error()`, `toast.info()`
-- 支持带操作的通知
-- 支持 Promise 状态自动处理
-
-**对话框**:
-
-- 使用 `Dialog`, `DialogContent`, `DialogTrigger` 组件
-- 支持创建/编辑对话框和删除确认对话框
 
 ---
 
@@ -327,8 +146,25 @@ import { db } from "@org-sass/db";     // 跨包导入
 
 ## 5. 相关文档
 
-- **API 开发**: [packages/api/src/CLAUDE.md](../../packages/api/CLAUDE.md)
-- **认证流程**: [packages/auth/src/CLAUDE.md](../../packages/auth/CLAUDE.md)
-- **数据库**: [packages/db/src/CLAUDE.md](../../packages/db/CLAUDE.md)
+### 5.1 Web App 文档
+
+- **路由系统详解**: [docs/routing.md](docs/routing.md)
+- **数据加载详解**: [docs/data-loading.md](docs/data-loading.md)
+- **CRUD 模式**: [docs/crud-patterns.md](docs/crud-patterns.md)
+- **UI 交互模式**: [docs/ui-patterns.md](docs/ui-patterns.md)
+- **表单模式**: [docs/form-patterns.md](docs/form-patterns.md)
+- **认证流程**: [docs/authentication.md](docs/authentication.md)
+- **shadcn/ui 使用**: [docs/shadcn-usage.md](docs/shadcn-usage.md)
+- **文档导航**: [docs/README.md](docs/README.md)
+
+### 5.2 包文档
+
+- **API 开发**: [packages/api/CLAUDE.md](../../packages/api/CLAUDE.md)
+- **认证流程**: [packages/auth/CLAUDE.md](../../packages/auth/CLAUDE.md)
+- **数据库**: [packages/db/CLAUDE.md](../../packages/db/CLAUDE.md)
+
+### 5.3 外部资源
+
 - **shadcn/ui**: [https://ui.shadcn.com/](https://ui.shadcn.com/)
 - **TanStack Router**: [https://tanstack.com/router/latest](https://tanstack.com/router/latest)
+- **TanStack Query**: [https://tanstack.com/query/latest](https://tanstack.com/query/latest)

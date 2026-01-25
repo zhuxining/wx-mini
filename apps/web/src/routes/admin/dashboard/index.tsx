@@ -16,9 +16,11 @@ export const Route = createFileRoute("/admin/dashboard/")({
 		// 并行预取数据
 		await Promise.all([
 			context.queryClient.ensureQueryData(
-				orpc.organization.listOrganizations.queryOptions(),
+				orpc.organization.listOrganizations.queryOptions({ input: {} }),
 			),
-			context.queryClient.ensureQueryData(orpc.admin.listUsers.queryOptions()),
+			context.queryClient.ensureQueryData(
+				orpc.admin.listUsers.queryOptions({ input: {} }),
+			),
 		]);
 	},
 	component: AdminDashboard,
@@ -27,12 +29,14 @@ export const Route = createFileRoute("/admin/dashboard/")({
 function AdminDashboard() {
 	// 数据已在 loader 中预取，无加载状态
 	const { data: orgs } = useSuspenseQuery(
-		orpc.organization.listOrganizations.queryOptions(),
+		orpc.organization.listOrganizations.queryOptions({ input: {} }),
 	);
-	const { data: users } = useSuspenseQuery(orpc.admin.listUsers.queryOptions());
+	const { data: users } = useSuspenseQuery(
+		orpc.admin.listUsers.queryOptions({ input: {} }),
+	);
 
 	const orgCount = orgs?.length ?? 0;
-	const userCount = users?.length ?? 0;
+	const userCount = users?.users?.length ?? 0;
 	const sessionCount = 0;
 
 	return (

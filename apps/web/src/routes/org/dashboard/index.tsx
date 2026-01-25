@@ -17,7 +17,11 @@ export const Route = createFileRoute("/org/dashboard/")({
 			orpc.privateData.queryOptions(),
 		);
 
-		const organizationId = session.user.activeOrganizationId;
+		const organizationId = (
+			session.user as {
+				activeOrganizationId?: string | null;
+			}
+		).activeOrganizationId;
 		if (!organizationId) return;
 
 		// 并行预取所有数据
@@ -53,7 +57,7 @@ function OrgDashboard() {
 		orpc.organization.listInvitations.queryOptions({ input: {} }),
 	);
 
-	const membersCount = members?.length ?? 0;
+	const membersCount = members?.members?.length ?? 0;
 	const teamsCount = teams?.length ?? 0;
 	const pendingInvitationsCount = invitations?.length ?? 0;
 

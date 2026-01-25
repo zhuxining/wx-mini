@@ -29,7 +29,7 @@ function LandingPage() {
 						<Link to="/about">
 							<Button variant="ghost">About</Button>
 						</Link>
-						<Link to="/login">
+						<Link to="/login" search={{ redirect: undefined }}>
 							<Button>Get Started</Button>
 						</Link>
 					</div>
@@ -52,7 +52,7 @@ function LandingPage() {
 							simplicity.
 						</p>
 						<div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-							<Link to="/login">
+							<Link to="/login" search={{ redirect: undefined }}>
 								<Button size="lg" className="text-base">
 									Sign Up Now
 									<ArrowRight className="ml-2 h-4 w-4" />
@@ -168,7 +168,7 @@ function LandingPage() {
 						<p className="mb-8 text-lg text-muted-foreground">
 							Join thousands of organizations already using our platform
 						</p>
-						<Link to="/login">
+						<Link to="/login" search={{ redirect: undefined }}>
 							<Button size="lg" className="text-lg">
 								Start Your Free Trial
 								<ArrowRight className="ml-2 h-5 w-5" />

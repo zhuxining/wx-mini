@@ -6,7 +6,6 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -68,20 +67,21 @@ function TeamsListPage() {
 		name: string;
 	} | null>(null);
 
-	const organizationId = session.user.activeOrganizationId ?? "";
+	const organizationId =
+		(
+			session.user as {
+				activeOrganizationId?: string | null;
+			}
+		).activeOrganizationId ?? "";
 
 	const createTeam = useMutation(
 		orpc.organization.createTeam.mutationOptions({
 			onSuccess: () => {
-				toast.success("Team created successfully");
 				setIsCreateOpen(false);
 				setNewTeamName("");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listTeams.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to create team: ${err.message}`);
 			},
 		}),
 	);
@@ -89,15 +89,11 @@ function TeamsListPage() {
 	const updateTeam = useMutation(
 		orpc.organization.updateTeam.mutationOptions({
 			onSuccess: () => {
-				toast.success("Team updated successfully");
 				setIsEditOpen(false);
 				setEditingTeam(null);
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listTeams.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to update team: ${err.message}`);
 			},
 		}),
 	);
@@ -105,13 +101,9 @@ function TeamsListPage() {
 	const deleteTeam = useMutation(
 		orpc.organization.removeTeam.mutationOptions({
 			onSuccess: () => {
-				toast.success("Team deleted");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listTeams.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to delete team: ${err.message}`);
 			},
 		}),
 	);

@@ -1,8 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Eye, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -25,7 +28,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -35,19 +37,26 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import { requireAdmin } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/admin/organizations/")({
+	beforeLoad: requireAdmin,
+	loader: async ({ context }) => {
+		await context.queryClient.ensureQueryData(
+			orpc.organization.listOrganizations.queryOptions(),
+		);
+	},
 	component: AdminOrganizationsPage,
 });
 
 function AdminOrganizationsPage() {
-	const {
-		data: orgs,
-		isLoading,
-		error,
-	} = useQuery(orpc.organization.listOrganizations.queryOptions());
-	const navigate = useNavigate();
 	const queryClient = useQueryClient();
+
+	// 数据已在 loader 中预取，无加载状态
+	const { data: orgs } = useSuspenseQuery(
+		orpc.organization.listOrganizations.queryOptions(),
+	);
+
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [newOrgName, setNewOrgName] = useState("");
 	const [newOrgSlug, setNewOrgSlug] = useState("");
@@ -55,7 +64,6 @@ function AdminOrganizationsPage() {
 	const createOrg = useMutation(
 		orpc.organization.createOrganization.mutationOptions({
 			onSuccess: () => {
-				toast.success("Organization created successfully");
 				setIsCreateOpen(false);
 				setNewOrgName("");
 				setNewOrgSlug("");
@@ -63,22 +71,15 @@ function AdminOrganizationsPage() {
 					queryKey: orpc.organization.listOrganizations.key(),
 				});
 			},
-			onError: (err: Error) => {
-				toast.error(`Failed to create organization: ${err.message}`);
-			},
 		}),
 	);
 
 	const deleteOrg = useMutation(
 		orpc.organization.deleteOrganization.mutationOptions({
 			onSuccess: () => {
-				toast.success("Organization deleted");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listOrganizations.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to delete organization: ${err.message}`);
 			},
 		}),
 	);
@@ -183,87 +184,66 @@ function AdminOrganizationsPage() {
 					</Dialog>
 				</div>
 
-				{isLoading ? (
-					<div className="space-y-2">
-						<Skeleton className="h-10 w-full" />
-						<Skeleton className="h-20 w-full" />
-						<Skeleton className="h-20 w-full" />
-					</div>
-				) : error ? (
-					<div className="rounded-md bg-destructive/15 p-4 text-destructive">
-						Error loading organizations: {error.message}
-					</div>
-				) : (
-					<div className="rounded-md border">
-						<Table>
-							<TableHeader>
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Name</TableHead>
+								<TableHead>Slug</TableHead>
+								<TableHead>Owner</TableHead>
+								<TableHead>Members</TableHead>
+								<TableHead>Created At</TableHead>
+								<TableHead className="text-right">Actions</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{orgs?.length === 0 ? (
 								<TableRow>
-									<TableHead>Name</TableHead>
-									<TableHead>Slug</TableHead>
-									<TableHead>Owner</TableHead>
-									<TableHead>Members</TableHead>
-									<TableHead>Created At</TableHead>
-									<TableHead className="text-right">Actions</TableHead>
+									<TableCell colSpan={6} className="h-24 text-center">
+										No organizations found.
+									</TableCell>
 								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{orgs?.length === 0 ? (
-									<TableRow>
-										<TableCell colSpan={6} className="h-24 text-center">
-											No organizations found.
+							) : (
+								orgs?.map((org) => (
+									<TableRow key={org.id}>
+										<TableCell className="font-medium">{org.name}</TableCell>
+										<TableCell>{org.slug}</TableCell>
+										<TableCell>{"Unknown"}</TableCell>
+										<TableCell>{0}</TableCell>
+										<TableCell>
+											{new Date(org.createdAt).toLocaleDateString()}
+										</TableCell>
+										<TableCell className="text-right">
+											<div
+												className="flex justify-end gap-2"
+												onClick={(e) => e.stopPropagation()}
+												onKeyDown={(e) => e.stopPropagation()}
+												role="none"
+											>
+												<Button variant="ghost" size="icon">
+													<Link
+														to={"/admin/organizations/$orgId"}
+														params={{ orgId: org.id }}
+													>
+														<Eye className="h-4 w-4" />
+													</Link>
+												</Button>
+												<Button
+													variant="ghost"
+													size="icon"
+													className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+													onClick={() => handleDelete(org.id, org.name)}
+												>
+													<Trash2 className="h-4 w-4" />
+												</Button>
+											</div>
 										</TableCell>
 									</TableRow>
-								) : (
-									orgs?.map((org) => (
-										<TableRow
-											key={org.id}
-											className="cursor-pointer hover:bg-muted/50"
-											onClick={() =>
-												navigate({ to: `/admin/organizations/${org.id}` })
-											}
-										>
-											<TableCell className="font-medium">{org.name}</TableCell>
-											<TableCell>{org.slug}</TableCell>
-											<TableCell>{"Unknown"}</TableCell>
-											<TableCell>{0}</TableCell>
-											<TableCell>
-												{new Date(org.createdAt).toLocaleDateString()}
-											</TableCell>
-											<TableCell className="text-right">
-												<div
-													className="flex justify-end gap-2"
-													onClick={(e) => e.stopPropagation()}
-													onKeyDown={(e) => e.stopPropagation()}
-													role="none"
-												>
-													<Button variant="ghost" size="icon">
-														<Link
-															to={"/admin/organizations/$orgId"}
-															params={{ orgId: org.id }}
-														>
-															<Eye className="h-4 w-4" />
-														</Link>
-													</Button>
-													<Button
-														variant="ghost"
-														size="icon"
-														className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleDelete(org.id, org.name);
-														}}
-													>
-														<Trash2 className="h-4 w-4" />
-													</Button>
-												</div>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
-					</div>
-				)}
+								))
+							)}
+						</TableBody>
+					</Table>
+				</div>
 			</div>
 		</>
 	);

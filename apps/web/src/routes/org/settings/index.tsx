@@ -1,8 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	Breadcrumb,
@@ -25,45 +28,45 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/settings/")({
+	beforeLoad: requireActiveOrg,
+	loader: async ({ context }) => {
+		await context.queryClient.ensureQueryData(
+			orpc.organization.getFullOrganization.queryOptions({ input: {} }),
+		);
+	},
 	component: OrgSettingsPage,
 });
 
 function OrgSettingsPage() {
-	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const {
-		data: org,
-		isLoading,
-		error,
-	} = useQuery(
+	// 数据已在 loader 中预取，无加载状态
+	const { data: org } = useSuspenseQuery(
 		orpc.organization.getFullOrganization.queryOptions({ input: {} }),
 	);
+
+	if (!org) {
+		return null;
+	}
 
 	const [name, setName] = useState("");
 	const [slug, setSlug] = useState("");
 
 	useEffect(() => {
-		if (org) {
-			setName(org.name);
-			setSlug(org.slug);
-		}
+		setName(org.name);
+		setSlug(org.slug);
 	}, [org]);
 
 	const updateOrg = useMutation(
 		orpc.organization.updateOrganization.mutationOptions({
 			onSuccess: () => {
-				toast.success("Organization updated successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.getFullOrganization.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to update: ${err.message}`);
 			},
 		}),
 	);
@@ -71,19 +74,13 @@ function OrgSettingsPage() {
 	const deleteOrg = useMutation(
 		orpc.organization.deleteOrganization.mutationOptions({
 			onSuccess: () => {
-				toast.success("Organization deleted");
-				navigate({ to: "/" });
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to delete: ${err.message}`);
+				window.location.href = "/";
 			},
 		}),
 	);
 
 	const handleUpdate = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!org) return;
-
 		updateOrg.mutate({
 			organizationId: org.id,
 			data: { name, slug },
@@ -91,30 +88,10 @@ function OrgSettingsPage() {
 	};
 
 	const handleDelete = () => {
-		if (!org) return;
 		if (confirm("Are you sure? This action cannot be undone.")) {
 			deleteOrg.mutate({ organizationId: org.id });
 		}
 	};
-
-	if (isLoading) {
-		return (
-			<div className="space-y-4 p-8">
-				<Skeleton className="h-12 w-1/3" />
-				<Skeleton className="h-[400px] w-full" />
-			</div>
-		);
-	}
-
-	if (error || !org) {
-		return (
-			<div className="p-8">
-				<div className="rounded-md bg-destructive/15 p-4 text-destructive">
-					Error loading organization details: {error?.message}
-				</div>
-			</div>
-		);
-	}
 
 	return (
 		<>

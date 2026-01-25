@@ -1,8 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { Save, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	Breadcrumb,
@@ -25,27 +28,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
+import { requireAdmin } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/admin/organizations/$orgId")({
+	beforeLoad: requireAdmin,
+	loader: async ({ context, params }) => {
+		await context.queryClient.ensureQueryData(
+			orpc.organization.getFullOrganization.queryOptions({
+				input: { organizationId: params.orgId },
+			}),
+		);
+	},
 	component: AdminOrganizationDetailPage,
 });
 
 function AdminOrganizationDetailPage() {
 	const { orgId } = Route.useParams();
-	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
-	const {
-		data: org,
-		isLoading,
-		error,
-	} = useQuery(
+	// 数据已在 loader 中预取，无加载状态
+	const { data: org } = useSuspenseQuery(
 		orpc.organization.getFullOrganization.queryOptions({
 			input: { organizationId: orgId },
 		}),
 	);
+
+	if (!org) {
+		return null;
+	}
 
 	const [name, setName] = useState("");
 	const [slug, setSlug] = useState("");
@@ -60,13 +71,9 @@ function AdminOrganizationDetailPage() {
 	const updateOrg = useMutation(
 		orpc.organization.updateOrganization.mutationOptions({
 			onSuccess: () => {
-				toast.success("Organization updated successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listOrganizations.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to update: ${err.message}`);
 			},
 		}),
 	);
@@ -74,14 +81,9 @@ function AdminOrganizationDetailPage() {
 	const deleteOrg = useMutation(
 		orpc.organization.deleteOrganization.mutationOptions({
 			onSuccess: () => {
-				toast.success("Organization deleted");
-				navigate({ to: "/admin/organizations" });
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listOrganizations.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to delete: ${err.message}`);
 			},
 		}),
 	);
@@ -99,31 +101,6 @@ function AdminOrganizationDetailPage() {
 			deleteOrg.mutate({ organizationId: orgId });
 		}
 	};
-
-	if (isLoading) {
-		return (
-			<div className="space-y-4 p-8">
-				<Skeleton className="h-12 w-1/3" />
-				<Skeleton className="h-[400px] w-full" />
-			</div>
-		);
-	}
-
-	if (error || !org) {
-		return (
-			<div className="p-8">
-				<div className="rounded-md bg-destructive/15 p-4 text-destructive">
-					Organization not found or error loading details.
-				</div>
-				<Button variant="link" className="mt-4 px-0">
-					<Link to="/admin/organizations">
-						<ArrowLeft className="mr-2 h-4 w-4" />
-						Back to Organizations
-					</Link>
-				</Button>
-			</div>
-		);
-	}
 
 	return (
 		<>

@@ -1,4 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	Ban,
@@ -9,7 +13,6 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import {
 	Breadcrumb,
@@ -48,7 +51,6 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -58,19 +60,27 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import { requireAdmin } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/admin/users/")({
+	beforeLoad: requireAdmin,
+	loader: async ({ context }) => {
+		await context.queryClient.ensureQueryData(
+			orpc.admin.listUsers.queryOptions({ input: {} }),
+		);
+	},
 	component: AdminUsersPage,
 });
 
 function AdminUsersPage() {
-	const [search, setSearch] = useState("");
-	const {
-		data: users,
-		isLoading,
-		error,
-	} = useQuery(orpc.admin.listUsers.queryOptions({ input: {} }));
 	const queryClient = useQueryClient();
+
+	// 数据已在 loader 中预取，无加载状态
+	const { data: users } = useSuspenseQuery(
+		orpc.admin.listUsers.queryOptions({ input: {} }),
+	);
+
+	const [search, setSearch] = useState("");
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [newUser, setNewUser] = useState({
 		name: "",
@@ -82,15 +92,11 @@ function AdminUsersPage() {
 	const createUser = useMutation(
 		orpc.admin.createUser.mutationOptions({
 			onSuccess: () => {
-				toast.success("User created successfully");
 				setIsCreateOpen(false);
 				setNewUser({ name: "", email: "", password: "", role: "user" });
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to create user: ${err.message}`);
 			},
 		}),
 	);
@@ -98,13 +104,9 @@ function AdminUsersPage() {
 	const setRole = useMutation(
 		orpc.admin.setRole.mutationOptions({
 			onSuccess: () => {
-				toast.success("User role updated");
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to update role: ${err.message}`);
 			},
 		}),
 	);
@@ -112,13 +114,9 @@ function AdminUsersPage() {
 	const banUser = useMutation(
 		orpc.admin.banUser.mutationOptions({
 			onSuccess: () => {
-				toast.success("User banned");
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to ban user: ${err.message}`);
 			},
 		}),
 	);
@@ -126,13 +124,9 @@ function AdminUsersPage() {
 	const unbanUser = useMutation(
 		orpc.admin.unbanUser.mutationOptions({
 			onSuccess: () => {
-				toast.success("User unbanned");
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to unban user: ${err.message}`);
 			},
 		}),
 	);
@@ -140,13 +134,9 @@ function AdminUsersPage() {
 	const removeUser = useMutation(
 		orpc.admin.removeUser.mutationOptions({
 			onSuccess: () => {
-				toast.success("User removed");
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to remove user: ${err.message}`);
 			},
 		}),
 	);
@@ -322,123 +312,111 @@ function AdminUsersPage() {
 					</div>
 				</div>
 
-				{isLoading ? (
-					<div className="space-y-2">
-						<Skeleton className="h-10 w-full" />
-						<Skeleton className="h-20 w-full" />
-						<Skeleton className="h-20 w-full" />
-					</div>
-				) : error ? (
-					<div className="rounded-md bg-destructive/15 p-4 text-destructive">
-						Error loading users: {error.message}
-					</div>
-				) : (
-					<div className="rounded-md border">
-						<Table>
-							<TableHeader>
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Name</TableHead>
+								<TableHead>Email</TableHead>
+								<TableHead>Role</TableHead>
+								<TableHead>Status</TableHead>
+								<TableHead>Created At</TableHead>
+								<TableHead className="text-right">Actions</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{filteredUsers?.length === 0 ? (
 								<TableRow>
-									<TableHead>Name</TableHead>
-									<TableHead>Email</TableHead>
-									<TableHead>Role</TableHead>
-									<TableHead>Status</TableHead>
-									<TableHead>Created At</TableHead>
-									<TableHead className="text-right">Actions</TableHead>
+									<TableCell colSpan={6} className="h-24 text-center">
+										No users found.
+									</TableCell>
 								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{filteredUsers?.length === 0 ? (
-									<TableRow>
-										<TableCell colSpan={6} className="h-24 text-center">
-											No users found.
+							) : (
+								filteredUsers?.map((user) => (
+									<TableRow key={user.id}>
+										<TableCell className="font-medium">{user.name}</TableCell>
+										<TableCell>{user.email}</TableCell>
+										<TableCell>
+											<Badge
+												variant={
+													user.role === "admin" ? "default" : "secondary"
+												}
+											>
+												{user.role}
+											</Badge>
+										</TableCell>
+										<TableCell>
+											{user.banned ? (
+												<Badge variant="destructive">Banned</Badge>
+											) : (
+												<Badge
+													variant="outline"
+													className="border-green-200 bg-green-50 text-green-700"
+												>
+													Active
+												</Badge>
+											)}
+										</TableCell>
+										<TableCell>
+											{new Date(user.createdAt).toLocaleDateString()}
+										</TableCell>
+										<TableCell className="text-right">
+											<DropdownMenu>
+												<DropdownMenuTrigger
+													className={buttonVariants({
+														variant: "ghost",
+														size: "icon",
+													})}
+												>
+													<MoreHorizontal className="h-4 w-4" />
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuLabel>Actions</DropdownMenuLabel>
+													<DropdownMenuSeparator />
+													<DropdownMenuItem
+														onClick={() =>
+															handleRoleChange(
+																user.id,
+																user.role === "admin" ? "user" : "admin",
+															)
+														}
+													>
+														{user.role === "admin"
+															? "Demote to User"
+															: "Promote to Admin"}
+													</DropdownMenuItem>
+													<DropdownMenuItem
+														onClick={() =>
+															handleBanToggle(user.id, !!user.banned)
+														}
+													>
+														{user.banned ? (
+															<>
+																<CheckCircle className="mr-2 h-4 w-4" /> Unban
+																User
+															</>
+														) : (
+															<>
+																<Ban className="mr-2 h-4 w-4" /> Ban User
+															</>
+														)}
+													</DropdownMenuItem>
+													<DropdownMenuSeparator />
+													<DropdownMenuItem
+														className="text-destructive focus:text-destructive"
+														onClick={() => handleDelete(user.id)}
+													>
+														<Trash2 className="mr-2 h-4 w-4" /> Delete User
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
 										</TableCell>
 									</TableRow>
-								) : (
-									filteredUsers?.map((user) => (
-										<TableRow key={user.id}>
-											<TableCell className="font-medium">{user.name}</TableCell>
-											<TableCell>{user.email}</TableCell>
-											<TableCell>
-												<Badge
-													variant={
-														user.role === "admin" ? "default" : "secondary"
-													}
-												>
-													{user.role}
-												</Badge>
-											</TableCell>
-											<TableCell>
-												{user.banned ? (
-													<Badge variant="destructive">Banned</Badge>
-												) : (
-													<Badge
-														variant="outline"
-														className="border-green-200 bg-green-50 text-green-700"
-													>
-														Active
-													</Badge>
-												)}
-											</TableCell>
-											<TableCell>
-												{new Date(user.createdAt).toLocaleDateString()}
-											</TableCell>
-											<TableCell className="text-right">
-												<DropdownMenu>
-													<DropdownMenuTrigger
-														className={buttonVariants({
-															variant: "ghost",
-															size: "icon",
-														})}
-													>
-														<MoreHorizontal className="h-4 w-4" />
-													</DropdownMenuTrigger>
-													<DropdownMenuContent align="end">
-														<DropdownMenuLabel>Actions</DropdownMenuLabel>
-														<DropdownMenuSeparator />
-														<DropdownMenuItem
-															onClick={() =>
-																handleRoleChange(
-																	user.id,
-																	user.role === "admin" ? "user" : "admin",
-																)
-															}
-														>
-															{user.role === "admin"
-																? "Demote to User"
-																: "Promote to Admin"}
-														</DropdownMenuItem>
-														<DropdownMenuItem
-															onClick={() =>
-																handleBanToggle(user.id, !!user.banned)
-															}
-														>
-															{user.banned ? (
-																<>
-																	<CheckCircle className="mr-2 h-4 w-4" /> Unban
-																	User
-																</>
-															) : (
-																<>
-																	<Ban className="mr-2 h-4 w-4" /> Ban User
-																</>
-															)}
-														</DropdownMenuItem>
-														<DropdownMenuSeparator />
-														<DropdownMenuItem
-															className="text-destructive focus:text-destructive"
-															onClick={() => handleDelete(user.id)}
-														>
-															<Trash2 className="mr-2 h-4 w-4" /> Delete User
-														</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
-					</div>
-				)}
+								))
+							)}
+						</TableBody>
+					</Table>
+				</div>
 			</div>
 		</>
 	);

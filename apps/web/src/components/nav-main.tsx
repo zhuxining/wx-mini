@@ -52,26 +52,26 @@ export function NavMain({ items, groupLabel = "Platform" }: NavMainProps) {
 						className="group/collapsible"
 					>
 						<SidebarMenuItem>
-							<CollapsibleTrigger asChild>
-								<SidebarMenuButton tooltip={item.title} asChild>
-									<Link to={item.url}>
+							<CollapsibleTrigger
+								render={
+									<SidebarMenuButton tooltip={item.title}>
 										{item.icon && <item.icon />}
 										<span>{item.title}</span>
 										{item.items && item.items.length > 0 && (
 											<ChevronsUpDown className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
 										)}
-									</Link>
-								</SidebarMenuButton>
-							</CollapsibleTrigger>
+									</SidebarMenuButton>
+								}
+							/>
 							{item.items && item.items.length > 0 && (
 								<CollapsibleContent>
 									<SidebarMenuSub>
 										{item.items.map((subItem) => (
 											<SidebarMenuSubItem key={subItem.title}>
-												<SidebarMenuSubButton asChild>
-													<Link to={subItem.url}>
-														<span>{subItem.title}</span>
-													</Link>
+												<SidebarMenuSubButton
+													render={<Link to={subItem.url} />}
+												>
+													<span>{subItem.title}</span>
 												</SidebarMenuSubButton>
 											</SidebarMenuSubItem>
 										))}

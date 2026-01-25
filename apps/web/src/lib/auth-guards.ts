@@ -15,7 +15,10 @@ export type RouteContext = {
 export function requireAdminRole(context: RouteContext): void {
 	const session = context.session;
 	if (!session?.user) {
-		redirect({ to: "/login" });
+		throw redirect({
+			to: "/login",
+			search: { redirect: location.href },
+		});
 	}
 
 	const role = session.user.role;
@@ -24,12 +27,15 @@ export function requireAdminRole(context: RouteContext): void {
 		(Array.isArray(role) && !role.includes("admin")) ||
 		(typeof role === "string" && role !== "admin")
 	) {
-		redirect({ to: "/org" });
+		throw redirect({ to: "/org" });
 	}
 }
 
 export function requireAuth(context: RouteContext): void {
 	if (!context.session?.user) {
-		redirect({ to: "/login" });
+		throw redirect({
+			to: "/login",
+			search: { redirect: location.href },
+		});
 	}
 }

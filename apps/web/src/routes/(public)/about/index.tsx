@@ -22,7 +22,7 @@ function AboutPage() {
 						<Link to="/pricing">
 							<Button variant="ghost">Pricing</Button>
 						</Link>
-						<Link to="/login">
+						<Link to="/login" search={{ redirect: undefined }}>
 							<Button>Get Started</Button>
 						</Link>
 					</div>
@@ -172,7 +172,7 @@ function AboutPage() {
 									We're always looking for talented people to join our team and
 									help us build the future of collaboration.
 								</p>
-								<Link to="/login">
+								<Link to="/login" search={{ redirect: undefined }}>
 									<Button size="lg" variant="secondary">
 										View Open Positions
 									</Button>

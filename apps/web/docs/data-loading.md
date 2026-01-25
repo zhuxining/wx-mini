@@ -6,15 +6,6 @@
 
 ---
 
-## 核心技术栈
-
-- **@tanstack/react-query** - 数据获取和缓存
-- **oRPC** - 端到端类型安全的 API 调用
-- **TanStack Start** - SSR 数据预加载
-- **@tanstack/react-router** - 路由集成
-
----
-
 ## 基础查询
 
 ### 定义查询选项
@@ -145,8 +136,8 @@ function TeamsSkeleton() {
         <div key={i} className="flex items-center space-x-4">
           <Skeleton className="h-12 w-12 rounded-full" />
           <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
+            <Skeleton className="h-4 w-62.5" />
+            <Skeleton className="h-4 w-50" />
           </div>
         </div>
       ))}
@@ -267,29 +258,51 @@ const { data } = useQuery({
 
 ## 变更操作
 
+### Default Options 集中管理
+
+使用 `experimental_defaults` 集中管理默认的行为（Toast 提示、错误处理等）：
+
+```typescript
+export const orpc = createTanstackQueryUtils(client, {
+  experimental_defaults: {
+    organization: {
+      inviteMember: {
+        mutationOptions: {
+          onSuccess: () => {
+            // Toast 提示已在 experimental_defaults 中统一配置
+            queryClient.invalidateQueries({
+              queryKey: orpc.organization.listInvitations.key(),
+            });
+          },
+        },
+      },
+      // ... 其他 mutations
+    },
+  },
+});
+```
+
+**注意**: `experimental_defaults` 是实验性 API。详细的 Toast 模式说明 → [ui-patterns.md](./ui-patterns.md#toast-通知模式)
+
 ### 创建数据
 
 ```typescript
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 function CreateTeamForm() {
   const queryClient = useQueryClient();
 
-  const createMutation = useMutation({
-    mutationFn: orpc.organization.createTeam.mutate,
-    onSuccess: (data) => {
-      toast.success(`Team "${data.name}" created`);
-
-      // 刷新相关查询
-      queryClient.invalidateQueries({
-        queryKey: orpc.organization.listTeams.key(),
-      });
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed: ${error.message}`);
-    },
-  });
+  // ✅ 简化后 - 只需要组件特定的逻辑
+  const createMutation = useMutation(
+    orpc.organization.createTeam.mutationOptions({
+      onSuccess: () => {
+        setIsOpen(false);
+        queryClient.invalidateQueries({
+          queryKey: orpc.organization.listTeams.key(),
+        });
+      },
+    })
+  );
 
   const handleSubmit = (data: { name: string }) => {
     const orgId = session?.user?.activeOrganizationId || "";
@@ -308,6 +321,9 @@ function CreateTeamForm() {
 ```
 
 ### 更新数据
+
+**何时使用**: 需要立即反馈用户体验的场景
+**何时不使用**: 数据一致性要求高、操作复杂
 
 ```typescript
 const updateMutation = useMutation({
@@ -360,18 +376,15 @@ const updateMutation = useMutation({
 ### 删除数据
 
 ```typescript
-const deleteMutation = useMutation({
-  mutationFn: orpc.organization.removeTeam.mutate,
-  onSuccess: () => {
-    toast.success("Deleted successfully");
-    queryClient.invalidateQueries({
-      queryKey: orpc.organization.listTeams.key(),
-    });
-  },
-  onError: (error: Error) => {
-    toast.error(`Failed: ${error.message}`);
-  },
-});
+const deleteMutation = useMutation(
+  orpc.organization.removeTeam.mutationOptions({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: orpc.organization.listTeams.key(),
+      });
+    },
+  })
+);
 
 const handleDelete = (teamId: string) => {
   if (confirm("Are you sure?")) {
@@ -382,6 +395,8 @@ const handleDelete = (teamId: string) => {
   }
 };
 ```
+
+**注意**: `experimental_defaults` 是实验性 API，可能在未来版本中变化。
 
 ---
 
@@ -400,19 +415,27 @@ const { data } = useQuery({
 ### 缓存失效
 
 ```typescript
-// 失效单个查询
+// 失效单个查询 - 使用 .key() 方法
 queryClient.invalidateQueries({
   queryKey: orpc.organization.listTeams.key(),
 });
 
-// 失效多个查询
+// 失效多个查询 - 匹配前缀
 queryClient.invalidateQueries({
-  queryKey: orpc.organization.listTeams.key().slice(0, 1),  // 匹配前缀
+  queryKey: orpc.organization.listTeams.key().slice(0, 1),
 });
 
 // 失效所有查询
 queryClient.invalidateQueries();
 ```
+
+### 关键 Helper 方法
+
+| 方法 | 用途 | 示例 |
+|------|------|------|
+| `.key()` | 部分匹配，用于失效查询 | `orpc.organization.listMembers.key()` |
+| `.queryKey()` | 完整匹配，用于特定查询 | `orpc.organization.find.queryKey({ input: { id: 1 } })` |
+| `.mutationOptions()` | 获取 mutation 配置 | `orpc.organization.create.mutationOptions()` |
 
 ### 设置查询数据
 
@@ -549,6 +572,8 @@ function MyComponent() {
 
 ## 相关文档
 
-- **组件模式详解**: [docs/component-patterns.md](../../docs/component-patterns.md)
-- **认证流程详解**: [docs/authentication.md](../../docs/authentication.md)
+- **路由系统详解**: [docs/routing.md](./routing.md)
+- **认证流程详解**: [docs/authentication.md](./authentication.md)
+- **CRUD 模式**: [docs/crud-patterns.md](./crud-patterns.md)
 - [TanStack Query 文档](https://tanstack.com/query/latest)
+- [@orpc/tanstack-query 文档](https://orpc.unnoq.com/docs/integrations/tanstack-query)

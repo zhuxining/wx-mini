@@ -27,18 +27,19 @@ export function OrgSwitcher() {
 
 	const { data: session } = useQuery(orpc.privateData.queryOptions());
 
-	const setActiveOrgMutation = useMutation({
-		mutationFn: orpc.organization.setActiveOrganization.mutate,
-		onSuccess: () => {
-			toast.success("Organization switched");
-			queryClient.invalidateQueries({
-				queryKey: orpc.privateData.queryOptions().queryKey,
-			});
-		},
-		onError: (error) => {
-			toast.error(`Failed to switch organization: ${error.message}`);
-		},
-	});
+	const setActiveOrgMutation = useMutation(
+		orpc.organization.setActiveOrganization.mutationOptions({
+			onSuccess: () => {
+				toast.success("Organization switched");
+				queryClient.invalidateQueries({
+					queryKey: orpc.privateData.queryOptions().queryKey,
+				});
+			},
+			onError: (error) => {
+				toast.error(`Failed to switch organization: ${error.message}`);
+			},
+		}),
+	);
 
 	const isLoading = orgsLoading || setActiveOrgMutation.isPending;
 
@@ -46,7 +47,11 @@ export function OrgSwitcher() {
 		return null;
 	}
 
-	const activeOrgId = session?.user?.activeOrganizationId;
+	const activeOrgId = (
+		session?.user as {
+			activeOrganizationId?: string | null;
+		}
+	)?.activeOrganizationId;
 	const activeOrg = orgs?.find((org) => org.id === activeOrgId);
 
 	const handleSwitchOrg = (orgId: string) => {
@@ -67,7 +72,7 @@ export function OrgSwitcher() {
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							{activeOrg?.logo ? (
-								<activeOrg.logo className="size-4" />
+								<div className="size-4">{<activeOrg.logo />}</div>
 							) : (
 								<div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
 									<span className="font-bold text-sm">O</span>
@@ -87,7 +92,6 @@ export function OrgSwitcher() {
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
-						className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
 						align="start"
 						side={isMobile ? "bottom" : "right"}
 						sideOffset={4}
@@ -105,7 +109,7 @@ export function OrgSwitcher() {
 								>
 									<div className="flex size-6 items-center justify-center rounded-md border">
 										{org.logo ? (
-											<org.logo className="size-3.5" />
+											<div className="size-3.5">{<org.logo />}</div>
 										) : (
 											<div className="flex size-4 items-center justify-center rounded bg-sidebar-primary text-sidebar-primary-foreground text-xs">
 												<span className="font-bold">O</span>

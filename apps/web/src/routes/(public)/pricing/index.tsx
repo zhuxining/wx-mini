@@ -29,7 +29,7 @@ function PricingPage() {
 						<Link to="/about">
 							<Button variant="ghost">About</Button>
 						</Link>
-						<Link to="/login">
+						<Link to="/login" search={{ redirect: undefined }}>
 							<Button>Get Started</Button>
 						</Link>
 					</div>
@@ -76,7 +76,11 @@ function PricingPage() {
 										<span>Email support</span>
 									</li>
 								</ul>
-								<Link to="/login" className="mt-6 block">
+								<Link
+									to="/login"
+									search={{ redirect: undefined }}
+									className="mt-6 block"
+								>
 									<Button className="w-full" variant="outline">
 										Get Started
 									</Button>
@@ -121,7 +125,11 @@ function PricingPage() {
 										<span>Custom branding</span>
 									</li>
 								</ul>
-								<Link to="/login" className="mt-6 block">
+								<Link
+									to="/login"
+									search={{ redirect: undefined }}
+									className="mt-6 block"
+								>
 									<Button className="w-full">Get Started</Button>
 								</Link>
 							</CardContent>
@@ -163,7 +171,11 @@ function PricingPage() {
 										<span>SLA guarantee</span>
 									</li>
 								</ul>
-								<Link to="/login" className="mt-6 block">
+								<Link
+									to="/login"
+									search={{ redirect: undefined }}
+									className="mt-6 block"
+								>
 									<Button className="w-full" variant="outline">
 										Contact Sales
 									</Button>
@@ -177,7 +189,7 @@ function PricingPage() {
 						<p className="mb-6 text-muted-foreground">
 							Contact us for enterprise solutions tailored to your needs
 						</p>
-						<Link to="/login">
+						<Link to="/login" search={{ redirect: undefined }}>
 							<Button size="lg">Contact Us</Button>
 						</Link>
 					</div>

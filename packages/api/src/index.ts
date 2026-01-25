@@ -10,9 +10,15 @@ const requireAuth = o.middleware(async ({ context, next }) => {
 	if (!context.session?.user) {
 		throw new ORPCError("UNAUTHORIZED");
 	}
+	if (!context.req) {
+		throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			message: "Request context not available",
+		});
+	}
 	return next({
 		context: {
 			session: context.session,
+			req: context.req,
 		},
 	});
 });

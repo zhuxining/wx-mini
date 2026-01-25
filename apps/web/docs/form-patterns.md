@@ -6,15 +6,6 @@
 
 ---
 
-## 核心技术栈
-
-- **@tanstack/react-form** - 类型安全的表单状态管理
-- **zod** - Schema 验证和类型推断
-- **shadcn/ui** - UI 组件库 (Input, Button, Label 等)
-- **sonner** - Toast 通知
-
----
-
 ## 标准表单结构
 
 ### 基础模板
@@ -532,26 +523,16 @@ function MyForm() {
 
 ### 创建对话框表单
 
-```typescript
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+**何时使用**: 需要在对话框中收集用户输入来创建资源
 
+```typescript
 function CreateDialog() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create
-        </Button>
+        <Button>Create</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -567,21 +548,21 @@ function CreateDialog() {
         />
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 function CreateForm({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) {
   const form = useForm({
     onSubmit: async ({ value }) => {
-      await api.create(value);
-      toast.success("Created successfully");
-      onSuccess();
+      await api.create(value)
+      toast.success("Created successfully")
+      onSuccess()
     },
-  });
+  })
 
   return (
     <form onSubmit={form.handleSubmit} className="space-y-4">
-      {/* 字段 */}
+      {/* 表单字段 */}
 
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
@@ -599,15 +580,21 @@ function CreateForm({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: 
         </form.Subscribe>
       </DialogFooter>
     </form>
-  );
+  )
 }
 ```
+
+**完整的对话框结构** → [ui-patterns.md](./ui-patterns.md#对话框模式)
+
+**详细的 Toast 模式** → [ui-patterns.md](./ui-patterns.md#toast-通知模式)
 
 ---
 
 ## 相关文档
 
-- **组件模式详解**: [docs/component-patterns.md](../../docs/component-patterns.md)
+- **CRUD 模式**: [docs/crud-patterns.md](./crud-patterns.md)
+- **UI 交互模式**: [docs/ui-patterns.md](./ui-patterns.md)
+- **数据加载**: [docs/data-loading.md](./data-loading.md)
 - **shadcn/ui 组件**: [https://ui.shadcn.com/docs/components](https://ui.shadcn.com/docs/components)
 - **TanStack Form 文档**: [https://tanstack.com/form/latest](https://tanstack.com/form/latest)
 - **Zod 文档**: [https://zod.dev/](https://zod.dev/)

@@ -1,8 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	Breadcrumb,
@@ -32,7 +35,6 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -42,8 +44,23 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/teams/$teamId")({
+	beforeLoad: requireActiveOrg,
+	loader: async ({ context, params }) => {
+		await Promise.all([
+			context.queryClient.ensureQueryData(orpc.privateData.queryOptions()),
+			context.queryClient.ensureQueryData(
+				orpc.organization.listTeamMembers.queryOptions({
+					input: { teamId: params.teamId },
+				}),
+			),
+			context.queryClient.ensureQueryData(
+				orpc.organization.listMembers.queryOptions({ input: {} }),
+			),
+		]);
+	},
 	component: TeamDetailPage,
 });
 
@@ -51,90 +68,39 @@ function TeamDetailPage() {
 	const { teamId } = Route.useParams();
 	const queryClient = useQueryClient();
 
-	const { data: session, isLoading: sessionLoading } = useQuery(
-		orpc.privateData.queryOptions(),
-	);
-
-	const { data: teamMembers, isLoading: teamMembersLoading } = useQuery(
+	// 数据已在 loader 中预取，无加载状态
+	const { data: session } = useSuspenseQuery(orpc.privateData.queryOptions());
+	const { data: teamMembers } = useSuspenseQuery(
 		orpc.organization.listTeamMembers.queryOptions({
 			input: {
 				teamId,
 			},
 		}),
 	);
-
-	const { data: orgMembersData, isLoading: orgMembersLoading } = useQuery(
+	const { data: orgMembersData } = useSuspenseQuery(
 		orpc.organization.listMembers.queryOptions({
 			input: {},
 		}),
 	);
 
-	const { isLoading: userTeamsLoading } = useQuery(
-		orpc.organization.listUserTeams.queryOptions(),
-	);
-
 	const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
 	const [selectedMemberId, setSelectedMemberId] = useState<string>("");
 
-	if (!session?.user) {
-		return null;
-	}
-
-	if (!session?.user?.activeOrganizationId) {
-		return (
-			<>
-				<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-					<div className="flex items-center gap-2 px-4">
-						<SidebarTrigger className="-ml-1" />
-						<Separator
-							orientation="vertical"
-							className="mr-2 data-[orientation=vertical]:h-4"
-						/>
-						<Breadcrumb>
-							<BreadcrumbList>
-								<BreadcrumbItem className="hidden md:block">
-									<BreadcrumbLink href="/org/dashboard">Org</BreadcrumbLink>
-								</BreadcrumbItem>
-								<BreadcrumbSeparator className="hidden md:block" />
-								<BreadcrumbItem className="hidden md:block">
-									<BreadcrumbLink href="/org/teams">Teams</BreadcrumbLink>
-								</BreadcrumbItem>
-								<BreadcrumbSeparator className="hidden md:block" />
-								<BreadcrumbItem>
-									<BreadcrumbPage>Team Details</BreadcrumbPage>
-								</BreadcrumbItem>
-							</BreadcrumbList>
-						</Breadcrumb>
-					</div>
-				</header>
-				<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-					<Skeleton className="h-12 w-full" />
-					<Skeleton className="h-32 w-full" />
-					<Skeleton className="h-20 w-full" />
-				</div>
-			</>
-		);
-	}
-
-	const activeTeamId = session.user.activeTeamId;
+	const activeTeamId = (
+		session.user as {
+			activeTeamId?: string | null;
+		}
+	).activeTeamId;
 	const isActiveTeam = activeTeamId === teamId;
 
 	const addTeamMember = useMutation(
 		orpc.organization.addTeamMember.mutationOptions({
 			onSuccess: () => {
-				toast.success("Member added to team");
 				setIsAddMemberOpen(false);
 				setSelectedMemberId("");
 				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listTeamMembers.queryOptions({
-						input: {
-							teamId,
-						},
-					}).queryKey,
+					queryKey: orpc.organization.listTeamMembers.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to add member: ${err.message}`);
 			},
 		}),
 	);
@@ -142,17 +108,9 @@ function TeamDetailPage() {
 	const removeTeamMember = useMutation(
 		orpc.organization.removeTeamMember.mutationOptions({
 			onSuccess: () => {
-				toast.success("Member removed from team");
 				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listTeamMembers.queryOptions({
-						input: {
-							teamId,
-						},
-					}).queryKey,
+					queryKey: orpc.organization.listTeamMembers.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to remove member: ${err.message}`);
 			},
 		}),
 	);
@@ -160,13 +118,9 @@ function TeamDetailPage() {
 	const setActiveTeam = useMutation(
 		orpc.organization.setActiveTeam.mutationOptions({
 			onSuccess: () => {
-				toast.success("Active team updated");
 				queryClient.invalidateQueries({
-					queryKey: orpc.privateData.queryOptions().queryKey,
+					queryKey: orpc.privateData.key(),
 				});
-			},
-			onError: (err: Error) => {
-				toast.error(`Failed to set active team: ${err.message}`);
 			},
 		}),
 	);
@@ -197,11 +151,10 @@ function TeamDetailPage() {
 			),
 	);
 
-	const isLoading =
-		sessionLoading ||
-		teamMembersLoading ||
-		orgMembersLoading ||
-		userTeamsLoading;
+	// 创建 userId 到 member 的映射
+	const memberMap = new Map(
+		orgMembers.map((member) => [member.userId, member]),
+	);
 
 	return (
 		<>
@@ -305,32 +258,28 @@ function TeamDetailPage() {
 					</div>
 				</div>
 
-				{isLoading ? (
-					<div className="space-y-2">
-						<Skeleton className="h-10 w-full" />
-						<Skeleton className="h-20 w-full" />
-						<Skeleton className="h-20 w-full" />
-					</div>
-				) : (
-					<div className="rounded-md border">
-						<Table>
-							<TableHeader>
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Member</TableHead>
+								<TableHead>Email</TableHead>
+								<TableHead className="text-right">Actions</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{teamMembers?.length === 0 ? (
 								<TableRow>
-									<TableHead>Member</TableHead>
-									<TableHead>Email</TableHead>
-									<TableHead className="text-right">Actions</TableHead>
+									<TableCell colSpan={3} className="h-24 text-center">
+										No team members found.
+									</TableCell>
 								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{teamMembers?.length === 0 ? (
-									<TableRow>
-										<TableCell colSpan={3} className="h-24 text-center">
-											No team members found.
-										</TableCell>
-									</TableRow>
-								) : (
-									teamMembers?.map((member) => (
-										<TableRow key={member.userId}>
+							) : (
+								teamMembers?.map((teamMember) => {
+									const member = memberMap.get(teamMember.userId);
+									if (!member) return null;
+									return (
+										<TableRow key={teamMember.userId}>
 											<TableCell>
 												<div className="flex items-center gap-2">
 													<Avatar className="h-8 w-8">
@@ -358,7 +307,7 @@ function TeamDetailPage() {
 														className="text-destructive hover:bg-destructive/10 hover:text-destructive"
 														onClick={() =>
 															handleRemoveMember(
-																member.userId,
+																teamMember.userId,
 																member.user.name,
 															)
 														}
@@ -368,12 +317,12 @@ function TeamDetailPage() {
 												</div>
 											</TableCell>
 										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
-					</div>
-				)}
+									);
+								})
+							)}
+						</TableBody>
+					</Table>
+				</div>
 
 				<div className="flex justify-between">
 					<Link

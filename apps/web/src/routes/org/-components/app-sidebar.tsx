@@ -1,11 +1,5 @@
-import {
-	AudioWaveform,
-	Command,
-	GalleryVerticalEnd,
-	LayoutDashboard,
-	Settings2,
-	Users,
-} from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { LayoutDashboard, Settings2, Users } from "lucide-react";
 import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import {
@@ -15,68 +9,51 @@ import {
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
+import { orpc } from "@/utils/orpc";
 
 import { NavUser } from "../-components/nav-user";
 import { OrgSwitcher } from "./org-switcher";
 
-// This is sample data.
-const data = {
-	user: {
-		name: "shadcn",
-		email: "m@example.com",
-		avatar: "/avatars/shadcn.jpg",
+const navMainItems = [
+	{
+		title: "Dashboard",
+		url: "/org/dashboard",
+		icon: LayoutDashboard,
+		isActive: true,
+		items: [],
 	},
-	orgs: [
-		{
-			name: "Acme Inc",
-			logo: GalleryVerticalEnd,
-			plan: "Enterprise",
-		},
-		{
-			name: "Acme Corp.",
-			logo: AudioWaveform,
-			plan: "Startup",
-		},
-		{
-			name: "Evil Corp.",
-			logo: Command,
-			plan: "Free",
-		},
-	],
-	navMain: [
-		{
-			title: "Dashboard",
-			url: "/org/dashboard",
-			icon: LayoutDashboard,
-			isActive: true,
-			items: [],
-		},
-		{
-			title: "Members",
-			url: "/org/members",
-			icon: Users,
-			items: [],
-		},
-		{
-			title: "Settings",
-			url: "/org/settings",
-			icon: Settings2,
-			items: [],
-		},
-	],
-};
+	{
+		title: "Members",
+		url: "/org/members",
+		icon: Users,
+		items: [],
+	},
+	{
+		title: "Settings",
+		url: "/org/settings",
+		icon: Settings2,
+		items: [],
+	},
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { data: session } = useSuspenseQuery(orpc.privateData.queryOptions());
+
+	const userData = {
+		name: session.user.name,
+		email: session.user.email,
+	};
+
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
-				<OrgSwitcher orgs={data.orgs} />
+				<OrgSwitcher />
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
+				<NavMain items={navMainItems} />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={data.user} />
+				<NavUser user={userData} />
 			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>
