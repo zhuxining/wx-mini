@@ -108,6 +108,14 @@ src/components/
 └── ...
 ```
 
+### 常见陷阱
+
+ **本项目使用 `@base-ui/react`**（非 Radix UI）
+
+- 不支持 `asChild` prop，使用 `render` prop 替代 `asChild`
+- 创建包装器时使用 `useRender` + `mergeProps`，`mergeProps` 第一个参数必须是 `{}`
+- 参见 [shadcn-usage.md](docs/shadcn-usage.md#base-ui-组件使用规范)
+
 ---
 
 ## 4. 代码规范
