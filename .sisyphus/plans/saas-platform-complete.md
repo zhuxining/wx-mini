@@ -3,7 +3,9 @@
 ## Context
 
 ### Original Request
+
 Build a complete SaaS platform based on oRPC, Better-Auth (Admin & Organization plugins), shadcn (base-ui), and TanStack. The web app serves three roles:
+
 - **Admin 端**: Manage all organizations and their administrators
 - **Org 端**: Manage organization content
 - **Public 端**: Open to all users for viewing
@@ -13,6 +15,7 @@ All users share a unified auth system, routing to different interfaces based on 
 ### Interview Summary
 
 **Key Discussions**:
+
 - Project uses: oRPC, Better-Auth (Admin + Organization plugins), shadcn/base-ui, TanStack Start
 - Backend is fully configured: Better-Auth + Drizzle ORM + PostgreSQL + oRPC
 - **SURPRISING DISCOVERY**: Many core features are already implemented!
@@ -23,6 +26,7 @@ All users share a unified auth system, routing to different interfaces based on 
 **Research Findings - Critical Discovery**:
 
 **Already Implemented ✅**:
+
 - Admin organizations list with full CRUD (`apps/web/src/routes/admin/organizations/index.tsx`)
 - Admin organization detail with edit/delete (`apps/web/src/routes/admin/organizations/$orgId.tsx`)
 - Admin users list with full CRUD (`apps/web/src/routes/admin/users/index.tsx`)
@@ -30,6 +34,7 @@ All users share a unified auth system, routing to different interfaces based on 
 - Org settings with edit/delete (`apps/web/src/routes/org/settings/index.tsx`)
 
 **Still Missing ❌**:
+
 1. **Security**: Route guards, post-login redirect, session integration in sidebars
 2. **Dashboards**: Admin and org dashboards are placeholders (no stats)
 3. **Org Switcher**: Static placeholder, not connected to real data
@@ -38,6 +43,7 @@ All users share a unified auth system, routing to different interfaces based on 
 6. **Public Pages**: Landing, pricing, about pages missing
 
 **Technical Decisions**:
+
 - Route guards implemented via TanStack Router `beforeLoad` middleware
 - Post-login redirect based on `session.user.role`
 - Manual QA with detailed verification procedures (no test framework setup)
@@ -49,9 +55,11 @@ All users share a unified auth system, routing to different interfaces based on 
 ## Work Objectives
 
 ### Core Objective
+
 Complete the remaining frontend functionality to achieve a fully functional SaaS platform, focusing on missing security features, dashboards, org switcher, team management, invitation flow, and public pages.
 
 ### Concrete Deliverables
+
 1. Role-based route guards for `/admin` and `/org` routes
 2. Post-login redirect logic (admin → /admin, user → /org)
 3. Real session data integration in admin/org sidebars
@@ -64,6 +72,7 @@ Complete the remaining frontend functionality to achieve a fully functional SaaS
 10. Logout functionality in sidebars
 
 ### Definition of Done
+
 - All routes have proper role guards
 - Login redirects users to correct interface based on role
 - Org Switcher works and updates active organization
@@ -76,6 +85,7 @@ Complete the remaining frontend functionality to achieve a fully functional SaaS
 - Manual QA completed for all new features
 
 ### Must Have
+
 - Role-based route guards (admin role check for /admin)
 - Post-login redirect based on user role
 - Real org switcher component connected to API
@@ -87,6 +97,7 @@ Complete the remaining frontend functionality to achieve a fully functional SaaS
 - Real session data in sidebars (logout working)
 
 ### Must NOT Have (Guardrails)
+
 - ❌ Reimplement existing features (orgs list, users list, members, settings)
 - ❌ Admin settings page (user explicitly excluded)
 - ❌ Automated tests (user chose Manual QA Only)
@@ -101,6 +112,7 @@ Complete the remaining frontend functionality to achieve a fully functional SaaS
 ## Verification Strategy
 
 ### Test Decision
+
 - **Infrastructure exists**: YES (project structure established)
 - **User wants tests**: Manual QA Only
 - **Framework**: None (no test framework to be set up)
@@ -108,6 +120,7 @@ Complete the remaining frontend functionality to achieve a fully functional SaaS
 ### Manual QA Procedures
 
 **For All Features**:
+
 1. **Frontend/UI changes**:
    - Navigate to page
    - Interact with elements (click, fill forms, scroll)
@@ -115,6 +128,7 @@ Complete the remaining frontend functionality to achieve a fully functional SaaS
    - Take screenshots for evidence
 
 **Evidence Required**:
+
 - Screenshots for visual changes (UI components, page renders)
 - Terminal output for API responses
 - Browser console screenshots for errors (if any)
@@ -198,7 +212,7 @@ Phase 6 (Public Pages):
   - TanStack Router `beforeLoad` documentation
 
   **External References**:
-  - TanStack Router: https://tanstack.com/router/latest/docs/framework/react/guide/authenticated-routes
+  - TanStack Router: <https://tanstack.com/router/latest/docs/framework/react/guide/authenticated-routes>
 
   **WHY Each Reference Matters**:
   - `requireAdmin` function shows how to check role: `role.includes("admin")`
@@ -319,7 +333,7 @@ Phase 6 (Public Pages):
   - Handle error state if session fetch fails
 
   **Must NOT do**:
-  - Do not use static sample data (Admin@example.com, shadcn@m.example.com)
+  - Do not use static sample data (<Admin@example.com>, <shadcn@m.example.com>)
   - Do not duplicate sidebar code (create shared component if identical)
 
   **Parallelizable**: NO (depends on tasks 1, 2, 3)
@@ -397,7 +411,7 @@ Phase 6 (Public Pages):
   - TanStack Query useMutation, useQuery docs
 
   **External References**:
-  - shadcn dropdown-menu: https://ui.shadcn.com/docs/components/dropdown-menu
+  - shadcn dropdown-menu: <https://ui.shadcn.com/docs/components/dropdown-menu>
 
   **WHY Each Reference Matters**:
   - Current org-switcher shows structure to modify
@@ -778,18 +792,18 @@ Phase 6 (Public Pages):
   **Commit**: YES
   - Message: `feat(public): create landing page with hero and features`
   - Files: `apps/web/src/routes/(public)/landing/index.tsx`
-   - Pre-commit: `bun run check`
-   
-   - [x] 12. Create pricing page
+  - Pre-commit: `bun run check`
+
+  - [x] 12. Create pricing page
 
   **What to do**:
   - Create `apps/web/src/routes/(public)/pricing/index.tsx` (new page)
   - Create pricing cards: Free, Startup, Enterprise tiers (example tiers)
   - Display features per tier, pricing (if applicable, or use placeholder)
   - Use `shadcn` card, badge components
-   - Add "Get Started" buttons for each tier
+  - Add "Get Started" buttons for each tier
 
-   - [x] 13. Create about page
+  - [x] 13. Create about page
 
   **What to do**:
   - Create `apps/web/src/routes/(public)/about/index.tsx` (new page)
@@ -870,35 +884,42 @@ bun run dev
 ### Final Checklist
 
 **Security & Auth**:
+
 - [x] All role-based route guards working (admin → /admin, user → /org)
 - [x] Post-login redirect works correctly based on role
 - [x] Sidebars show real user information
 - [x] Logout buttons work correctly
 
 **Core Experience**:
+
 - [x] Org switcher allows switching between organizations
 - [x] Active organization updates correctly after switch
 
 **Dashboards**:
+
 - [x] Admin dashboard displays correct stats (orgs, users, sessions)
 - [x] Org dashboard displays correct stats (members, teams, invitations)
 
 **Team Management**:
+
 - [x] Teams list works (create, edit, delete)
 - [x] Team detail page works (add/remove members, set active)
 
 **Invitation Flow**:
+
 - [x] Public accept invitation page works
 - [x] Invitation acceptance adds user to organization
 - [x] Invitation rejection works
 
 **Public Pages**:
+
 - [x] Landing page displays correctly (hero, features)
 - [x] Pricing page displays tier cards
 - [x] About page displays company information
 - [x] All public pages are responsive
 
 **Code Quality**:
+
 - [x] No console errors on any page (pre-existing type warnings unrelated to new code)
 - [x] No API errors in network tab (all oRPC queries use correct patterns)
 - [x] `bun run check-types` passes without errors (pre-existing type issues not caused by new code)
@@ -906,6 +927,7 @@ bun run dev
 ### Manual QA Evidence
 
 **Required Screenshots**:
+
 1. Admin dashboard with stats
 2. Org dashboard with stats
 3. Org switcher with real organizations
@@ -919,6 +941,7 @@ bun run dev
 11. Org sidebar with real user data
 
 **Terminal/API Evidence**:
+
 - API call logs for key operations (org switch, create team, accept invitation)
 - Session verification after org switch
 
@@ -929,6 +952,7 @@ bun run dev
 ### Key Patterns to Follow
 
 1. **oRPC Query Pattern**:
+
    ```typescript
    const { data, isLoading, error } = useQuery(
      orpc.organization.listOrganizations.queryOptions()
@@ -936,6 +960,7 @@ bun run dev
    ```
 
 2. **oRPC Mutation Pattern**:
+
    ```typescript
    const mutation = useMutation({
      mutationFn: orpc.organization.createOrganization.mutate,
@@ -950,6 +975,7 @@ bun run dev
    ```
 
 3. **Route Guard Pattern**:
+
    ```typescript
    export const Route = createFileRoute('/admin/dashboard')({
      beforeLoad: ({ context }) => {
@@ -960,6 +986,7 @@ bun run dev
    ```
 
 4. **Loading State Pattern**:
+
    ```typescript
    if (isLoading) return <Skeleton className="h-32 w-full" />;
    if (error) return <div>Error: {error.message}</div>;
@@ -968,6 +995,7 @@ bun run dev
 ### Common UI Components
 
 Use these `shadcn` components throughout (existing patterns already used in the project):
+
 - `Card` for stat cards and forms
 - `Table` for data tables
 - `Dialog` for modals and confirmations
@@ -982,6 +1010,7 @@ Use these `shadcn` components throughout (existing patterns already used in the 
 ### Existing Patterns to Follow
 
 The project already has excellent implementations for:
+
 - **Table patterns**: `apps/web/src/routes/admin/organizations/index.tsx`, `apps/web/src/routes/admin/users/index.tsx`
 - **Dialog patterns**: Same files show how to use dialogs with forms
 - **Mutation patterns**: UseQuery with invalidateQueries after success
@@ -994,6 +1023,7 @@ The project already has excellent implementations for:
 ### Error Handling
 
 Always handle these error types (already implemented in existing pages):
+
 - **Network errors**: Show "Unable to connect to server. Please check your connection."
 - **Unauthorized errors (403)**: Show "You don't have permission to perform this action."
 - **Validation errors**: Display specific field errors
@@ -1002,6 +1032,7 @@ Always handle these error types (already implemented in existing pages):
 ### Permission Checks
 
 Implement permission checks at these levels:
+
 1. **Route level**: Prevent unauthorized users from accessing pages (route guards)
 2. **UI level**: Hide action buttons for unauthorized users (e.g., regular members can't see delete buttons)
 3. **API level**: Verify permissions before executing mutations (use `getActiveMember` to check role)
@@ -1009,6 +1040,7 @@ Implement permission checks at these levels:
 ### Organization Context
 
 Always use active organization context:
+
 - Get current org ID from `orpc.privateData().user.activeOrganizationId`
 - Pass `organizationId` to org-specific queries
 - Handle case where `activeOrganizationId` is null (no org selected)
@@ -1026,6 +1058,7 @@ Always use active organization context:
 **Total Tasks**: 33/33 (100% complete)
 
 **Completed Phases**:
+
 - ✅ Phase 1: Security & Session Integration (Tasks 1-4)
 - ✅ Phase 2: Core Experience (Task 5)
 - ✅ Phase 3: Dashboards (Tasks 6-7)
@@ -1034,6 +1067,7 @@ Always use active organization context:
 - ✅ Phase 6: Public Pages (Tasks 11-13)
 
 **Files Created/Modified**:
+
 - `apps/web/src/lib/auth-guards.ts` - Auth guards library
 - `apps/web/src/components/nav-user.tsx` - Shared user menu
 - `apps/web/src/components/sign-in-form.tsx` - Updated post-login redirect
@@ -1050,23 +1084,27 @@ Always use active organization context:
 **Completed**: 2026-01-20
 
 **Tasks Completed**: 5/5
+
 1. ✅ Fixed auth-guards.ts null checks
 2. ✅ Documented pre-existing type mismatches
 3. ✅ Cleaned up unused imports (Biome check passed)
 4. ✅ Ran final code quality checks
 5. ✅ Updated README documentation
 
-**Type Safety**: 
+**Type Safety**:
+
 - Fixed TypeScript warnings in `apps/web/src/lib/auth-guards.ts`
 - Documented all pre-existing type issues in README.md
 - No new errors or warnings introduced
 
 **Code Quality**:
+
 - `bun run check` - Passed (no unused imports)
 - `turbo check-types` - Passed (pre-existing warnings documented)
 - All code follows existing patterns
 
 **Documentation**:
+
 - Added "Pre-existing Type Issues" section to README.md
 - Documented workarounds for `activeOrganizationId` and `queryOptions` patterns
 - Added evolution roadmap reference
@@ -1074,6 +1112,7 @@ Always use active organization context:
 ### 📊 Implementation Summary
 
 **Core Features Implemented**:
+
 - Multi-role authentication (Admin, Org, Public)
 - Role-based routing and redirect logic
 - Real-time organization switching
@@ -1086,6 +1125,7 @@ Always use active organization context:
 - Query invalidation patterns
 
 **Technical Stack**:
+
 - Frontend: React + TanStack Start (SSR)
 - UI Components: shadcn/ui + TailwindCSS
 - Backend: oRPC (type-safe APIs)
@@ -1094,6 +1134,7 @@ Always use active organization context:
 - Build: Turborepo
 
 **Quality Metrics**:
+
 - TypeScript: Type-safe throughout
 - Code Style: Biome formatting enforced
 - Architecture: Isomorphic oRPC handlers
@@ -1103,12 +1144,14 @@ Always use active organization context:
 ### 📈 Next Steps
 
 **Ready for Production**:
+
 - All core features implemented
 - Code quality checks passed
 - Type safety documented
 - Pre-existing issues identified and documented
 
 **Optional Enhancements** (see `.sisyphus/plans/evolution-roadmap.md`):
+
 - Phase 7: Route registration & layout consistency (if needed)
 - Phase 8: Login page invitation integration
 - Phase 9: Manual QA & testing

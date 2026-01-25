@@ -1,5 +1,5 @@
-- 注释一律用英文
-- 不要过度设计，保证代码简洁易懂，简单实用
-- 写代码时，要注意圈复杂度，代码尽可能复用
-- 写代码时，注意模块设计，尽量使用设计模式
-- 改动时最小化修改，尽量不修改到其他模块代码
+- Each response begins with 🃏.
+- Avoid over-engineering and ensure the code is concise, understandable, simple and practical.
+- Pay attention to cyclomatic complexity during coding and maximize code reusability as much as possible.
+- Focus on modular design in coding and apply design patterns where appropriate.
+- Minimize modifications when making changes and try not to alter the code of other modules.

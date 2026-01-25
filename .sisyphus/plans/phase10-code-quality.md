@@ -1,9 +1,11 @@
 # Phase 10: Code Quality & Type Safety
 
 ## Objective
+
 Fix pre-existing type warnings, clean up unused imports, and document known issues.
 
 ## Priority: ⚠️ MEDIUM
+
 ## Estimated Time: 30-45 minutes
 
 ## Tasks
@@ -13,6 +15,7 @@ Fix pre-existing type warnings, clean up unused imports, and document known issu
 **File**: `apps/web/src/lib/auth-guards.ts`
 
 **Current Issues**:
+
 - Line ~21: `session` possibly undefined
 - Line ~21: `session.user` possibly undefined
 
@@ -45,14 +48,17 @@ if (Array.isArray(role) && !role.includes("admin") ||
 **Issues to Document**:
 
 #### Issue 1: activeOrganizationId property
+
 **Location**: `apps/web/src/routes/admin/dashboard/index.tsx`, `apps/web/src/routes/org/dashboard/index.tsx`, `apps/web/src/routes/org/-components/org-switcher.tsx`
 
 **Description**:
+
 - Property `session.user.activeOrganizationId` exists at runtime
 - TypeScript types don't include this property
 - This is a Better-Auth runtime property not reflected in generated types
 
 **Workaround**: Use optional chaining
+
 ```typescript
 const organizationId = session?.user?.activeOrganizationId || "";
 ```
@@ -62,14 +68,17 @@ const organizationId = session?.user?.activeOrganizationId || "";
 ---
 
 #### Issue 2: queryOptions type mismatch
+
 **Location**: Multiple files using oRPC queries
 
 **Description**:
+
 - LSP expects `{ input: {...} }` structure
 - Actual usage pattern: `{ organizationId: "..." }`
 - This is a type mismatch in generated oRPC types
 
 **Workaround**: Current pattern works at runtime despite type warnings
+
 ```typescript
 // LSP expects:
 orpc.organization.listMembers.queryOptions({
@@ -89,6 +98,7 @@ orpc.organization.listMembers.queryOptions({
 ### Task 3: Clean up unused imports
 
 **Files to check**:
+
 - `apps/web/src/routes/(public)/landing/index.tsx`
 - `apps/web/src/routes/(public)/pricing/index.tsx`
 - `apps/web/src/routes/(public)/about/index.tsx`
@@ -97,6 +107,7 @@ orpc.organization.listMembers.queryOptions({
 - `apps/web/src/routes/invitations/accept/$invitationId.tsx`
 
 **Action**:
+
 ```bash
 # Run ESLint with auto-fix
 cd apps/web && bunx eslint src --fix
@@ -106,6 +117,7 @@ bun run check
 ```
 
 **Expected Result**:
+
 - Unused imports are removed
 - No import warnings remain
 
@@ -114,6 +126,7 @@ bun run check
 ### Task 4: Run final code quality checks
 
 **Commands**:
+
 ```bash
 # 1. Lint and format
 bun run check
@@ -125,6 +138,7 @@ bun run check-types
 ```
 
 **Expected Result**:
+
 - All code follows Biome formatting rules
 - No new TypeScript errors
 - Pre-existing warnings documented
@@ -134,9 +148,11 @@ bun run check-types
 ### Task 5: Update documentation
 
 **Files**:
+
 - `README.md` - Add "Pre-existing Type Issues" section
 
 **Content to Add**:
+
 ```markdown
 ## Pre-existing Type Issues
 
@@ -151,19 +167,23 @@ const organizationId = session?.user?.activeOrganizationId || "";
 ```
 
 **Files Affected**:
+
 - `apps/web/src/routes/admin/dashboard/index.tsx`
 - `apps/web/src/routes/org/dashboard/index.tsx`
 - `apps/web/src/routes/org/-components/org-switcher.tsx`
 
 ### queryOptions Type Mismatch
+
 The generated oRPC types expect `{ input: {...} }` structure but the actual usage pattern is direct object passing.
 
 **Workaround**: Current pattern works at runtime
+
 ```typescript
 orpc.organization.listMembers.queryOptions({ organizationId: "..." })
 ```
 
 **Impact**: These warnings don't block functionality. Code works correctly at runtime.
+
 ```
 
 ---

@@ -1,4 +1,5 @@
 # Web Routes Directory
+
 ## OVERVIEW
 
 TanStack Router file-based routing with TanStack Start SSR, grouped by route domain with co-located components.
@@ -6,6 +7,7 @@ TanStack Router file-based routing with TanStack Start SSR, grouped by route dom
 **Status:** All routes implemented (Phase 1-6 complete) - See saas-platform-complete.md for full details.
 
 ## STRUCTURE
+
 ```
 src/routes/
 ├── (auth)/              # Authenticated routes group
@@ -27,6 +29,7 @@ src/routes/
 ```
 
 ## WHERE TO LOOK
+
 | Task | Location |
 |------|----------|
 | Route definitions | Each route.tsx file |
@@ -38,12 +41,14 @@ src/routes/
 ## CONVENTIONS
 
 ### File Organization
+
 - **Route files**: `route.tsx` - exports route configuration
 - **Index files**: `index.tsx` - default route for directory
 - **Nested routes**: `$param.tsx` - dynamic route segments
 - **Component folders**: `-components/` - route-scoped shared components (dash prefix = not a route)
 
 ### Route Pattern
+
 Each route file exports `Route` from `createRootRouteWithContext<RouterAppContext>`:
 
 ```typescript
@@ -55,11 +60,13 @@ export const Route = createFileRoute('/admin/dashboard')({
 ```
 
 ### Component Co-location
+
 - Route-specific components live in `-components/` adjacent to routes
 - Naming: kebab-case for WXML files, PascalCase for TS/JS
 - Prevents namespace pollution across route groups
 
 ### oRPC Access
+
 All routes access oRPC via context:
 
 ```typescript

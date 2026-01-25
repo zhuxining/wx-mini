@@ -3,7 +3,7 @@
 
 {
   "$schema": "https://r2.better-t-stack.dev/schema.json",
-  "version": "3.15.0",
+  "version": "3.18.0",
   "createdAt": "2026-01-14T12:58:58.868Z",
   "database": "postgres",
   "orm": "drizzle",

@@ -3,15 +3,19 @@
 ## Context
 
 ### Original Request
+
 User wants to implement comprehensive admin and organization API interfaces in their org-sass codebase using Better-Auth's Admin and Organization plugins. The goal is to expose ALL methods provided by these plugins through oRPC endpoints.
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - Router Organization: Separate routers (admin.ts + organization.ts)
 - Permission Checking: Inline checks in each route handler (not dedicated middleware)
 - Error Handling: oRPC standard errors (ORPCError)
 
 **Research Findings**:
+
 - Better-Auth Admin plugin provides 15 methods
 - Better-Auth Organization plugin provides 28+ methods
 - All methods documented with parameters, return types, and behavior
@@ -22,15 +26,18 @@ User wants to implement comprehensive admin and organization API interfaces in t
 ## Work Objectives
 
 ### Core Objective
+
 Create complete oRPC API coverage for ALL Better-Auth Admin and Organization plugin methods, organized into two separate routers following existing codebase patterns.
 
 ### Concrete Deliverables
+
 - `packages/api/src/routers/admin.ts` - 15 admin endpoints
 - `packages/api/src/routers/organization.ts` - 28+ organization endpoints
 - `packages/api/src/index.ts` - Updated with admin-specific middleware helper
 - Updated router exports in `packages/api/src/routers/index.ts`
 
 ### Definition of Done
+
 - [ ] All 15 admin methods implemented as oRPC endpoints
 - [ ] All 28+ organization methods implemented as oRPC endpoints
 - [ ] Inline permission checking for admin-only operations
@@ -41,6 +48,7 @@ Create complete oRPC API coverage for ALL Better-Auth Admin and Organization plu
 - [ ] `bun run check-types` passes (TypeScript compilation)
 
 ### Must Have
+
 - Complete method coverage (no methods left out)
 - Type-safe inputs with Zod schemas
 - Proper error handling using ORPCError
@@ -48,6 +56,7 @@ Create complete oRPC API coverage for ALL Better-Auth Admin and Organization plu
 - Follow existing oRPC patterns (publicProcedure, protectedProcedure)
 
 ### Must NOT Have (Guardrails)
+
 - Do NOT create custom middleware beyond what exists
 - Do NOT add custom business logic beyond Better-Auth capabilities
 - Do NOT implement frontend components or UI
@@ -60,6 +69,7 @@ Create complete oRPC API coverage for ALL Better-Auth Admin and Organization plu
 ## Verification Strategy
 
 ### Test Decision
+
 - **Infrastructure exists**: NO
 - **User wants tests**: Manual-only
 - **Framework**: none
@@ -68,12 +78,14 @@ Create complete oRPC API coverage for ALL Better-Auth Admin and Organization plu
 ### Manual QA Procedures
 
 **Each endpoint will be verified using**:
+
 1. **API Testing** - curl/httpie requests
 2. **Response Validation** - Verify JSON response structure
 3. **Type Checking** - Verify TypeScript compilation
 4. **Permission Testing** - Verify admin checks work
 
 **Evidence Required**:
+
 - Command output showing successful requests
 - Response bodies showing correct data structure
 - TypeScript compilation passing
@@ -194,6 +206,7 @@ Task 4 (Verification)
   - `packages/api/src/context.ts:1-12` - How to access auth and session
 
   **Input Validation Pattern** (use Zod):
+
   ```typescript
   import { z } from "zod";
   
@@ -212,6 +225,7 @@ Task 4 (Verification)
   ```
 
   **Better-Auth Method Call Pattern**:
+
   ```typescript
   import { auth } from "@org-sass/auth";
   
@@ -222,6 +236,7 @@ Task 4 (Verification)
   ```
 
   **Error Handling Pattern**:
+
   ```typescript
   import { ORPCError } from "@orpc/server";
   
@@ -240,6 +255,7 @@ Task 4 (Verification)
   Test each endpoint type (representative samples):
   
   - [ ] **createUser** test:
+
     ```bash
     # 1. Login as admin first to get session cookie
     curl -X POST http://localhost:3001/api/auth/sign-in/email \
@@ -257,6 +273,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **listUsers** test with pagination:
+
     ```bash
     curl -X GET 'http://localhost:3001/api/rpc/admin/listUsers?limit=10&offset=0' \
       -H "Content-Type: application/json" \
@@ -266,6 +283,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **banUser** test:
+
     ```bash
     curl -X POST http://localhost:3001/api/rpc/admin/banUser \
       -H "Content-Type: application/json" \
@@ -276,6 +294,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **Non-admin rejection** test:
+
     ```bash
     # 1. Login as regular user
     curl -X POST http://localhost:3001/api/auth/sign-in/email \
@@ -307,7 +326,7 @@ Task 4 (Verification)
   **What to do**:
   - Create `packages/api/src/routers/organization.ts`
   - Implement ALL 28 organization methods as oRPC endpoints:
-    
+
     **Organization Management (6 methods)**:
     1. `createOrganization` - body: { name, slug, logo?, metadata?, userId?, keepCurrentActiveOrganization? }
     2. `listOrganizations` - body: {} (no params)
@@ -315,14 +334,14 @@ Task 4 (Verification)
     4. `updateOrganization` - body: { data, name?, slug?, logo?, metadata? }
     5. `deleteOrganization` - body: { organizationId }
     6. `setActiveOrganization` - body: { organizationId?, organizationSlug? }
-    
+
     **Member Management (5 methods)**:
     7. `addMember` - body: { userId?, role, organizationId?, teamId? }
     8. `removeMember` - body: { memberIdOrEmail, organizationId? }
     9. `listMembers` - query: { organizationId?, limit?, offset?, sortBy?, sortDirection?, filterField?, filterOperator?, filterValue? }
     10. `updateMemberRole` - body: { memberId, role, organizationId? }
     11. `getActiveMember` - body: {} (no params)
-    
+
     **Invitation Management (6 methods)**:
     12. `inviteMember` - body: { email, role, organizationId?, resend?, teamId? }
     13. `acceptInvitation` - body: { invitationId }
@@ -330,7 +349,7 @@ Task 4 (Verification)
     15. `cancelInvitation` - body: { invitationId }
     16. `getInvitation` - query: { id }
     17. `listInvitations` - query: { organizationId? }
-    
+
     **Team Management (6 methods)**:
     18. `createTeam` - body: { name, organizationId? }
     19. `updateTeam` - body: { teamId, name, organizationId? }
@@ -338,7 +357,7 @@ Task 4 (Verification)
     21. `listTeams` - query: { organizationId? }
     22. `addTeamMember` - body: { teamId, userId }
     23. `removeTeamMember` - body: { teamId, userId }
-    
+
     **Role & Permission Management (5 methods)**:
     24. `createRole` - body: { role, permission?, organizationId? }
     25. `updateRole` - body: { roleName?, roleId?, organizationId?, data, permission? }
@@ -374,6 +393,7 @@ Task 4 (Verification)
   - `packages/api/src/context.ts:1-12` - How to access auth and session
 
   **Input Validation Pattern** (use Zod):
+
   ```typescript
   import { z } from "zod";
   
@@ -397,6 +417,7 @@ Task 4 (Verification)
   ```
 
   **Better-Auth Method Call Pattern**:
+
   ```typescript
   import { auth } from "@org-sass/auth";
   
@@ -407,6 +428,7 @@ Task 4 (Verification)
   ```
 
   **Query Parameters Pattern** (for GET endpoints):
+
   ```typescript
   listMembers: protectedProcedure
     .input(z.object({
@@ -430,6 +452,7 @@ Task 4 (Verification)
   Test each endpoint category (representative samples):
   
   - [ ] **createOrganization** test:
+
     ```bash
     # 1. Login as authenticated user
     curl -X POST http://localhost:3001/api/auth/sign-in/email \
@@ -447,6 +470,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **listOrganizations** test:
+
     ```bash
     curl -X GET http://localhost:3001/api/rpc/organization/listOrganizations \
       -H "Content-Type: application/json" \
@@ -456,6 +480,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **addMember** test:
+
     ```bash
     curl -X POST http://localhost:3001/api/rpc/organization/addMember \
       -H "Content-Type: application/json" \
@@ -466,6 +491,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **createTeam** test:
+
     ```bash
     curl -X POST http://localhost:3001/api/rpc/organization/createTeam \
       -H "Content-Type: application/json" \
@@ -476,6 +502,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **inviteMember** test:
+
     ```bash
     curl -X POST http://localhost:3001/api/rpc/organization/inviteMember \
       -H "Content-Type: application/json" \
@@ -486,6 +513,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **createRole** test:
+
     ```bash
     curl -X POST http://localhost:3001/api/rpc/organization/createRole \
       -H "Content-Type: application/json" \
@@ -527,6 +555,7 @@ Task 4 (Verification)
   - `packages/api/src/routers/index.ts:1-17` - Current appRouter structure and exports
 
   **Expected Final Structure**:
+
   ```typescript
   import { adminRouter } from "./admin";
   import { organizationRouter } from "./organization";
@@ -552,6 +581,7 @@ Task 4 (Verification)
   - [ ] TypeScript compiles: `bun run check-types` → no errors
   - [ ] Code formatted: `bun run check` → no changes needed
   - [ ] Type exports verified:
+
     ```bash
     # Navigate to web app
     cd apps/web
@@ -576,7 +606,9 @@ Task 4 (Verification)
     
     # Expected: TypeScript compilation succeeds, types are accessible
     ```
+
   - [ ] Router structure verified:
+
     ```bash
     # Verify the router exports contain admin and organization
     cat packages/api/src/routers/index.ts | grep -A 5 "export const appRouter"
@@ -617,6 +649,7 @@ Task 4 (Verification)
   **Manual Execution Verification - E2E Workflow**:
   
   - [ ] **Admin workflow** test:
+
     ```bash
     # 1. Admin creates user
     curl -X POST http://localhost:3001/api/rpc/admin/createUser \
@@ -641,6 +674,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **Organization workflow** test:
+
     ```bash
     # 1. User creates organization
     curl -X POST http://localhost:3001/api/rpc/organization/createOrganization \
@@ -673,6 +707,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **Error handling** test:
+
     ```bash
     # 1. Test invalid input
     curl -X POST http://localhost:3001/api/rpc/admin/createUser \
@@ -699,6 +734,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **Full project build**:
+
     ```bash
     # Run complete build process
     bun run build
@@ -707,6 +743,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **Type checking**:
+
     ```bash
     # Check types across all packages
     bun run check-types
@@ -715,6 +752,7 @@ Task 4 (Verification)
     ```
   
   - [ ] **Formatting check**:
+
     ```bash
     # Verify all code is properly formatted
     bun run check
