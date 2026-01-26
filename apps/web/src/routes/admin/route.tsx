@@ -3,10 +3,10 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./-components/app-sidebar";
 
 export const Route = createFileRoute("/admin")({
-	component: OrgLayout,
+	component: AdminLayout,
 });
 
-function OrgLayout() {
+function AdminLayout() {
 	return (
 		<SidebarProvider>
 			<AppSidebar />
