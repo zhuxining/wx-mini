@@ -1,11 +1,13 @@
 import {
 	useMutation,
+	useQuery,
 	useQueryClient,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	Ban,
+	Building,
 	CheckCircle,
 	MoreHorizontal,
 	Plus,
@@ -13,6 +15,9 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useState } from "react";
+
+import { toast } from "sonner";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -63,6 +68,39 @@ export const Route = createFileRoute("/admin/users/")({
 	component: AdminUsersPage,
 });
 
+// 组件：用户组织关系（懒加载）
+function UserOrganizations({ userId }: { userId: string }) {
+	const { data: userOrgs, isLoading } = useQuery({
+		...orpc.admin.getUserOrganizations.queryOptions({
+			input: { userId },
+		}),
+		enabled: !!userId,
+		staleTime: 5 * 60 * 1000, // 5分钟缓存
+	});
+
+	if (isLoading) {
+		return <span className="text-muted-foreground text-xs">Loading...</span>;
+	}
+
+	if (!userOrgs || userOrgs.length === 0) {
+		return (
+			<span className="text-muted-foreground text-xs">No organizations</span>
+		);
+	}
+
+	return (
+		<div className="flex flex-wrap gap-1">
+			{userOrgs.map((org) => (
+				<Badge key={org.organizationId} variant="outline" className="text-xs">
+					<Building className="mr-1 h-3 w-3" />
+					{org.organizationName}
+					<span className="ml-1 text-muted-foreground">({org.role})</span>
+				</Badge>
+			))}
+		</div>
+	);
+}
+
 function AdminUsersPage() {
 	const queryClient = useQueryClient();
 	const { confirm, ConfirmDialogComponent } = useConfirmDialog();
@@ -84,11 +122,15 @@ function AdminUsersPage() {
 	const createUser = useMutation(
 		orpc.admin.createUser.mutationOptions({
 			onSuccess: () => {
+				toast.success("User created successfully");
 				setIsCreateOpen(false);
 				setNewUser({ name: "", email: "", password: "", role: "user" });
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to create user");
 			},
 		}),
 	);
@@ -96,9 +138,13 @@ function AdminUsersPage() {
 	const setRole = useMutation(
 		orpc.admin.setRole.mutationOptions({
 			onSuccess: () => {
+				toast.success("User role updated successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to update user role");
 			},
 		}),
 	);
@@ -106,9 +152,13 @@ function AdminUsersPage() {
 	const banUser = useMutation(
 		orpc.admin.banUser.mutationOptions({
 			onSuccess: () => {
+				toast.success("User banned successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to ban user");
 			},
 		}),
 	);
@@ -116,9 +166,13 @@ function AdminUsersPage() {
 	const unbanUser = useMutation(
 		orpc.admin.unbanUser.mutationOptions({
 			onSuccess: () => {
+				toast.success("User unbanned successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to unban user");
 			},
 		}),
 	);
@@ -126,9 +180,13 @@ function AdminUsersPage() {
 	const removeUser = useMutation(
 		orpc.admin.removeUser.mutationOptions({
 			onSuccess: () => {
+				toast.success("User deleted successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.listUsers.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to delete user");
 			},
 		}),
 	);
@@ -292,9 +350,10 @@ function AdminUsersPage() {
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>Name</TableHead>
+								<TableHead>User</TableHead>
 								<TableHead>Email</TableHead>
 								<TableHead>Role</TableHead>
+								<TableHead>Organizations</TableHead>
 								<TableHead>Status</TableHead>
 								<TableHead>Created At</TableHead>
 								<TableHead className="text-right">Actions</TableHead>
@@ -303,14 +362,23 @@ function AdminUsersPage() {
 						<TableBody>
 							{filteredUsers?.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={6} className="h-24 text-center">
+									<TableCell colSpan={7} className="h-24 text-center">
 										No users found.
 									</TableCell>
 								</TableRow>
 							) : (
 								filteredUsers?.map((user) => (
 									<TableRow key={user.id}>
-										<TableCell className="font-medium">{user.name}</TableCell>
+										<TableCell>
+											<div className="flex items-center gap-2">
+												<Avatar className="h-8 w-8">
+													<AvatarFallback>
+														{user.name?.charAt(0).toUpperCase() || "?"}
+													</AvatarFallback>
+												</Avatar>
+												<span className="font-medium">{user.name}</span>
+											</div>
+										</TableCell>
 										<TableCell>{user.email}</TableCell>
 										<TableCell>
 											<Badge
@@ -320,6 +388,9 @@ function AdminUsersPage() {
 											>
 												{user.role}
 											</Badge>
+										</TableCell>
+										<TableCell>
+											<UserOrganizations userId={user.id} />
 										</TableCell>
 										<TableCell>
 											{user.banned ? (
