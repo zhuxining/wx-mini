@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, Settings2, Users } from "lucide-react";
+import { Building, LayoutDashboard, Settings2, Users } from "lucide-react";
 import type * as React from "react";
 import {
 	Collapsible,
@@ -108,6 +108,12 @@ const navMainItems = [
 		title: "Members",
 		url: "/org/members",
 		icon: Users,
+		items: [],
+	},
+	{
+		title: "Teams",
+		url: "/org/teams",
+		icon: Building,
 		items: [],
 	},
 	{

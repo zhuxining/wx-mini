@@ -3,9 +3,12 @@ import {
 	useQueryClient,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+
+import { toast } from "sonner";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +37,7 @@ export const Route = createFileRoute("/org/settings/")({
 
 function OrgSettingsPage() {
 	const queryClient = useQueryClient();
+	const _navigate = useNavigate();
 	const { confirm, ConfirmDialogComponent } = useConfirmDialog();
 
 	// 数据已在 loader 中预取，无加载状态
@@ -56,9 +60,13 @@ function OrgSettingsPage() {
 	const updateOrg = useMutation(
 		orpc.organization.updateOrganization.mutationOptions({
 			onSuccess: () => {
+				toast.success("Organization updated successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.getFullOrganization.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to update organization");
 			},
 		}),
 	);
@@ -66,7 +74,11 @@ function OrgSettingsPage() {
 	const deleteOrg = useMutation(
 		orpc.organization.deleteOrganization.mutationOptions({
 			onSuccess: () => {
-				window.location.href = "/";
+				toast.success("Organization deleted successfully");
+				_navigate({ to: "/" });
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to delete organization");
 			},
 		}),
 	);

@@ -4,8 +4,10 @@ import {
 	useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Mail, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
+import { Mail, MoreHorizontal, Plus, Shield, Trash2, X } from "lucide-react";
 import { useState } from "react";
+
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -82,11 +84,15 @@ function OrgMembersPage() {
 	const inviteMember = useMutation(
 		orpc.organization.inviteMember.mutationOptions({
 			onSuccess: () => {
+				toast.success("Invitation sent successfully");
 				setIsInviteOpen(false);
 				setInviteEmail("");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listInvitations.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to send invitation");
 			},
 		}),
 	);
@@ -94,9 +100,13 @@ function OrgMembersPage() {
 	const removeMember = useMutation(
 		orpc.organization.removeMember.mutationOptions({
 			onSuccess: () => {
+				toast.success("Member removed successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listMembers.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to remove member");
 			},
 		}),
 	);
@@ -104,9 +114,13 @@ function OrgMembersPage() {
 	const updateRole = useMutation(
 		orpc.organization.updateMemberRole.mutationOptions({
 			onSuccess: () => {
+				toast.success("Member role updated successfully");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listMembers.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to update member role");
 			},
 		}),
 	);
@@ -114,9 +128,13 @@ function OrgMembersPage() {
 	const cancelInvitation = useMutation(
 		orpc.organization.cancelInvitation.mutationOptions({
 			onSuccess: () => {
+				toast.success("Invitation cancelled");
 				queryClient.invalidateQueries({
 					queryKey: orpc.organization.listInvitations.key(),
 				});
+			},
+			onError: (error) => {
+				toast.error(error.message || "Failed to cancel invitation");
 			},
 		}),
 	);
@@ -155,6 +173,32 @@ function OrgMembersPage() {
 		});
 		if (confirmed) {
 			cancelInvitation.mutate({ invitationId });
+		}
+	};
+
+	// 角色显示组件
+	const _getRoleBadge = (role: string) => {
+		switch (role) {
+			case "owner":
+				return (
+					<Badge variant="default" className="gap-1">
+						<Shield className="h-3 w-3" />
+						Owner
+					</Badge>
+				);
+			case "admin":
+				return (
+					<Badge variant="secondary" className="gap-1">
+						<Shield className="h-3 w-3" />
+						Moderator
+					</Badge>
+				);
+			default:
+				return (
+					<Badge variant="outline" className="gap-1">
+						{role.charAt(0).toUpperCase() + role.slice(1)}
+					</Badge>
+				);
 		}
 	};
 
@@ -205,7 +249,7 @@ function OrgMembersPage() {
 										</SelectTrigger>
 										<SelectContent>
 											<SelectItem value="member">Member</SelectItem>
-											<SelectItem value="admin">Admin</SelectItem>
+											<SelectItem value="admin">Moderator</SelectItem>
 											<SelectItem value="owner">Owner</SelectItem>
 										</SelectContent>
 									</Select>
@@ -265,11 +309,7 @@ function OrgMembersPage() {
 												</div>
 											</div>
 										</TableCell>
-										<TableCell>
-											<Badge variant="outline" className="capitalize">
-												{member.role}
-											</Badge>
-										</TableCell>
+										<TableCell>{_getRoleBadge(member.role)}</TableCell>
 										<TableCell>
 											{new Date(member.createdAt).toLocaleDateString()}
 										</TableCell>
@@ -296,7 +336,7 @@ function OrgMembersPage() {
 													<DropdownMenuItem
 														onClick={() => handleRoleChange(member.id, "admin")}
 													>
-														Admin
+														Moderator
 													</DropdownMenuItem>
 													<DropdownMenuItem
 														onClick={() => handleRoleChange(member.id, "owner")}
@@ -345,11 +385,7 @@ function OrgMembersPage() {
 													<span>{invite.email}</span>
 												</div>
 											</TableCell>
-											<TableCell>
-												<Badge variant="outline" className="capitalize">
-													{invite.role}
-												</Badge>
-											</TableCell>
+											<TableCell>{_getRoleBadge(invite.role)}</TableCell>
 											<TableCell>
 												{new Date(invite.createdAt).toLocaleDateString()}
 											</TableCell>
