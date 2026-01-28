@@ -35,10 +35,9 @@ import {
 } from "@/components/ui/table";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { orpc } from "@/utils/orpc";
-import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/teams/$teamId")({
-	beforeLoad: requireActiveOrg,
+	// ✅ 继承父路由 /org 的 beforeLoad,无需重复检查
 	loader: async ({ context, params }) => {
 		await Promise.all([
 			context.queryClient.ensureQueryData(orpc.privateData.queryOptions()),

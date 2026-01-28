@@ -2,9 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import z from "zod";
-
 import { authClient } from "@/lib/auth-client";
-
 import Loader from "./loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -12,10 +10,8 @@ import { Label } from "./ui/label";
 
 export default function SignInForm({
 	onSwitchToSignUp,
-	redirect,
 }: {
 	onSwitchToSignUp: () => void;
-	redirect?: string | undefined;
 }) {
 	const navigate = useNavigate({
 		from: "/",
@@ -28,41 +24,23 @@ export default function SignInForm({
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
-			const response = await authClient.signIn.email({
-				email: value.email,
-				password: value.password,
-			});
-
-			if (response.error) {
-				toast.error(response.error.message || response.error.statusText);
-				return;
-			}
-
-			// Use the redirect parameter if provided, otherwise use role-based redirect
-			if (redirect) {
-				navigate({
-					to: redirect,
-				});
-				return;
-			}
-
-			// Use the user data from the response
-			const user = response.data?.user as { role?: string } | undefined;
-			if (!user) {
-				toast.error("Failed to get user information");
-				return;
-			}
-
-			const role = user.role;
-			if (typeof role === "string" && role.includes("admin")) {
-				navigate({
-					to: "/admin/dashboard",
-				});
-			} else {
-				navigate({
-					to: "/org/dashboard",
-				});
-			}
+			await authClient.signIn.email(
+				{
+					email: value.email,
+					password: value.password,
+				},
+				{
+					onSuccess: () => {
+						navigate({
+							to: "/about",
+						});
+						toast.success("Sign in successful");
+					},
+					onError: (error) => {
+						toast.error(error.error.message || error.error.statusText);
+					},
+				},
+			);
 		},
 		validators: {
 			onSubmit: z.object({

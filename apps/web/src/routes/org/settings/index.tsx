@@ -23,10 +23,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { orpc } from "@/utils/orpc";
-import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/settings/")({
-	beforeLoad: requireActiveOrg,
+	// ✅ 继承父路由 /org 的 beforeLoad,无需重复检查
 	loader: async ({ context }) => {
 		await context.queryClient.ensureQueryData(
 			orpc.organization.getFullOrganization.queryOptions({ input: {} }),

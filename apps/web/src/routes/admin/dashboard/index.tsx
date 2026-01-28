@@ -8,10 +8,9 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { orpc } from "@/utils/orpc";
-import { requireAdmin } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/admin/dashboard/")({
-	beforeLoad: requireAdmin,
+	// ✅ 继承父路由 /admin 的 beforeLoad,无需重复检查
 	loader: async ({ context }) => {
 		// 并行预取数据
 		await Promise.all([

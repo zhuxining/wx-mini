@@ -8,10 +8,9 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { orpc } from "@/utils/orpc";
-import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/dashboard/")({
-	beforeLoad: requireActiveOrg,
+	// ✅ 继承父路由 /org 的 beforeLoad,无需重复检查
 	loader: async ({ context }) => {
 		const session = await context.queryClient.ensureQueryData(
 			orpc.privateData.queryOptions(),

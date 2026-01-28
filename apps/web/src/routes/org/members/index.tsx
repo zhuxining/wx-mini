@@ -47,10 +47,9 @@ import {
 } from "@/components/ui/table";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { orpc } from "@/utils/orpc";
-import { requireActiveOrg } from "@/utils/route-guards";
 
 export const Route = createFileRoute("/org/members/")({
-	beforeLoad: requireActiveOrg,
+	// ✅ 继承父路由 /org 的 beforeLoad,无需重复检查
 	loader: async ({ context }) => {
 		// 并行预取成员和邀请数据
 		await Promise.all([
@@ -143,7 +142,7 @@ function OrgMembersPage() {
 		e.preventDefault();
 		inviteMember.mutate({
 			email: inviteEmail,
-			role: inviteRole as "member" | "admin" | "owner",
+			role: inviteRole as "member" | "moderator" | "owner",
 		});
 	};
 
@@ -161,7 +160,7 @@ function OrgMembersPage() {
 	const handleRoleChange = (memberId: string, newRole: string) => {
 		updateRole.mutate({
 			memberId,
-			role: newRole as "member" | "admin" | "owner",
+			role: newRole as "member" | "moderator" | "owner",
 		});
 	};
 

@@ -16,10 +16,14 @@ apps/web/src/
 │   └── __root.tsx       # 根布局
 ├── components/          # 全局共享组件
 │   └── ui/              # shadcn/ui (DO NOT EDIT)
+├── middleware/         # 全局中间件
+│   └── auth.ts         # 认证中间件
+├── functions/         # Server Functions
+│   └── ...
 ├── utils/
 │   ├── orpc.ts                # oRPC 客户端
-│   ├── route-guards.ts       # 基础路由守卫
-│   └── permission-guards.ts  # 权限路由守卫
+│   └── route-guards.ts       # 路由守卫
+└── start.ts            # Start 配置（全局中间件）
 ```
 
 ### 1.2 快速索引
