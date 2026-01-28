@@ -107,7 +107,7 @@ export function OrgSwitcher() {
 									onClick={() => handleSwitchOrg(org.id)}
 									className="gap-2 p-2"
 								>
-									<div className="flex size-6 items-center justify-center rounded-md border">
+									<div className="flex size-6 items-center justify-center overflow-hidden rounded-md border">
 										{org.logo ? (
 											<div className="size-3.5">{<org.logo />}</div>
 										) : (
@@ -130,7 +130,7 @@ export function OrgSwitcher() {
 						})}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem onClick={handleAddOrg} className="gap-2 p-2">
-							<div className="flex size-6 items-center justify-center rounded-md border">
+							<div className="flex size-6 items-center justify-center overflow-hidden rounded-md border">
 								<Plus className="size-3.5" />
 							</div>
 							<div className="font-medium text-sm">Add org</div>

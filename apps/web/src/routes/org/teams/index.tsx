@@ -190,7 +190,7 @@ function TeamsListPage() {
 					</Dialog>
 				</div>
 
-				<div className="rounded-md border">
+				<div className="overflow-hidden rounded-md border">
 					<Table>
 						<TableHeader>
 							<TableRow>

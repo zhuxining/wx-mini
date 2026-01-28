@@ -270,7 +270,7 @@ function OrgMembersPage() {
 					</Dialog>
 				</div>
 
-				<div className="rounded-md border">
+				<div className="overflow-hidden rounded-md border">
 					<Table>
 						<TableHeader>
 							<TableRow>
@@ -364,7 +364,7 @@ function OrgMembersPage() {
 						<h2 className="font-semibold text-lg tracking-tight">
 							Pending Invitations
 						</h2>
-						<div className="rounded-md border">
+						<div className="overflow-hidden rounded-md border">
 							<Table>
 								<TableHeader>
 									<TableRow>

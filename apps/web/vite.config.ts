@@ -9,7 +9,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
 	plugins: [
 		devtools(),
-		tsconfigPaths(),
+		tsconfigPaths({
+			projects: ["./tsconfig.json"],
+		}),
 		tailwindcss(),
 		tanstackStart(),
 		viteReact(),

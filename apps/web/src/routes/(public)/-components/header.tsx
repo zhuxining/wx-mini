@@ -18,7 +18,7 @@ export default function Header() {
 	] as const;
 
 	return (
-		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+		<header className="sticky top-0 z-50 w-full border-border border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
 			<div className="container flex h-14 items-center justify-between px-4">
 				{/* Desktop Navigation */}
 				<div className="hidden items-center gap-6 md:flex">
