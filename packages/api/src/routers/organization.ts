@@ -35,7 +35,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.createOrganization({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -76,7 +76,7 @@ export const organizationRouter = {
 
 		try {
 			const result = await auth.api.listOrganizations({
-				headers: context.req.headers,
+				headers: context.headers as Headers,
 			});
 			return result;
 		} catch (error) {
@@ -116,7 +116,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.getFullOrganization({
 					query: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -156,7 +156,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.updateOrganization({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -205,7 +205,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.deleteOrganization({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -256,7 +256,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.setActiveOrganization({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -316,7 +316,7 @@ export const organizationRouter = {
 						organizationId: input.organizationId,
 						teamId: input.teamId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -369,7 +369,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.removeMember({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -429,7 +429,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.listMembers({
 					query: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -475,7 +475,7 @@ export const organizationRouter = {
 						role: input.role as OrgRole,
 						organizationId: input.organizationId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -517,7 +517,7 @@ export const organizationRouter = {
 
 		try {
 			const result = await auth.api.getActiveMember({
-				headers: context.req.headers,
+				headers: context.headers as Headers,
 			});
 			return result;
 		} catch (error) {
@@ -554,7 +554,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.leaveOrganization({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -615,7 +615,7 @@ export const organizationRouter = {
 						resend: input.resend,
 						teamId: input.teamId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -665,7 +665,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.acceptInvitation({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -714,7 +714,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.rejectInvitation({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -763,7 +763,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.cancelInvitation({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -812,7 +812,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.getInvitation({
 					query: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -850,7 +850,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.listInvitations({
 					query: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -890,7 +890,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.createTeam({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -942,7 +942,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.updateTeam({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -993,7 +993,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.removeTeam({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -1042,7 +1042,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.listOrganizationTeams({
 					query: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -1082,7 +1082,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.addTeamMember({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -1135,7 +1135,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.removeTeamMember({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -1186,7 +1186,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.setActiveTeam({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -1227,7 +1227,7 @@ export const organizationRouter = {
 
 		try {
 			const result = await auth.api.listUserTeams({
-				headers: context.req.headers,
+				headers: context.headers as Headers,
 			});
 			return result;
 		} catch (error) {
@@ -1264,7 +1264,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.listTeamMembers({
 					query: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -1329,7 +1329,7 @@ export const organizationRouter = {
 						organizationId: input.organizationId,
 						permissions: input.permissions,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -1367,7 +1367,7 @@ export const organizationRouter = {
 			try {
 				const result = await auth.api.checkOrganizationSlug({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {

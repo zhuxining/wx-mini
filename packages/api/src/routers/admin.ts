@@ -40,7 +40,7 @@ export const adminRouter = {
 						...input,
 						role: input.role as AdminRole | undefined,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -102,7 +102,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.listUsers({
 					query: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -141,7 +141,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.adminUpdateUser({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -191,7 +191,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.removeUser({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -242,7 +242,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.setUserPassword({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -300,7 +300,7 @@ export const adminRouter = {
 						userId: input.userId,
 						role: input.role as AdminRole | AdminRole[],
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -353,7 +353,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.banUser({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -403,7 +403,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.unbanUser({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -453,7 +453,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.listUserSessions({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {
@@ -491,7 +491,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.revokeUserSession({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -539,7 +539,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.revokeUserSessions({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.info(
@@ -589,7 +589,7 @@ export const adminRouter = {
 			try {
 				const result = await auth.api.impersonateUser({
 					body: input,
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -631,7 +631,7 @@ export const adminRouter = {
 
 		try {
 			const result = await auth.api.stopImpersonating({
-				headers: context.req.headers,
+				headers: context.headers as Headers,
 			});
 
 			logger?.info(
@@ -736,7 +736,7 @@ export const adminRouter = {
 						role: "owner",
 						organizationId: input.organizationId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				// Step 2: Find and update the current owner to moderator
@@ -745,7 +745,7 @@ export const adminRouter = {
 					query: {
 						organizationId: input.organizationId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				const currentOwner = membersResult.members.find(
@@ -759,7 +759,7 @@ export const adminRouter = {
 							role: "moderator",
 							organizationId: input.organizationId,
 						},
-						headers: context.req.headers,
+						headers: context.headers as Headers,
 					});
 				}
 
@@ -820,7 +820,7 @@ export const adminRouter = {
 					query: {
 						organizationId: input.organizationId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				const currentOwner = membersResult.members.find(
@@ -840,7 +840,7 @@ export const adminRouter = {
 							role: "owner",
 							organizationId: input.organizationId,
 						},
-						headers: context.req.headers,
+						headers: context.headers as Headers,
 					});
 				} else {
 					// Add as new owner
@@ -850,7 +850,7 @@ export const adminRouter = {
 							role: "owner",
 							organizationId: input.organizationId,
 						},
-						headers: context.req.headers,
+						headers: context.headers as Headers,
 					});
 				}
 
@@ -862,7 +862,7 @@ export const adminRouter = {
 							role: "moderator",
 							organizationId: input.organizationId,
 						},
-						headers: context.req.headers,
+						headers: context.headers as Headers,
 					});
 				}
 
@@ -941,7 +941,7 @@ export const adminRouter = {
 						role: input.role as AdminRole | undefined,
 						permissions: input.permissions,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 				return result;
 			} catch (error) {

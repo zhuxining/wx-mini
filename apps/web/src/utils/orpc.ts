@@ -8,6 +8,7 @@ import { createRouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { createIsomorphicFn } from "@tanstack/react-start";
+import { getRequestHeaders } from "@tanstack/react-start/server";
 import { toast } from "sonner";
 
 export const queryClient = new QueryClient({
@@ -31,11 +32,21 @@ export const queryClient = new QueryClient({
 const getORPCClient = createIsomorphicFn()
 	.server(() =>
 		createRouterClient(appRouter, {
-			context: async ({ req }) => {
-				return {
-					...(await createContext({ req })),
-					ratelimiter: standardLimiter,
-				};
+			context: async () => {
+				try {
+					const headers = getRequestHeaders();
+
+					return {
+						...(await createContext({ headers })),
+						ratelimiter: standardLimiter,
+					};
+				} catch {
+					// Not in request context (e.g., prefetch), return minimal context
+					return {
+						...(await createContext({ headers: new Headers() })),
+						ratelimiter: standardLimiter,
+					};
+				}
 			},
 		}),
 	)

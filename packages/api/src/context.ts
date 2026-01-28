@@ -1,15 +1,15 @@
 import { auth } from "@org-sass/auth";
 
-export async function createContext({ req }: { req?: Request }) {
-	const session = req
-		? await auth.api.getSession({
-				headers: req.headers,
-			})
-		: null;
-
+export async function createContext(
+	input: { req: Request } | { headers: Headers },
+) {
+	const headers = "req" in input ? input.req.headers : input.headers;
+	const session = await auth.api.getSession({
+		headers,
+	});
 	return {
 		session,
-		req,
+		headers,
 	};
 }
 

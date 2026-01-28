@@ -66,8 +66,8 @@ export async function checkPermission<R extends Resource>(
 					[resource]: actions,
 				},
 			},
-			// biome-ignore lint/suspicious/noExplicitAny: <better-auth>
-			headers: context.req?.headers as any,
+
+			headers: context.headers,
 		});
 
 		// Better-Auth returns { error } if not permitted
@@ -127,8 +127,7 @@ export async function isOrganizationOwner(
 
 	// Get active member info
 	const result = await auth.api.getActiveMember({
-		// biome-ignore lint/suspicious/noExplicitAny: <better-auth>
-		headers: context.req?.headers as any,
+		headers: context.headers as Headers,
 	});
 
 	// Check if user is owner of the target organization

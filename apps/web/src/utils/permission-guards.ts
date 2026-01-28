@@ -1,7 +1,7 @@
 import { redirect } from "@tanstack/react-router";
 import type { RouterAppContext } from "@/routes/__root";
 import { client, orpc } from "./orpc";
-import { requireActiveOrg } from "./route-guards";
+import { requireSession } from "./route-guards";
 
 type BeforeLoadContext = {
 	context: RouterAppContext;
@@ -39,7 +39,7 @@ export async function requirePermission(
 	actions: string[],
 	redirectTo = "/org/dashboard",
 ): Promise<void> {
-	const session = await requireActiveOrg(ctx);
+	const session = await requireSession(ctx);
 	const organizationId = session.user.activeOrganizationId;
 
 	if (!organizationId) {
@@ -62,7 +62,7 @@ export async function requireOwner(
 	ctx: BeforeLoadContext,
 	redirectTo = "/org/dashboard",
 ): Promise<void> {
-	const session = await requireActiveOrg(ctx);
+	const session = await requireSession(ctx);
 	const organizationId = session.user.activeOrganizationId;
 
 	if (!organizationId) {

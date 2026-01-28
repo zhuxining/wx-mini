@@ -50,7 +50,7 @@
       "version": "0.2.0",
       "dependencies": {
         "dayjs": "^1.11.18",
-        "tdesign-miniprogram": "^1.11.0",
+        "tdesign-miniprogram": "^1.12.2",
       },
     },
     "apps/web": {
@@ -1959,7 +1959,7 @@
 
     "tapable": ["tapable@2.3.0", "", {}, "sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg=="],
 
-    "tdesign-miniprogram": ["tdesign-miniprogram@1.12.1", "", {}, "sha512-L2w/6lqVXSCtptvlPGlY91dutMb3dJlx9rFpmpLRtG7c7v1l89rIhvgLRgsaBcwTA5btdB8VXGXpTVj621bv5w=="],
+    "tdesign-miniprogram": ["tdesign-miniprogram@1.12.2", "", {}, "sha512-ZpOdwonT26RRCK/FWbg9tR2lAJ54Hb4PAdyTWu8URWkbKOmSQhn0JCwCtWWRofKbyWCPsCn5NqljobaGh5VCMg=="],
 
     "thread-stream": ["thread-stream@4.0.0", "", { "dependencies": { "real-require": "^0.2.0" } }, "sha512-4iMVL6HAINXWf1ZKZjIPcz5wYaOdPhtO8ATvZ+Xqp3BTdaqtAwQkNmKORqcIo5YkQqGXq5cwfswDwMqqQNrpJA=="],
 

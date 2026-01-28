@@ -1,12 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-	boolean,
-	index,
-	integer,
-	pgTable,
-	text,
-	timestamp,
-} from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -156,8 +149,6 @@ export const organizationRole = pgTable(
 		role: text("role").notNull(),
 		permission: text("permission").notNull(),
 		description: text("description"),
-		color: text("color").default("#6366f1"),
-		level: integer("level").default(0),
 		isSystemRole: boolean("is_system_role").default(false).notNull(),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 		updatedAt: timestamp("updated_at")

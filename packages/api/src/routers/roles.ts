@@ -6,6 +6,16 @@ import { z } from "zod";
 import { protectedProcedure, requirePermission } from "../index";
 import { mapAuthErrorToORPC } from "../lib/error-handler";
 
+/**
+ * Better-Auth Organization Role response type
+ */
+interface OrgRole {
+	id: string;
+	role: string;
+	isSystemRole?: boolean;
+	organizationId?: string;
+}
+
 export const rolesRouter = {
 	/**
 	 * Create a custom role for an organization
@@ -58,15 +68,12 @@ export const rolesRouter = {
 					permission: input.permissions,
 					organizationId: input.organizationId,
 					description: input.description,
-					color: input.color,
-					level: input.level,
 				};
 
-				const result = (await auth.api.createOrgRole({
+				const result = await auth.api.createOrgRole({
 					body: roleData,
-					headers: context.req.headers,
-					// biome-ignore lint/suspicious/noExplicitAny: <better-auth>
-				})) as any;
+					headers: context.headers as Headers,
+				});
 
 				logger?.info(
 					{
@@ -119,14 +126,13 @@ export const rolesRouter = {
 					query: {
 						organizationId: input.organizationId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				// Filter out system roles if requested
 				const roles = input.includeSystemRoles
 					? result
-					: // biome-ignore lint/suspicious/noExplicitAny: <better-auth>
-						result.filter((role: any) => !role.isSystemRole);
+					: result.filter((role: OrgRole) => !role.isSystemRole);
 
 				return roles;
 			} catch (error) {
@@ -204,11 +210,10 @@ export const rolesRouter = {
 					updateData.permission = input.data.permissions;
 				}
 
-				const result = (await auth.api.updateOrgRole({
+				const result = await auth.api.updateOrgRole({
 					body: updateData,
-					headers: context.req.headers,
-					// biome-ignore lint/suspicious/noExplicitAny: <better-auth>
-				})) as any;
+					headers: context.headers as Headers,
+				});
 
 				// Update additional fields
 				if (input.roleId && input.data) {
@@ -216,8 +221,6 @@ export const rolesRouter = {
 						.update(organizationRole)
 						.set({
 							description: input.data.description,
-							color: input.data.color,
-							level: input.data.level ?? 0,
 						})
 						.where(eq(organizationRole.id, input.roleId));
 				}
@@ -295,7 +298,7 @@ export const rolesRouter = {
 						roleName: input.roleName,
 						organizationId: input.organizationId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				logger?.warn(
@@ -352,7 +355,7 @@ export const rolesRouter = {
 						roleName: input.roleName,
 						organizationId: input.organizationId,
 					},
-					headers: context.req.headers,
+					headers: context.headers as Headers,
 				});
 
 				return result;
