@@ -288,7 +288,7 @@ export const organizationRouter = {
 		.input(
 			z.object({
 				userId: z.string(),
-				role: z.enum(["member", "admin", "owner"]),
+				role: z.enum(["member", "moderator", "owner"]),
 				organizationId: z.string().optional(),
 				teamId: z.string().optional(),
 			}),
@@ -450,7 +450,7 @@ export const organizationRouter = {
 		.input(
 			z.object({
 				memberId: z.string(),
-				role: z.enum(["member", "admin", "owner"]),
+				role: z.enum(["member", "moderator", "owner"]),
 				organizationId: z.string().optional(),
 			}),
 		)
@@ -586,7 +586,7 @@ export const organizationRouter = {
 		.input(
 			z.object({
 				email: z.email(),
-				role: z.enum(["member", "admin", "owner"]),
+				role: z.enum(["member", "moderator", "owner"]),
 				organizationId: z.string().optional(),
 				resend: z.boolean().optional(),
 				teamId: z.union([z.string(), z.array(z.string())]).optional(),
