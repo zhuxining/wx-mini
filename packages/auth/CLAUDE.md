@@ -48,34 +48,30 @@ docs/
 
 ## Better-Auth 使用方式
 
-### 方式 1: Web App - 使用 `authClient` (推荐)
+### 方式 1: Web App - 使用 `authClient`与`auth.api` (推荐)
 
-**位置**: `apps/web/src/lib/auth-client.ts`
+**位置**:
+
+- client 端调用：`import { authClient } from "@/lib/auth-client";`
+- server 端调用：`import { auth } from "@org-sass/auth";`
 
 **适用场景**: 前端组件中的用户认证操作
 
 ```typescript
 import { authClient } from "@/lib/auth-client";
-
-// 登录
-await authClient.signIn.email({
-  email: "user@example.com",
-  password: "password",
-});
-
-// 登出
-await authClient.signOut();
+import { auth } from "@org-sass/auth";
 
 // 获取 session
 const { data: session } = await authClient.getSession();
+const { data: session } = await auth.api.getSession();
 ```
 
-### 方式 2: API 接口调用 - 使用 Better-Auth OpenAPI
+### 方式 2: API 接口调用 - 使用 Better-Auth 对外暴漏OpenAPI
 
 **适用场景**:
 
-- 通过 API 进行认证和组织管理
-- 如mini不支持 `authClient`，则直接调用 Better-Auth API
+- 通过外部 API 进行认证和组织管理
+- mini不支持 `authClient`、`auth.api` ，则直接调用 Better-Auth API
 
 **文档参考**:
 

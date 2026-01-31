@@ -8,7 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { UnauthorizedError } from "@/utils/guards/errors";
+import type { UnauthorizedError } from "@/utils/errors";
 
 interface UnauthorizedPageProps {
 	error: UnauthorizedError;

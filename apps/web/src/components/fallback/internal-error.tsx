@@ -13,14 +13,14 @@ import {
 
 interface ErrorBoundaryProps {
 	error: Error;
-	reset: () => void;
+	reset?: () => void;
 }
 
 export function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
 	const router = useRouter();
 
 	const handleReset = () => {
-		reset();
+		reset?.();
 		router.invalidate();
 	};
 

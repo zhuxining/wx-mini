@@ -9,7 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { ForbiddenError } from "@/utils/guards/errors";
+import type { ForbiddenError } from "@/utils/errors";
 
 interface ForbiddenPageProps {
 	error: ForbiddenError;

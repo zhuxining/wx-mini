@@ -10,11 +10,15 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
-import { ErrorBoundary } from "@/components/error-boundary";
-import { ForbiddenPage } from "@/components/errors/forbidden";
-import { UnauthorizedPage } from "@/components/errors/unauthorized";
+import { ForbiddenPage } from "@/components/fallback/forbidden";
+import { NotFoundPage } from "@/components/fallback/not-found";
+import { UnauthorizedPage } from "@/components/fallback/unauthorized";
 import { Toaster } from "@/components/ui/sonner";
-import { isAuthError } from "@/utils/guards";
+import {
+	ForbiddenError,
+	NotFoundError,
+	UnauthorizedError,
+} from "@/utils/errors";
 import type { orpc } from "@/utils/orpc";
 import appCss from "../index.css?url";
 
@@ -44,18 +48,19 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 			},
 		],
 	}),
-	errorComponent: ({ error, reset }) => {
-		// 处理权限相关错误
-		if (isAuthError(error)) {
-			if (error.statusCode === 403) {
-				return <ForbiddenPage error={error} />;
-			}
-			if (error.statusCode === 401) {
-				return <UnauthorizedPage error={error} />;
-			}
+	errorComponent: ({ error }) => {
+		// 业务特定错误处理 - 优先级高于全局 defaultErrorComponent
+		if (error instanceof NotFoundError) {
+			return <NotFoundPage />;
 		}
-		// 默认错误处理
-		return <ErrorBoundary error={error} reset={reset} />;
+		if (error instanceof ForbiddenError) {
+			return <ForbiddenPage error={error} />;
+		}
+		if (error instanceof UnauthorizedError) {
+			return <UnauthorizedPage error={error} />;
+		}
+		// 其他错误交给全局 defaultErrorComponent 处理
+		throw error;
 	},
 	component: RootDocument,
 });

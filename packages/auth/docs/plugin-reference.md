@@ -231,7 +231,7 @@ openAPI({
 
 **相关文档**:
 
-- [Better-Auth API 端点文档](../../../api/docs/better-auth-api.md) - 完整的 39 个端点参考
+- [Better-Auth API 端点文档](../../api/docs/better-auth-api.md)
 - [Better-Auth 官方文档](https://www.better-auth.com/docs/plugins/open-api)
 
 ---

@@ -4,6 +4,7 @@ import { requireActiveOrganization } from "@/utils/guards";
 import { AppSidebar } from "./-components/app-sidebar";
 
 export const Route = createFileRoute("/org")({
+	ssr: "data-only",
 	beforeLoad: async ({ context, location }) => {
 		// 要求有活跃组织（普通用户必须是组织成员才能访问）
 		await requireActiveOrganization({ context, location });
