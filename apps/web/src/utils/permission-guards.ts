@@ -1,59 +1,11 @@
 import { redirect } from "@tanstack/react-router";
 import type { RouterAppContext } from "@/routes/__root";
-import { client, orpc } from "./orpc";
+import { orpc } from "./orpc";
 import { requireSession } from "./route-guards";
 
 type BeforeLoadContext = {
 	context: RouterAppContext;
 };
-
-/**
- * Permission check for route guards
- */
-async function checkPermissionClient(
-	organizationId: string,
-	permissions: Record<string, string[]>,
-): Promise<boolean> {
-	try {
-		const result = await client.organization.hasPermission({
-			organizationId,
-			permissions,
-		});
-		return !result.error;
-	} catch {
-		return false;
-	}
-}
-
-/**
- * Require organization-level permission for route access
- *
- * @param ctx - Route context
- * @param resource - Resource to check (e.g., "organization", "project")
- * @param actions - Actions required (e.g., ["update", "delete"])
- * @param redirectTo - Path to redirect if permission denied (default: /org/dashboard)
- */
-export async function requirePermission(
-	ctx: BeforeLoadContext,
-	resource: string,
-	actions: string[],
-	redirectTo = "/org/dashboard",
-): Promise<void> {
-	const session = await requireSession(ctx);
-	const organizationId = session.user.activeOrganizationId;
-
-	if (!organizationId) {
-		throw redirect({ to: "/" });
-	}
-
-	const hasPermission = await checkPermissionClient(organizationId, {
-		[resource]: actions,
-	});
-
-	if (!hasPermission) {
-		throw redirect({ to: redirectTo });
-	}
-}
 
 /**
  * Require owner role for route access
@@ -80,9 +32,9 @@ export async function requireOwner(
 }
 
 /**
- * Require moderator or higher role (Owner/Moderator)
+ * Require admin or higher role (Owner/Admin)
  */
-export async function requireModerator(
+export async function requireAdmin(
 	ctx: BeforeLoadContext,
 	redirectTo = "/org/dashboard",
 ): Promise<void> {
@@ -97,7 +49,7 @@ export async function requireModerator(
 		orpc.organization.getActiveMember.queryOptions(),
 	);
 
-	if (memberData?.role !== "owner" && memberData?.role !== "moderator") {
+	if (memberData?.role !== "owner" && memberData?.role !== "admin") {
 		throw redirect({ to: redirectTo });
 	}
 }
@@ -107,7 +59,7 @@ export async function requireModerator(
  */
 export async function requireAnyRole(
 	ctx: BeforeLoadContext,
-	roles: Array<"owner" | "moderator" | "member">,
+	roles: Array<"owner" | "admin" | "member">,
 	redirectTo = "/org/dashboard",
 ): Promise<void> {
 	const session = await requireSession(ctx);

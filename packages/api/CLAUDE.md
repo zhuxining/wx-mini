@@ -53,10 +53,9 @@ protectedProcedure.handler(({ context }) => {
 
 ## API 端点文档
 
-| API | 端点数 | 文档 |
-|-----|-------|------|
-| Admin API | 15 | [admin-api.md](./docs/admin-api.md) |
-| Organization API | 28 | [org-api.md](./docs/org-api.md) |
+| API | 文档 |
+|-----|------|
+| Organization API | [org-api.md](./docs/org-api.md) |
 
 ---
 

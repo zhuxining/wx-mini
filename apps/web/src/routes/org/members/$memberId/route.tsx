@@ -2,9 +2,9 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/org/members/$memberId")({
 	beforeLoad: async ({ context }) => {
-		// 需要 member.view 权限
-		const { requirePermission } = await import("@/utils/permission-guards");
-		await requirePermission({ context }, "member", ["view"]);
+		// 需要 admin 或更高角色
+		const { requireAdmin } = await import("@/utils/permission-guards");
+		await requireAdmin({ context });
 	},
 	component: MemberDetailLayout,
 });

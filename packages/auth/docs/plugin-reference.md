@@ -18,7 +18,6 @@ import * as schema from "@org-sass/db/schema/auth";
 import { env } from "@org-sass/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin } from "better-auth/plugins/admin";
 import { organization } from "better-auth/plugins/organization";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 
@@ -40,11 +39,9 @@ export const auth = betterAuth({
   // 4. 插件
   plugins: [
     tanstackStartCookies(),
-    admin(),
     organization({
-      allowUserToCreateOrganization: true,
+      allowUserToCreateOrganization: false,
       teams: { enabled: true },
-      customRoles: { enabled: true },
     }),
   ],
 });
@@ -125,61 +122,7 @@ emailAndPassword: {
 
 ---
 
-### 2. Admin 插件
-
-**导入**: `import { admin } from "better-auth/plugins/admin"`
-
-**配置**:
-
-```typescript
-admin({
-  // 默认配置，无需额外参数
-  adminRole: "admin",  // 可选：自定义 admin 角色名称
-})
-```
-
-**功能**:
-
-| 功能 | 说明 |
-|------|------|
-| **角色管理** | `user.role` 字段存储系统管理员角色 |
-| **用户模拟** | Admin 可以模拟其他用户身份 |
-| **会话管理** | Admin 可以查看和撤销用户会话 |
-| **封禁管理** | Admin 可以封禁/解封用户 |
-
-**添加的 Schema 字段** (`user` 表):
-
-```typescript
-{
-  role: text("role").default("user"),
-  banned: boolean("banned").default(false),
-  banReason: text("ban_reason"),
-  banExpires: timestamp("ban_expires"),
-}
-```
-
-**添加的 Schema 字段** (`session` 表):
-
-```typescript
-{
-  impersonatedBy: text("impersonated_by"),  // Admin 模拟用户时记录
-}
-```
-
-**API 端点** (15 个):
-
-| 分类 | 端点 |
-|------|------|
-| 用户管理 | `createUser`, `listUsers`, `updateUser`, `removeUser`, `setUserPassword`, `setRole` |
-| 封禁管理 | `banUser`, `unbanUser` |
-| 会话管理 | `listUserSessions`, `revokeUserSession`, `revokeUserSessions`, `impersonateUser`, `stopImpersonating` |
-| 权限检查 | `hasPermission` |
-
-**详细文档**: [packages/api/docs/admin-api.md](../../api/docs/admin-api.md)
-
----
-
-### 3. Organization 插件
+### 2. Organization 插件
 
 **导入**: `import { organization } from "better-auth/plugins/organization"`
 
@@ -187,23 +130,12 @@ admin({
 
 ```typescript
 organization({
-  // 允许用户创建组织
-  allowUserToCreateOrganization: true,
+  // 只有系统管理员可以创建组织
+  allowUserToCreateOrganization: false,
 
   // 启用团队功能
   teams: {
     enabled: true,
-  },
-
-  // 启用自定义角色
-  customRoles: {
-    enabled: true,
-  },
-
-  // 可选：角色配置
-  roles: {
-    admin: ["member", "admin", "owner"],
-    member: ["member"],
   },
 })
 ```
@@ -216,7 +148,6 @@ organization({
 | **角色层级** | owner > admin > member |
 | **团队系统** | 组织可以创建团队，成员可以属于多个团队 |
 | **邀请系统** | 通过邮箱邀请用户加入组织 |
-| **自定义角色** | 组织可以创建自定义角色和权限 |
 
 **添加的 Schema 字段** (`session` 表):
 
@@ -236,17 +167,15 @@ organization({
 | `invitation` | 邀请表 |
 | `team` | 团队表 |
 | `teamMember` | 团队成员关系表 |
-| `organizationRole` | 自定义角色表 |
 
-**API 端点** (28 个):
+**API 端点**:
 
 | 分类 | 端点 |
 |------|------|
 | 组织管理 | `createOrganization`, `listOrganizations`, `getFullOrganization`, `updateOrganization`, `deleteOrganization`, `setActiveOrganization` |
 | 成员管理 | `addMember`, `removeMember`, `listMembers`, `updateMemberRole`, `getActiveMember` |
-| 邀请管理 | `inviteMember`, `acceptInvitation`, `rejectInvitation`, `cancelInvitation`, `getInvitation`, `listInvitations` |
+| 邀请管理 | `createInvitation`, `acceptInvitation`, `rejectInvitation`, `cancelInvitation`, `getInvitation`, `listInvitations` |
 | 团队管理 | `createTeam`, `updateTeam`, `removeTeam`, `listTeams`, `addTeamMember`, `removeTeamMember` |
-| 角色权限 | `createRole`, `updateRole`, `deleteRole`, `listRoles`, `hasPermission` |
 
 **详细文档**: [packages/api/docs/org-api.md](../../api/docs/org-api.md)
 
@@ -278,7 +207,6 @@ if (!session) {
     id: string;
     email: string;
     name: string;
-    role: string[];              // ["admin"] 或 []
     image: string | null;
     activeOrganizationId: string; // ⚠️ 运行时存在，类型定义缺失
     createdAt: Date;
@@ -371,51 +299,6 @@ const members = await auth.api.listMembers({
 
 ---
 
-### Admin API
-
-**创建用户**:
-
-```typescript
-await auth.api.createUser({
-  body: {
-    email: "admin@example.com",
-    password: "securePassword",
-    name: "Admin User",
-    role: ["admin"],
-  },
-  headers: request.headers,
-});
-```
-
-**封禁用户**:
-
-```typescript
-await auth.api.banUser({
-  body: {
-    userId: "user-123",
-    reason: "Violation of terms",
-  },
-  headers: request.headers,
-});
-```
-
-**模拟用户**:
-
-```typescript
-// 开始模拟
-await auth.api.impersonateUser({
-  body: { userId: "user-123" },
-  headers: request.headers,
-});
-
-// 停止模拟
-await auth.api.stopImpersonating({
-  headers: request.headers,
-});
-```
-
----
-
 ## 环境变量
 
 **文件**: `.env` 或 `packages/env/src/env.ts`
@@ -480,13 +363,7 @@ export async function requireAuth({ context }: { context: RouterAppContext }) {
   return session;
 }
 
-export function requireAdminRole(session: Session) {
-  const role = session.user.role;
-  if (!role?.includes("admin")) {
-    throw redirect({ to: "/org" });
-  }
 }
-```
 
 ---
 

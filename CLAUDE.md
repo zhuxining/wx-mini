@@ -8,7 +8,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **核心定位**:
 
-- **Admin 端**: 系统管理员管理所有组织和用户（全局权限）
 - **Org 端**: 组织成员管理团队、成员、邀请（Owner/Admin/Member 三级权限）
 - **Public 端**: 公开访问页面（落地页、关于）
 

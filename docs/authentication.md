@@ -24,7 +24,6 @@
     id: string;                      // UUID v7
     email: string;
     name: string;
-    role: string[];                  // Admin: ["admin"], User: [] 或 ["user"]
     image: string | null;
     activeOrganizationId: string;    // ⚠️ 运行时存在，类型定义缺失
     createdAt: Date;
@@ -62,42 +61,6 @@ const orgId = context.session?.user?.activeOrganizationId || "";
 
 ## 权限检查模式
 
-### Admin API 权限检查
-
-**适用端点**: `packages/api/src/routers/admin.ts` 中所有 15 个端点
-
-**检查流程**:
-
-```typescript
-// 文件: packages/api/src/routers/admin.ts
-adminEndpoint: protectedProcedure
-  .handler(async ({ input, context }) => {
-    // 1. 检查 session 是否存在
-    if (!context.session?.user) {
-      throw new ORPCError("UNAUTHORIZED", "Not authenticated");
-    }
-
-    // 2. 检查 admin 角色
-    const role = context.session.user.role;
-    if (!role?.includes("admin")) {
-      throw new ORPCError("FORBIDDEN", "Admin access required");
-    }
-
-    // 3. 执行业务逻辑
-    return await auth.api.someMethod({
-      body: input,
-      headers: context.req.headers
-    });
-  })
-```
-
-**角色字段说明**:
-
-| 角色 | `user.role` 值 | 权限范围 |
-|------|----------------|----------|
-| 系统管理员 | `["admin"]` | 全平台管理，可访问所有 Admin API |
-| 普通用户 | `[]` 或 `["user"]` | 仅访问 Organization API |
-
 ### Organization API 权限检查
 
 **适用端点**: `packages/api/src/routers/organization.ts` 中所有 28 个端点
@@ -132,22 +95,6 @@ orgEndpoint: protectedProcedure
 ### 路由级别权限检查
 
 **文件**: `apps/web/src/routes/CLAUDE.md`
-
-**Admin 路由守卫**:
-
-```typescript
-// 在 admin/ 路由中
-import { requireAuth, requireAdminRole } from "@/server/auth";
-
-export const loader = async () => {
-  const session = await requireAuth();
-
-  // 检查 admin 角色
-  requireAdminRole(session);
-
-  return defer({ session });
-};
-```
 
 **Organization 路由守卫**:
 
@@ -285,83 +232,6 @@ try {
 | 无权限操作 | `FORBIDDEN` | 权限不足 |
 | 未登录 | `UNAUTHORIZED` | 缺少有效 session |
 | 数据库错误 | `INTERNAL_SERVER_ERROR` | 服务器内部错误 |
-
----
-
-## Admin Plugin 功能
-
-**配置**: `admin()` plugin in `packages/auth/src/index.ts`
-
-**提供的 API 端点** (15 个):
-
-| 分类 | 端点数量 | 功能说明 |
-|------|---------|---------|
-| 用户管理 | 6 | `createUser`, `listUsers`, `updateUser`, `removeUser`, `setUserPassword`, `setRole` |
-| 封禁管理 | 2 | `banUser`, `unbanUser` |
-| 会话管理 | 5 | `listUserSessions`, `revokeUserSession`, `revokeUserSessions`, `impersonateUser`, `stopImpersonating` |
-| 权限检查 | 1 | `hasPermission` |
-
-**详细端点目录**: [packages/api/docs/admin-api.md](../packages/api/docs/admin-api.md)
-
----
-
-## 用户模拟功能
-
-**用途**: Admin 用户可以模拟其他用户身份，用于调试和客户支持
-
-**开始模拟**:
-
-```typescript
-await auth.api.impersonateUser({
-  body: { userId: "user-123" },
-  headers: context.req.headers,
-});
-```
-
-**停止模拟**:
-
-```typescript
-await auth.api.stopImpersonating({
-  headers: context.req.headers,
-});
-```
-
-**注意事项**:
-
-- 仅 Admin 角色可用
-- 模拟期间保留原始 Admin session
-- 可随时停止模拟返回 Admin 身份
-
----
-
-## 会话管理
-
-**列出用户会话**:
-
-```typescript
-const sessions = await auth.api.listUserSessions({
-  body: { userId: "user-123" },
-  headers: context.req.headers,
-});
-```
-
-**撤销单个会话**:
-
-```typescript
-await auth.api.revokeUserSession({
-  body: { sessionId: "session-123" },
-  headers: context.req.headers,
-});
-```
-
-**撤销所有会话** (强制登出):
-
-```typescript
-await auth.api.revokeUserSessions({
-  body: { userId: "user-123" },
-  headers: context.req.headers,
-});
-```
 
 ---
 

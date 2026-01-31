@@ -108,48 +108,6 @@ export const orpc = createTanstackQueryUtils(client, {
 					},
 				},
 			},
-			createTeam: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("Team created successfully");
-					},
-				},
-			},
-			updateTeam: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("Team updated successfully");
-					},
-				},
-			},
-			removeTeam: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("Team deleted");
-					},
-				},
-			},
-			addTeamMember: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("Member added to team");
-					},
-				},
-			},
-			removeTeamMember: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("Member removed from team");
-					},
-				},
-			},
-			setActiveTeam: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("Active team updated");
-					},
-				},
-			},
 			updateOrganization: {
 				mutationOptions: {
 					onSuccess: () => {
@@ -175,43 +133,6 @@ export const orpc = createTanstackQueryUtils(client, {
 				mutationOptions: {
 					onSuccess: () => {
 						toast.success("Invitation rejected");
-					},
-				},
-			},
-		},
-		admin: {
-			createUser: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("User created successfully");
-					},
-				},
-			},
-			setRole: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("User role updated");
-					},
-				},
-			},
-			banUser: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("User banned");
-					},
-				},
-			},
-			unbanUser: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("User unbanned");
-					},
-				},
-			},
-			removeUser: {
-				mutationOptions: {
-					onSuccess: () => {
-						toast.success("User removed");
 					},
 				},
 			},

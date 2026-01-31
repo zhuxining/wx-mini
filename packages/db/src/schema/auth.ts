@@ -12,11 +12,6 @@ export const user = pgTable("user", {
 		.defaultNow()
 		.$onUpdate(() => /* @__PURE__ */ new Date())
 		.notNull(),
-	// Admin plugin fields
-	role: text("role").default("user"),
-	banned: boolean("banned").default(false),
-	banReason: text("ban_reason"),
-	banExpires: timestamp("ban_expires"),
 });
 
 export const session = pgTable(
@@ -34,8 +29,6 @@ export const session = pgTable(
 		userId: text("user_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
-		// Admin plugin field
-		impersonatedBy: text("impersonated_by"),
 		// Organization plugin fields
 		activeOrganizationId: text("active_organization_id"),
 		activeTeamId: text("active_team_id"),

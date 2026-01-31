@@ -86,11 +86,9 @@ apps/web/src/
 
 | 层级 | 角色 | 权限范围 |
 |------|------|----------|
-| **系统级** | System Admin (`user.role = "admin"`) | 管理所有组织和用户，创建组织 |
 | **组织级** | Owner (`member.role = "owner"`) | 完全控制组织 |
-| | Moderator (`member.role = "moderator"`) | 管理成员和团队（原 admin） |
+| | Admin (`member.role = "admin"`) | 管理成员和团队 |
 | | Member (`member.role = "member"`) | 只读访问 |
-| **自定义** | Dynamic Roles | 组织可自定义细粒度权限 |
 
 **权限资源**:
 

@@ -63,11 +63,11 @@ function MemberDetailPage() {
 						Owner
 					</Badge>
 				);
-			case "moderator":
+			case "admin":
 				return (
 					<Badge variant="secondary" className="gap-1">
 						<Shield className="h-3 w-3" />
-						Moderator
+						Admin
 					</Badge>
 				);
 			default:

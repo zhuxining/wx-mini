@@ -50,7 +50,6 @@ interface Session {
     name: string
     email: string
     image?: string
-    role?: ('admin' | 'user')[]
     activeOrganizationId?: string  // 当前活动组织
     activeTeamId?: string           // 当前活动团队
   }
@@ -120,8 +119,7 @@ function SignOutButton() {
 ### 登录后重定向优先级
 
 1. `redirect` 查询参数
-2. 用户角色: Admin → `/admin/dashboard`, User → `/org/dashboard`
-3. 默认: `/org/dashboard`
+2. 默认: `/org/dashboard` (如果有组织) 或 `/org/select` (如果需要创建/选择组织)
 
 ---
 
@@ -173,15 +171,6 @@ function OrganizationSwitcher() {
 
 ## 权限检查
 
-### 全局权限检查
-
-```typescript
-// 检查是否为管理员
-function isAdmin(session: Session | null): boolean {
-  return session?.user?.role?.includes('admin') ?? false
-}
-```
-
 ### 组织权限检查
 
 ```typescript
@@ -204,17 +193,6 @@ function isOrgAdmin(session: Session | null): boolean {
 ```typescript
 // utils/route-guards.ts
 import { createFileRoute, redirect } from '@tanstack/react-router'
-
-export const requireAdmin = async ({ context }: { context: any }) => {
-  const session = await context.queryClient.fetchQuery({
-    queryKey: ['privateData'],
-    queryFn: () => orpc.privateData.query(),
-  })
-
-  if (!session?.user?.role?.includes('admin')) {
-    throw redirect({ to: '/org/dashboard' })
-  }
-}
 
 export const requireActiveOrg = async ({ context }: { context: any }) => {
   const session = await context.queryClient.fetchQuery({
@@ -314,21 +292,6 @@ function InvitationAcceptPage({ invitationId }: { invitationId: string }) {
 | `admin` | 组织管理员，可以管理成员、团队、邀请 |
 | `member` | 普通成员，只读访问 |
 
-### 自定义角色
-
-组织可以创建自定义角色，配置细粒度权限：
-
-```typescript
-const customRole = {
-  name: 'viewer',
-  permissions: {
-    members: 'read',      // 只读成员
-    teams: 'read',        // 只读团队
-    settings: 'none',     // 无设置权限
-  },
-}
-```
-
 ---
 
 ## 团队系统
@@ -358,7 +321,6 @@ const setActiveTeam = useMutation(
 ## 反模式
 
 - **不要绕过 Better-Auth API** - 使用 authClient，不要手动修改 auth 表
-- **不要硬编码角色检查** - 使用 `session?.user?.role?.includes("admin")`
 - **不要忽略 activeOrganizationId 类型问题** - 始终使用可选链
 - **不要在客户端直接检查密码** - 所有认证逻辑通过 Better-Auth
 

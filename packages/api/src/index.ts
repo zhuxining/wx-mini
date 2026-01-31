@@ -69,7 +69,6 @@ export {
 	checkPermissions,
 	isOrganizationOwner,
 	type PermissionCheckResult,
-	requireAdmin,
 	requireOrganizationOwner,
 	requirePermission,
 } from "./lib/permissions";

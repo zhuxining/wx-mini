@@ -4,7 +4,7 @@ import { orpc } from "@/utils/orpc";
 interface PermissionGuardProps {
 	children: React.ReactNode;
 	fallback?: React.ReactNode;
-	role?: "owner" | "moderator" | "member";
+	role?: "owner" | "admin" | "member";
 }
 
 /**
@@ -35,14 +35,14 @@ export function PermissionGuard({
 
 /**
  * 角色层级检查
- * Owner > Moderator > Member
+ * Owner > Admin > Member
  */
 function checkRole(
 	userRole: string | undefined,
-	requiredRole: "owner" | "moderator" | "member",
+	requiredRole: "owner" | "admin" | "member",
 ): boolean {
 	if (!userRole) return false;
-	const hierarchy = ["owner", "moderator", "member"];
+	const hierarchy = ["owner", "admin", "member"];
 	const userIndex = hierarchy.indexOf(userRole);
 	const requiredIndex = hierarchy.indexOf(requiredRole);
 	return userIndex <= requiredIndex && userIndex !== -1;

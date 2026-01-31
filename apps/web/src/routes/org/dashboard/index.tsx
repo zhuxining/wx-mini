@@ -34,9 +34,6 @@ export const Route = createFileRoute("/org/dashboard/")({
 				orpc.organization.listMembers.queryOptions({ input: {} }),
 			),
 			context.queryClient.ensureQueryData(
-				orpc.organization.listTeams.queryOptions({ input: {} }),
-			),
-			context.queryClient.ensureQueryData(
 				orpc.organization.listInvitations.queryOptions({ input: {} }),
 			),
 		]);
@@ -49,20 +46,16 @@ function OrgDashboard() {
 	const { data: members } = useSuspenseQuery(
 		orpc.organization.listMembers.queryOptions({ input: {} }),
 	);
-	const { data: teams } = useSuspenseQuery(
-		orpc.organization.listTeams.queryOptions({ input: {} }),
-	);
 	const { data: invitations } = useSuspenseQuery(
 		orpc.organization.listInvitations.queryOptions({ input: {} }),
 	);
 
 	const membersCount = members?.members?.length ?? 0;
-	const teamsCount = teams?.length ?? 0;
 	const pendingInvitationsCount = invitations?.length ?? 0;
 
 	return (
 		<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-			<div className="grid auto-rows-min gap-4 md:grid-cols-3">
+			<div className="grid auto-rows-min gap-4 md:grid-cols-2">
 				<Card>
 					<CardHeader>
 						<CardTitle>Members</CardTitle>
@@ -70,15 +63,6 @@ function OrgDashboard() {
 					<CardContent>
 						<div className="font-bold text-4xl">{membersCount}</div>
 						<CardDescription>Total members in organization</CardDescription>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>Teams</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="font-bold text-4xl">{teamsCount}</div>
-						<CardDescription>Total teams in organization</CardDescription>
 					</CardContent>
 				</Card>
 				<Card>

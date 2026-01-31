@@ -4,11 +4,11 @@ import type { GuardContext, OrgBuiltInRole } from "./types";
 
 /**
  * 角色层级映射
- * owner > moderator > member
+ * owner > admin > member
  */
 const ROLE_LEVELS = {
 	owner: 3,
-	moderator: 2,
+	admin: 2,
 	member: 1,
 } as const;
 
@@ -65,10 +65,10 @@ export async function requireOwner(ctx: GuardContext): Promise<void> {
 }
 
 /**
- * 快捷方法：要求 Moderator 或更高（包含 Owner）
+ * 快捷方法：要求 Admin 或更高（包含 Owner）
  */
-export async function requireModerator(ctx: GuardContext): Promise<void> {
-	return requireOrgRole(ctx, "moderator", false);
+export async function requireAdmin(ctx: GuardContext): Promise<void> {
+	return requireOrgRole(ctx, "admin", false);
 }
 
 /**

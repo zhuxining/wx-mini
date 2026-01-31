@@ -403,10 +403,9 @@ export const organizationRouter = {
 	addMember: protectedProcedure
 		.input(
 			z.object({
-				userId: z.string().optional(),
-				email: z.string().optional(),
-				role: z.enum(["member", "moderator", "owner"]),
-				organizationId: z.string(),
+				userId: z.string(),
+				role: z.enum(["admin", "member", "owner"]),
+				organizationId: z.string().optional(),
 			}),
 		)
 		.handler(async ({ input, context }) => {
@@ -418,7 +417,6 @@ export const organizationRouter = {
 					action: "ADD_MEMBER",
 					organizationId: input.organizationId,
 					targetUserId: input.userId,
-					targetEmail: input.email,
 					role: input.role,
 				},
 				"Adding member",
@@ -459,7 +457,7 @@ export const organizationRouter = {
 		.input(
 			z.object({
 				memberId: z.string(),
-				role: z.enum(["member", "moderator", "owner"]),
+				role: z.enum(["admin", "member", "owner"]),
 				organizationId: z.string(),
 			}),
 		)
@@ -513,8 +511,7 @@ export const organizationRouter = {
 	removeMember: protectedProcedure
 		.input(
 			z.object({
-				memberId: z.string(),
-				organizationId: z.string(),
+				memberIdOrEmail: z.string(),
 			}),
 		)
 		.handler(async ({ input, context }) => {
@@ -524,8 +521,7 @@ export const organizationRouter = {
 				{
 					userId: context.session.user.id,
 					action: "REMOVE_MEMBER",
-					memberId: input.memberId,
-					organizationId: input.organizationId,
+					memberIdOrEmail: input.memberIdOrEmail,
 				},
 				"Removing member",
 			);
@@ -540,7 +536,7 @@ export const organizationRouter = {
 					{
 						userId: context.session.user.id,
 						action: "REMOVE_MEMBER",
-						memberId: input.memberId,
+						memberIdOrEmail: input.memberIdOrEmail,
 						success: true,
 					},
 					"Member removed successfully",
@@ -552,7 +548,7 @@ export const organizationRouter = {
 					{
 						userId: context.session.user.id,
 						action: "REMOVE_MEMBER",
-						memberId: input.memberId,
+						memberIdOrEmail: input.memberIdOrEmail,
 						error: error instanceof Error ? error.message : "Unknown error",
 					},
 					"Failed to remove member",
@@ -614,7 +610,7 @@ export const organizationRouter = {
 		.input(
 			z.object({
 				email: z.string().email(),
-				role: z.enum(["member", "moderator", "owner"]),
+				role: z.enum(["admin", "member", "owner"]),
 				organizationId: z.string(),
 			}),
 		)
@@ -633,7 +629,7 @@ export const organizationRouter = {
 			);
 
 			try {
-				const result = await auth.api.inviteMember({
+				const result = await auth.api.createInvitation({
 					body: input,
 					headers: context.headers as Headers,
 				});
@@ -847,61 +843,6 @@ export const organizationRouter = {
 						error: error instanceof Error ? error.message : "Unknown error",
 					},
 					"Failed to reject invitation",
-				);
-				throw mapAuthErrorToORPC(error);
-			}
-		}),
-
-	updateInvitation: protectedProcedure
-		.input(
-			z.object({
-				invitationId: z.string(),
-				role: z.enum(["member", "moderator", "owner"]),
-				organizationId: z.string(),
-			}),
-		)
-		.handler(async ({ input, context }) => {
-			const logger = getLogger(context);
-
-			logger?.info(
-				{
-					userId: context.session.user.id,
-					action: "UPDATE_INVITATION",
-					invitationId: input.invitationId,
-					role: input.role,
-					organizationId: input.organizationId,
-				},
-				"Updating invitation",
-			);
-
-			try {
-				const result = await auth.api.updateInvitation({
-					body: input,
-					headers: context.headers as Headers,
-				});
-
-				logger?.info(
-					{
-						userId: context.session.user.id,
-						action: "UPDATE_INVITATION",
-						invitationId: input.invitationId,
-						role: input.role,
-						success: true,
-					},
-					"Invitation updated successfully",
-				);
-
-				return result;
-			} catch (error) {
-				logger?.error(
-					{
-						userId: context.session.user.id,
-						action: "UPDATE_INVITATION",
-						invitationId: input.invitationId,
-						role: input.role,
-						error: error instanceof Error ? error.message : "Unknown error",
-					},
-					"Failed to update invitation",
 				);
 				throw mapAuthErrorToORPC(error);
 			}

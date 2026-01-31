@@ -26,12 +26,6 @@ export const user = pgTable("user", {
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
-
-  // Admin plugin 字段
-  role: text("role").default("user"),      // Admin: ["admin"], User: "user"
-  banned: boolean("banned").default(false),
-  banReason: text("ban_reason"),
-  banExpires: timestamp("ban_expires"),
 });
 ```
 
@@ -41,10 +35,9 @@ export const user = pgTable("user", {
 |------|------|------|------|
 | `id` | text | PRIMARY KEY | 用户 ID (Better-Auth 生成) |
 | `email` | text | UNIQUE, NOT NULL | 邮箱地址 |
-| `role` | text | DEFAULT "user" | 用户角色 |
-| `banned` | boolean | DEFAULT false | 是否被封禁 |
-| `banReason` | text | NULLABLE | 封禁原因 |
-| `banExpires` | timestamp | NULLABLE | 封禁过期时间 |
+| `emailVerified` | boolean | DEFAULT false | 邮箱是否已验证 |
+| `image` | text | NULLABLE | 用户头像 URL |
+| `name` | text | NOT NULL | 用户名称 |
 
 **关系**:
 
@@ -73,9 +66,6 @@ export const session = pgTable("session", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 
-  // Admin plugin 字段
-  impersonatedBy: text("impersonated_by"),  // Admin 模拟用户时记录
-
   // Organization plugin 字段
   activeOrganizationId: text("active_organization_id"),  // 当前活动组织
   activeTeamId: text("active_team_id"),                  // 当前活动团队
@@ -92,7 +82,6 @@ export const session = pgTable("session", {
 | `expiresAt` | timestamp | NOT NULL | 过期时间 |
 | `ipAddress` | text | NULLABLE | 客户端 IP |
 | `userAgent` | text | NULLABLE | 客户端 User-Agent |
-| `impersonatedBy` | text | NULLABLE | Admin 模拟用户时记录 Admin ID |
 | `activeOrganizationId` | text | NULLABLE | 当前活动组织 ID |
 | `activeTeamId` | text | NULLABLE | 当前活动团队 ID |
 
@@ -125,7 +114,7 @@ export const account = pgTable("account", {
     .notNull(),
 }, (table) => [
   index("account_userId_idx").on(table.userId),
-]);
+});
 ```
 
 **字段说明**: OAuth 账户关联表，用于第三方登录（如 Google、GitHub）。
@@ -278,38 +267,6 @@ export const invitation = pgTable(
 
 ---
 
-### organizationRole 表 (自定义角色)
-
-```typescript
-export const organizationRole = pgTable(
-  "organization_role",
-  {
-    id: text("id").primaryKey(),
-    organizationId: text("organization_id")
-      .notNull()
-      .references(() => organization.id, { onDelete: "cascade" }),
-    role: text("role").notNull(),           // 角色名称
-    permission: text("permission").notNull(), // 权限字符串
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => new Date())
-      .notNull(),
-  },
-  (table) => [
-    index("organization_role_organization_id_idx").on(table.organizationId),
-  ],
-);
-```
-
-**字段说明**: 用于创建自定义角色和细粒度权限控制。
-
-**关系**:
-
-- `organization` → 多对一 → organization
-
----
-
 ### team 表 (团队)
 
 ```typescript
@@ -389,6 +346,45 @@ export const teamMember = pgTable(
 
 ---
 
+### organizationRole 表 (Better-Auth 管理)
+
+> **注意**: 此表由 Better-Auth Organization 插件管理。
+
+```typescript
+export const organizationRole = pgTable(
+  "organization_role",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    role: text("role").notNull(),
+    permission: text("permission").notNull(),
+    description: text("description"),
+    isSystemRole: boolean("is_system_role").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("organization_role_organization_id_idx").on(table.organizationId),
+  ],
+);
+```
+
+**字段说明**:
+
+| 字段 | 类型 | 约束 | 说明 |
+|------|------|------|------|
+| `role` | text | NOT NULL | 角色名称 |
+| `permission` | text | NOT NULL | 权限定义 |
+| `description` | text | NULLABLE | 角色描述 |
+| `isSystemRole` | boolean | DEFAULT false | 是否为系统角色 |
+
+---
+
 ## 关系定义
 
 ### Drizzle Relations
@@ -459,6 +455,17 @@ export const teamMemberRelations = relations(teamMember, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+// organizationRole 关系
+export const organizationRoleRelations = relations(
+  organizationRole,
+  ({ one }) => ({
+    organization: one(organization, {
+      fields: [organizationRole.organizationId],
+      references: [organization.id],
+    }),
+  }),
+);
 ```
 
 ---
@@ -482,9 +489,9 @@ export const teamMemberRelations = relations(teamMember, ({ one }) => ({
 | `verification_identifier_idx` | verification | identifier | 按标识符查询验证码 |
 | `member_organization_id_user_id_idx` | member | organizationId, userId | 查询用户在组织中的成员关系 |
 | `invitation_organization_id_email_idx` | invitation | organizationId, email | 查询组织的待处理邀请 |
-| `organization_role_organization_id_idx` | organizationRole | organizationId | 查询组织的自定义角色 |
 | `team_organization_id_idx` | team | organizationId | 查询组织的团队列表 |
 | `team_member_team_id_user_id_idx` | teamMember | teamId, userId | 查询团队成员 |
+| `organization_role_organization_id_idx` | organizationRole | organizationId | 查询组织的角色 |
 
 ---
 

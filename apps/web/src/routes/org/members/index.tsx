@@ -68,6 +68,12 @@ function OrgMembersPage() {
 	const queryClient = useQueryClient();
 	const { confirm, ConfirmDialogComponent } = useConfirmDialog();
 
+	// 获取当前活跃组织信息
+	const { data: activeMember } = useSuspenseQuery(
+		orpc.organization.getActiveMember.queryOptions(),
+	);
+	const organizationId = activeMember?.organizationId;
+
 	// 数据已在 loader 中预取，无加载状态
 	const { data: membersData } = useSuspenseQuery(
 		orpc.organization.listMembers.queryOptions({ input: {} }),
@@ -140,9 +146,11 @@ function OrgMembersPage() {
 
 	const handleInvite = (e: React.FormEvent) => {
 		e.preventDefault();
+		if (!organizationId) return;
 		inviteMember.mutate({
 			email: inviteEmail,
-			role: inviteRole as "member" | "moderator" | "owner",
+			role: inviteRole as "admin" | "member" | "owner",
+			organizationId,
 		});
 	};
 
@@ -158,9 +166,11 @@ function OrgMembersPage() {
 	};
 
 	const handleRoleChange = (memberId: string, newRole: string) => {
+		if (!organizationId) return;
 		updateRole.mutate({
 			memberId,
-			role: newRole as "member" | "moderator" | "owner",
+			role: newRole as "admin" | "member" | "owner",
+			organizationId,
 		});
 	};
 
@@ -171,7 +181,8 @@ function OrgMembersPage() {
 			variant: "destructive",
 		});
 		if (confirmed) {
-			cancelInvitation.mutate({ invitationId });
+			if (!organizationId) return;
+			cancelInvitation.mutate({ invitationId, organizationId });
 		}
 	};
 

@@ -1,5 +1,4 @@
 import { auth } from "@org-sass/auth";
-import type { Action, Resource } from "@org-sass/auth/permissions";
 import { ORPCError } from "@orpc/server";
 import type { Context } from "../context";
 
@@ -12,27 +11,6 @@ export interface PermissionCheckResult {
 }
 
 /**
- * Check if user has admin role (system-level)
- */
-export function isAdmin(context: Context): boolean {
-	const role = context.session?.user?.role;
-	return (
-		!!role && (Array.isArray(role) ? role.includes("admin") : role === "admin")
-	);
-}
-
-/**
- * Require admin access or throw error
- */
-export function requireAdmin(context: Context): void {
-	if (!isAdmin(context)) {
-		throw new ORPCError("FORBIDDEN", {
-			message: "Admin access required",
-		});
-	}
-}
-
-/**
  * Check if user has a specific permission in the active organization
  *
  * @param context - oRPC context
@@ -41,19 +19,16 @@ export function requireAdmin(context: Context): void {
  * @param organizationId - Optional organization ID (defaults to active organization)
  * @returns Permission check result
  */
-export async function checkPermission<R extends Resource>(
+export async function checkPermission(
 	context: Context,
-	resource: R,
-	actions: Action<R>[],
+	resource: string,
+	actions: string[],
 	organizationId?: string,
 ): Promise<PermissionCheckResult> {
 	if (!context.session?.user) {
 		return { granted: false, reason: "Not authenticated" };
 	}
 
-	// Check organization-level permissions
-	// Note: System admins should NOT have automatic access to organization resources
-	// They can only perform system-level operations (creating orgs, managing all users, etc.)
 	try {
 		const result = await auth.api.hasPermission({
 			body: {
@@ -66,7 +41,6 @@ export async function checkPermission<R extends Resource>(
 					[resource]: actions,
 				},
 			},
-
 			headers: context.headers,
 		});
 
@@ -94,10 +68,10 @@ export async function checkPermission<R extends Resource>(
  * @param organizationId - Optional organization ID
  * @throws ORPCError if permission is denied
  */
-export async function requirePermission<R extends Resource>(
+export async function requirePermission(
 	context: Context,
-	resource: R,
-	actions: Action<R>[],
+	resource: string,
+	actions: string[],
 	organizationId?: string,
 ): Promise<void> {
 	const result = await checkPermission(
@@ -155,7 +129,7 @@ export async function requireOrganizationOwner(
  */
 export async function checkPermissions(
 	context: Context,
-	permissions: Partial<Record<Resource, string[]>>,
+	permissions: Record<string, string[]>,
 	organizationId?: string,
 ): Promise<Record<string, PermissionCheckResult>> {
 	const results: Record<string, PermissionCheckResult> = {};
@@ -163,9 +137,8 @@ export async function checkPermissions(
 	for (const [resource, actions] of Object.entries(permissions)) {
 		const result = await checkPermission(
 			context,
-			resource as Resource,
-			// biome-ignore lint/suspicious/noExplicitAny: <better-auth>
-			actions as any,
+			resource,
+			actions,
 			organizationId,
 		);
 		results[`${resource}:${actions.join(",")}`] = result;

@@ -33,20 +33,3 @@ export async function requireSession(_ctx: {
 		user: session.user as SessionUser,
 	};
 }
-
-/**
- * 要求用户是系统管理员
- * @returns 用户的 session 数据
- * @throws 重定向到登录页（如果不是管理员）
- */
-export async function requireAdmin(ctx: {
-	context: RouterAppContext;
-	location?: { href: string };
-}): Promise<{ message: string; user: SessionUser }> {
-	const session = await requireSession(ctx);
-
-	const role = session.user.role;
-	if (!role || role !== "admin") throw redirect({ to: "/login" });
-
-	return session;
-}

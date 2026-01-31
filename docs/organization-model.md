@@ -216,12 +216,12 @@
 
 ```typescript
 await auth.api.inviteMember({
-  body: {
-    email: "newuser@example.com",
-    organizationId: "org-123",
-    role: "admin",  // 或 "member"
-  },
-  headers: request.headers,
+	body: {
+		email: "newuser@example.com",
+		organizationId: "org-123",
+		role: "admin", // 或 "member"
+	},
+	headers: request.headers,
 });
 ```
 
@@ -238,10 +238,10 @@ await auth.api.inviteMember({
 
 ```typescript
 await auth.api.acceptInvitation({
-  body: {
-    invitationId: "inv-123",
-  },
-  headers: request.headers,
+	body: {
+		invitationId: "inv-123",
+	},
+	headers: request.headers,
 });
 ```
 
@@ -259,10 +259,10 @@ await auth.api.acceptInvitation({
 
 ```typescript
 await auth.api.rejectInvitation({
-  body: {
-    invitationId: "inv-123",
-  },
-  headers: request.headers,
+	body: {
+		invitationId: "inv-123",
+	},
+	headers: request.headers,
 });
 ```
 
@@ -279,10 +279,10 @@ await auth.api.rejectInvitation({
 
 ```typescript
 await auth.api.cancelInvitation({
-  body: {
-    invitationId: "inv-123",
-  },
-  headers: request.headers,
+	body: {
+		invitationId: "inv-123",
+	},
+	headers: request.headers,
 });
 ```
 
@@ -302,32 +302,32 @@ await auth.api.cancelInvitation({
 ```typescript
 // organizations → members (一对多)
 export const organizationsRelations = relations(organizations, ({ many }) => ({
-  members: many(members),
-  teams: many(teams),
-  invitations: many(invitations),
+	members: many(members),
+	teams: many(teams),
+	invitations: many(invitations),
 }));
 
 // users → members (一对多)
 export const usersRelations = relations(users, ({ many }) => ({
-  members: many(members),
-  sessions: many(sessions),
+	members: many(members),
+	sessions: many(sessions),
 }));
 
 // members → organizations (多对一)
 export const membersRelations = relations(members, ({ one }) => ({
-  organization: one(organizations, {
-    fields: [referenceFields({ organizationId })],
-    references: [id],
-  }),
-  user: one(users, {
-    fields: [referenceFields({ userId })],
-    references: [id],
-  }),
+	organization: one(organizations, {
+		fields: [referenceFields({ organizationId })],
+		references: [id],
+	}),
+	user: one(users, {
+		fields: [referenceFields({ userId })],
+		references: [id],
+	}),
 }));
 
 // teams → team_members (一对多)
 export const teamsRelations = relations(teams, ({ many }) => ({
-  teamMembers: many(teamMembers),
+	teamMembers: many(teamMembers),
 }));
 ```
 
@@ -336,22 +336,22 @@ export const teamsRelations = relations(teams, ({ many }) => ({
 ```typescript
 // 查询组织及其成员
 const org = await db.query.organizations.findFirst({
-  where: eq(organizations.id, orgId),
-  with: {
-    members: {
-      with: {
-        user: true,
-      },
-    },
-  },
+	where: eq(organizations.id, orgId),
+	with: {
+		members: {
+			with: {
+				user: true,
+			},
+		},
+	},
 });
 
 // 查询用户所属组织
 const userMemberships = await db.query.members.findMany({
-  where: eq(members.userId, userId),
-  with: {
-    organization: true,
-  },
+	where: eq(members.userId, userId),
+	with: {
+		organization: true,
+	},
 });
 ```
 
@@ -361,19 +361,19 @@ const userMemberships = await db.query.members.findMany({
 
 ### 唯一性约束
 
-| 约束 | 表 | 字段 |
-|------|---|------|
-| 组织 slug 唯一 | `organizations` | `slug` |
-| 用户在组织中唯一 | `members` | `(organizationId, userId)` |
-| 邀请唯一性 | `invitations` | `(organizationId, email, status)` |
+| 约束             | 表              | 字段                              |
+| ---------------- | --------------- | --------------------------------- |
+| 组织 slug 唯一   | `organizations` | `slug`                            |
+| 用户在组织中唯一 | `members`       | `(organizationId, userId)`        |
+| 邀请唯一性       | `invitations`   | `(organizationId, email, status)` |
 
 ### 级联删除
 
-| 删除操作 | 级联删除 |
-|---------|---------|
+| 删除操作 | 级联删除               |
+| -------- | ---------------------- |
 | 删除组织 | → 删除成员、团队、邀请 |
-| 删除团队 | → 删除团队成员 |
-| 删除用户 | → 删除会话、成员关系 |
+| 删除团队 | → 删除团队成员         |
+| 删除用户 | → 删除会话、成员关系   |
 
 ### 非空约束
 
@@ -404,13 +404,13 @@ const { data } = await orpc.organization.listTeams({ organizationId: orgId });
 
 // 创建团队
 const mutation = useMutation({
-  mutationFn: orpc.organization.createTeam.mutate,
-  onSuccess: () => {
-    toast.success("Team created");
-    queryClient.invalidateQueries({
-      queryKey: orpc.organization.listTeams.key()
-    });
-  },
+	mutationFn: orpc.organization.createTeam.mutate,
+	onSuccess: () => {
+		toast.success("Team created");
+		queryClient.invalidateQueries({
+			queryKey: orpc.organization.listTeams.key(),
+		});
+	},
 });
 
 mutation.mutate({ organizationId: orgId, name: "Engineering" });
@@ -418,28 +418,8 @@ mutation.mutate({ organizationId: orgId, name: "Engineering" });
 
 ---
 
-## 自定义角色
-
-**配置**: `organization({ customRoles: { enabled: true } })` in `packages/auth/src/index.ts`
-
-**功能**:
-
-- 组织可以创建自定义角色
-- 每个角色可以配置细粒度权限
-- 支持角色继承和权限组合
-
-**API 端点**:
-
-- `createRole` - 创建自定义角色（组织管理员）
-- `updateRole` - 更新角色（组织管理员）
-- `deleteRole` - 删除角色（组织管理员）
-- `listRoles` - 列出角色（组织成员）
-- `hasPermission` - 检查权限（组织成员）
-
----
-
 ## 相关文档
 
-- **数据库 Schema 参考**: [packages/db/docs/schema-reference.md](../packages/db/docs/schema-reference.md)
+- **数据库 Schema 参考**: [packages/db/docs/schema-reference.md](/packages/db/docs/schema-reference.md)
 - **认证流程详解**: [authentication.md](./authentication.md)
 - **Organization API 目录**: [packages/api/docs/org-api.md](../packages/api/docs/org-api.md)
