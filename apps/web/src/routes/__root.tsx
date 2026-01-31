@@ -49,7 +49,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 		],
 	}),
 	errorComponent: ({ error }) => {
-		// 业务特定错误处理 - 优先级高于全局 defaultErrorComponent
 		if (error instanceof NotFoundError) {
 			return <NotFoundPage />;
 		}
@@ -59,7 +58,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 		if (error instanceof UnauthorizedError) {
 			return <UnauthorizedPage error={error} />;
 		}
-		// 其他错误交给全局 defaultErrorComponent 处理
 		throw error;
 	},
 	component: RootDocument,

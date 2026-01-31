@@ -76,5 +76,5 @@ protectedProcedure.handler(({ context }) => {
 
 ## 相关文档
 
-- **权限检查详解**: [docs/authentication.md#权限检查模式](../../docs/authentication.md#权限检查模式)
-- **错误处理模式**: [docs/authentication.md#错误处理模式](../../docs/authentication.md#错误处理模式)
+- **权限检查详解**: [docs/authentication.md#权限检查模式](../../docs/authentication.md #权限检查模式)
+- **错误处理模式**: [docs/authentication.md#错误处理模式](../../docs/authentication.md #错误处理模式)

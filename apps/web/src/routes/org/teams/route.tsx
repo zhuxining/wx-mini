@@ -1,15 +1,15 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { requireAdmin } from "@/utils/guards";
 
-export const Route = createFileRoute("/org/members/$memberId")({
+export const Route = createFileRoute("/org/teams")({
 	beforeLoad: async ({ context, location }) => {
 		// 需要 admin 或更高角色
-		const { requireAdmin } = await import("@/utils/guards");
 		await requireAdmin({ context, location });
 	},
-	component: MemberDetailLayout,
+	component: TeamsLayout,
 });
 
-function MemberDetailLayout() {
+function TeamsLayout() {
 	return (
 		<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
 			<Outlet />

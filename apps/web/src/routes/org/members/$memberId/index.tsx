@@ -13,24 +13,49 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/org/members/$memberId/")({
-	loader: async ({ context }) => {
-		await context.queryClient.ensureQueryData(
-			orpc.organization.listMembers.queryOptions({ input: {} }),
-		);
-	},
 	component: MemberDetailPage,
 });
 
 function MemberDetailPage() {
 	const { memberId } = Route.useParams();
-	const { data: membersData } = useSuspenseQuery(
-		orpc.organization.listMembers.queryOptions({ input: {} }),
-	);
 
-	const member = membersData?.members.find((m) => m.id === memberId);
+	// 获取当前活跃组织信息
+	const { data: session } = useSuspenseQuery(orpc.privateData.queryOptions());
+
+	const organizationId = (
+		session?.user as {
+			activeOrganizationId?: string | null;
+		}
+	)?.activeOrganizationId;
+
+	// 获取成员列表
+	const { data: membersData } = useSuspenseQuery({
+		queryKey: ["organization", "members", organizationId],
+		queryFn: async () => {
+			if (!organizationId) return { members: [] };
+			return authClient.organization.listMembers({
+				query: { organizationId },
+			});
+		},
+	});
+
+	const members =
+		(membersData as unknown as { members?: unknown[] } | null)?.members ?? [];
+	const member = (members as unknown[]).find(
+		(m: unknown) => (m as { id: string }).id === memberId,
+	) as
+		| {
+				id: string;
+				userId: string;
+				role: string;
+				createdAt: string | Date;
+				user?: { image?: string; name?: string; email?: string };
+		  }
+		| undefined;
 
 	if (!member) {
 		return (

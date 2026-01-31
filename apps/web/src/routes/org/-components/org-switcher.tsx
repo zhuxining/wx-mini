@@ -15,34 +15,46 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 
 export function OrgSwitcher() {
 	const { isMobile } = useSidebar();
 	const queryClient = useQueryClient();
 
-	const { data: orgs, isLoading: orgsLoading } = useQuery(
-		orpc.organization.listOrganizations.queryOptions(),
-	);
+	// 获取组织列表
+	const { data: orgsData, isLoading: orgsLoading } = useQuery({
+		queryKey: ["organizations"],
+		queryFn: () => authClient.organization.list(),
+	});
 
 	const { data: session } = useQuery(orpc.privateData.queryOptions());
 
-	const setActiveOrgMutation = useMutation(
-		orpc.organization.setActiveOrganization.mutationOptions({
-			onSuccess: () => {
-				toast.success("Organization switched");
-				queryClient.invalidateQueries({
-					queryKey: orpc.privateData.queryOptions().queryKey,
-				});
-			},
-			onError: (error) => {
-				toast.error(`Failed to switch organization: ${error.message}`);
-			},
-		}),
-	);
+	// 切换组织
+	const setActiveOrgMutation = useMutation({
+		mutationFn: async (organizationId: string) => {
+			return authClient.organization.setActive({
+				organizationId,
+			});
+		},
+		onSuccess: () => {
+			toast.success("Organization switched");
+			queryClient.invalidateQueries({
+				queryKey: orpc.privateData.queryOptions().queryKey,
+			});
+		},
+		onError: (error) => {
+			toast.error(`Failed to switch organization: ${error.message}`);
+		},
+	});
 
 	const isLoading = orgsLoading || setActiveOrgMutation.isPending;
 
+	// 类型断言处理 Better-Auth 返回的数据类型
+	const orgs =
+		(orgsData as unknown as
+			| { id: string; name: string; slug: string }[]
+			| null) ?? null;
 	if (!orgs || orgs.length === 0) {
 		return null;
 	}
@@ -55,7 +67,7 @@ export function OrgSwitcher() {
 	const activeOrg = orgs?.find((org) => org.id === activeOrgId);
 
 	const handleSwitchOrg = (orgId: string) => {
-		setActiveOrgMutation.mutate({ organizationId: orgId });
+		setActiveOrgMutation.mutate(orgId);
 	};
 
 	const handleAddOrg = () => {
@@ -71,13 +83,9 @@ export function OrgSwitcher() {
 							size="lg"
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
-							{activeOrg?.logo ? (
-								<div className="size-4">{<activeOrg.logo />}</div>
-							) : (
-								<div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-									<span className="font-bold text-sm">O</span>
-								</div>
-							)}
+							<div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+								<span className="font-bold text-sm">O</span>
+							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">
 									{isLoading
@@ -108,13 +116,9 @@ export function OrgSwitcher() {
 									className="gap-2 p-2"
 								>
 									<div className="flex size-6 items-center justify-center overflow-hidden rounded-md border">
-										{org.logo ? (
-											<div className="size-3.5">{<org.logo />}</div>
-										) : (
-											<div className="flex size-4 items-center justify-center rounded bg-sidebar-primary text-sidebar-primary-foreground text-xs">
-												<span className="font-bold">O</span>
-											</div>
-										)}
+										<div className="flex size-4 items-center justify-center rounded bg-sidebar-primary text-sidebar-primary-foreground text-xs">
+											<span className="font-bold">O</span>
+										</div>
 									</div>
 									<span className="grid flex-1 text-sm">
 										<span className="font-medium">{org.name}</span>

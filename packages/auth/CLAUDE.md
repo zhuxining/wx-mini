@@ -52,8 +52,8 @@ docs/
 
 **位置**:
 
-- client 端调用：`import { authClient } from "@/lib/auth-client";`
-- server 端调用：`import { auth } from "@org-sass/auth";`
+- client 端使用：`import { authClient } from "@/lib/auth-client";`
+- server 端使用：`import { auth } from "@org-sass/auth";`
 
 **适用场景**: 前端组件中的用户认证操作
 

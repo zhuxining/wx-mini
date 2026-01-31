@@ -1,8 +1,4 @@
-import {
-	useMutation,
-	useQueryClient,
-	useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MoreHorizontal, Plus, Shield, Trash2, X } from "lucide-react";
 import { useState } from "react";
@@ -46,112 +42,131 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/org/members/")({
-	// ✅ 继承父路由 /org 的 beforeLoad,无需重复检查
-	loader: async ({ context }) => {
-		// 并行预取成员和邀请数据
-		await Promise.all([
-			context.queryClient.ensureQueryData(
-				orpc.organization.listMembers.queryOptions({ input: {} }),
-			),
-			context.queryClient.ensureQueryData(
-				orpc.organization.listInvitations.queryOptions({ input: {} }),
-			),
-		]);
-	},
 	component: OrgMembersPage,
 });
 
 function OrgMembersPage() {
-	const queryClient = useQueryClient();
 	const { confirm, ConfirmDialogComponent } = useConfirmDialog();
 
 	// 获取当前活跃组织信息
-	const { data: activeMember } = useSuspenseQuery(
-		orpc.organization.getActiveMember.queryOptions(),
-	);
-	const organizationId = activeMember?.organizationId;
+	const { data: session } = useSuspenseQuery(orpc.privateData.queryOptions());
 
-	// 数据已在 loader 中预取，无加载状态
-	const { data: membersData } = useSuspenseQuery(
-		orpc.organization.listMembers.queryOptions({ input: {} }),
-	);
-	const { data: invitationsData } = useSuspenseQuery(
-		orpc.organization.listInvitations.queryOptions({ input: {} }),
-	);
+	const organizationId = (
+		session?.user as {
+			activeOrganizationId?: string | null;
+		}
+	)?.activeOrganizationId;
+
+	// 获取成员列表
+	const { data: membersData, refetch: refetchMembers } = useSuspenseQuery({
+		queryKey: ["organization", "members", organizationId],
+		queryFn: async () => {
+			if (!organizationId) return { members: [] };
+			return authClient.organization.listMembers({
+				query: { organizationId },
+			});
+		},
+	});
+
+	// 获取邀请列表
+	const { data: invitationsData, refetch: refetchInvitations } =
+		useSuspenseQuery({
+			queryKey: ["organization", "invitations", organizationId],
+			queryFn: async () => {
+				if (!organizationId) return [];
+				return authClient.organization.listInvitations({
+					query: { organizationId },
+				});
+			},
+		});
 
 	const [isInviteOpen, setIsInviteOpen] = useState(false);
 	const [inviteEmail, setInviteEmail] = useState("");
 	const [inviteRole, setInviteRole] = useState("member");
 
-	const inviteMember = useMutation(
-		orpc.organization.inviteMember.mutationOptions({
-			onSuccess: () => {
-				toast.success("Invitation sent successfully");
-				setIsInviteOpen(false);
-				setInviteEmail("");
-				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listInvitations.key(),
-				});
-			},
-			onError: (error) => {
-				toast.error(error.message || "Failed to send invitation");
-			},
-		}),
-	);
+	// 邀请成员
+	const inviteMember = useMutation({
+		mutationFn: async () => {
+			if (!organizationId) throw new Error("No active organization");
+			return authClient.organization.inviteMember({
+				email: inviteEmail,
+				role: inviteRole as "admin" | "member" | "owner",
+				organizationId,
+			});
+		},
+		onSuccess: () => {
+			toast.success("Invitation sent successfully");
+			setIsInviteOpen(false);
+			setInviteEmail("");
+			refetchInvitations();
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to send invitation");
+		},
+	});
 
-	const removeMember = useMutation(
-		orpc.organization.removeMember.mutationOptions({
-			onSuccess: () => {
-				toast.success("Member removed successfully");
-				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listMembers.key(),
-				});
-			},
-			onError: (error) => {
-				toast.error(error.message || "Failed to remove member");
-			},
-		}),
-	);
+	// 移除成员
+	const removeMember = useMutation({
+		mutationFn: async (memberIdOrEmail: string) => {
+			return authClient.organization.removeMember({
+				memberIdOrEmail,
+			});
+		},
+		onSuccess: () => {
+			toast.success("Member removed successfully");
+			refetchMembers();
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to remove member");
+		},
+	});
 
-	const updateRole = useMutation(
-		orpc.organization.updateMemberRole.mutationOptions({
-			onSuccess: () => {
-				toast.success("Member role updated successfully");
-				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listMembers.key(),
-				});
-			},
-			onError: (error) => {
-				toast.error(error.message || "Failed to update member role");
-			},
-		}),
-	);
+	// 更新角色
+	const updateRole = useMutation({
+		mutationFn: async ({
+			memberIdOrEmail,
+			role,
+		}: {
+			memberIdOrEmail: string;
+			role: "admin" | "member" | "owner";
+		}) => {
+			return authClient.organization.updateMemberRole({
+				memberId: memberIdOrEmail,
+				role,
+			});
+		},
+		onSuccess: () => {
+			toast.success("Member role updated successfully");
+			refetchMembers();
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to update member role");
+		},
+	});
 
-	const cancelInvitation = useMutation(
-		orpc.organization.cancelInvitation.mutationOptions({
-			onSuccess: () => {
-				toast.success("Invitation cancelled");
-				queryClient.invalidateQueries({
-					queryKey: orpc.organization.listInvitations.key(),
-				});
-			},
-			onError: (error) => {
-				toast.error(error.message || "Failed to cancel invitation");
-			},
-		}),
-	);
+	// 取消邀请
+	const cancelInvitation = useMutation({
+		mutationFn: async (invitationId: string) => {
+			return authClient.organization.cancelInvitation({
+				invitationId,
+			});
+		},
+		onSuccess: () => {
+			toast.success("Invitation cancelled");
+			refetchInvitations();
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to cancel invitation");
+		},
+	});
 
 	const handleInvite = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!organizationId) return;
-		inviteMember.mutate({
-			email: inviteEmail,
-			role: inviteRole as "admin" | "member" | "owner",
-			organizationId,
-		});
+		inviteMember.mutate();
 	};
 
 	const handleRemove = async (memberId: string) => {
@@ -161,16 +176,14 @@ function OrgMembersPage() {
 			variant: "destructive",
 		});
 		if (confirmed) {
-			removeMember.mutate({ memberIdOrEmail: memberId });
+			removeMember.mutate(memberId);
 		}
 	};
 
 	const handleRoleChange = (memberId: string, newRole: string) => {
-		if (!organizationId) return;
 		updateRole.mutate({
-			memberId,
+			memberIdOrEmail: memberId,
 			role: newRole as "admin" | "member" | "owner",
-			organizationId,
 		});
 	};
 
@@ -181,8 +194,7 @@ function OrgMembersPage() {
 			variant: "destructive",
 		});
 		if (confirmed) {
-			if (!organizationId) return;
-			cancelInvitation.mutate({ invitationId, organizationId });
+			cancelInvitation.mutate(invitationId);
 		}
 	};
 
@@ -211,6 +223,10 @@ function OrgMembersPage() {
 				);
 		}
 	};
+
+	const members =
+		(membersData as unknown as { members?: unknown[] } | null)?.members ?? [];
+	const invitations = (invitationsData as unknown as unknown[] | null) ?? [];
 
 	return (
 		<>
@@ -292,89 +308,95 @@ function OrgMembersPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{membersData?.members.length === 0 ? (
+							{members.length === 0 ? (
 								<TableRow>
 									<TableCell colSpan={4} className="h-24 text-center">
 										No members found.
 									</TableCell>
 								</TableRow>
 							) : (
-								membersData?.members.map((member) => (
-									<TableRow key={member.id}>
-										<TableCell>
-											<div className="flex items-center gap-3">
-												<Avatar className="h-9 w-9">
-													<AvatarImage src={member.user.image || ""} />
-													<AvatarFallback>
-														{member.user.name?.charAt(0) || "?"}
-													</AvatarFallback>
-												</Avatar>
-												<div className="flex flex-col">
-													<Link
-														to="/org/members/$memberId"
-														params={{ memberId: member.id }}
-														className="font-medium hover:underline"
-													>
-														{member.user.name}
-													</Link>
-													<span className="text-muted-foreground text-xs">
-														{member.user.email}
-													</span>
+								(members as unknown[]).map((member: unknown) => {
+									const m = member as {
+										id: string;
+										user: { image?: string; name?: string; email: string };
+										role: string;
+										createdAt: string | Date;
+									};
+									return (
+										<TableRow key={m.id}>
+											<TableCell>
+												<div className="flex items-center gap-3">
+													<Avatar className="h-9 w-9">
+														<AvatarImage src={m.user.image || ""} />
+														<AvatarFallback>
+															{m.user.name?.charAt(0) || "?"}
+														</AvatarFallback>
+													</Avatar>
+													<div className="flex flex-col">
+														<Link
+															to="/org/members/$memberId"
+															params={{ memberId: m.id }}
+															className="font-medium hover:underline"
+														>
+															{m.user.name}
+														</Link>
+														<span className="text-muted-foreground text-xs">
+															{m.user.email}
+														</span>
+													</div>
 												</div>
-											</div>
-										</TableCell>
-										<TableCell>{_getRoleBadge(member.role)}</TableCell>
-										<TableCell>
-											{new Date(member.createdAt).toLocaleDateString()}
-										</TableCell>
-										<TableCell className="text-right">
-											<DropdownMenu>
-												<DropdownMenuTrigger
-													className={buttonVariants({
-														variant: "ghost",
-														size: "icon",
-													})}
-												>
-													<MoreHorizontal className="h-4 w-4" />
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end">
-													<DropdownMenuLabel>Change Role</DropdownMenuLabel>
-													<DropdownMenuSeparator />
-													<DropdownMenuItem
-														onClick={() =>
-															handleRoleChange(member.id, "member")
-														}
+											</TableCell>
+											<TableCell>{_getRoleBadge(m.role)}</TableCell>
+											<TableCell>
+												{new Date(m.createdAt).toLocaleDateString()}
+											</TableCell>
+											<TableCell className="text-right">
+												<DropdownMenu>
+													<DropdownMenuTrigger
+														className={buttonVariants({
+															variant: "ghost",
+															size: "icon",
+														})}
 													>
-														Member
-													</DropdownMenuItem>
-													<DropdownMenuItem
-														onClick={() => handleRoleChange(member.id, "admin")}
-													>
-														Moderator
-													</DropdownMenuItem>
-													<DropdownMenuItem
-														onClick={() => handleRoleChange(member.id, "owner")}
-													>
-														Owner
-													</DropdownMenuItem>
-													<DropdownMenuSeparator />
-													<DropdownMenuItem
-														className="text-destructive focus:text-destructive"
-														onClick={() => handleRemove(member.id)}
-													>
-														<Trash2 className="mr-2 h-4 w-4" /> Remove
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</TableCell>
-									</TableRow>
-								))
+														<MoreHorizontal className="h-4 w-4" />
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end">
+														<DropdownMenuLabel>Change Role</DropdownMenuLabel>
+														<DropdownMenuSeparator />
+														<DropdownMenuItem
+															onClick={() => handleRoleChange(m.id, "member")}
+														>
+															Member
+														</DropdownMenuItem>
+														<DropdownMenuItem
+															onClick={() => handleRoleChange(m.id, "admin")}
+														>
+															Moderator
+														</DropdownMenuItem>
+														<DropdownMenuItem
+															onClick={() => handleRoleChange(m.id, "owner")}
+														>
+															Owner
+														</DropdownMenuItem>
+														<DropdownMenuSeparator />
+														<DropdownMenuItem
+															className="text-destructive focus:text-destructive"
+															onClick={() => handleRemove(m.id)}
+														>
+															<Trash2 className="mr-2 h-4 w-4" /> Remove
+														</DropdownMenuItem>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</TableCell>
+										</TableRow>
+									);
+								})
 							)}
 						</TableBody>
 					</Table>
 				</div>
 
-				{invitationsData && invitationsData.length > 0 && (
+				{invitations.length > 0 && (
 					<div className="space-y-4">
 						<h2 className="font-semibold text-lg tracking-tight">
 							Pending Invitations
@@ -391,35 +413,44 @@ function OrgMembersPage() {
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{invitationsData.map((invite) => (
-										<TableRow key={invite.id}>
-											<TableCell>
-												<div className="flex items-center gap-2">
-													<Mail className="h-4 w-4 text-muted-foreground" />
-													<span>{invite.email}</span>
-												</div>
-											</TableCell>
-											<TableCell>{_getRoleBadge(invite.role)}</TableCell>
-											<TableCell>
-												{new Date(invite.createdAt).toLocaleDateString()}
-											</TableCell>
-											<TableCell>
-												{new Date(invite.expiresAt).toLocaleDateString()}
-											</TableCell>
-											<TableCell className="text-right">
-												<Button
-													variant="ghost"
-													size="sm"
-													className="text-destructive hover:text-destructive"
-													onClick={() => handleCancelInvite(invite.id)}
-													disabled={cancelInvitation.isPending}
-												>
-													<X className="mr-2 h-4 w-4" />
-													Cancel
-												</Button>
-											</TableCell>
-										</TableRow>
-									))}
+									{(invitations as unknown[]).map((invite: unknown) => {
+										const inv = invite as {
+											id: string;
+											email: string;
+											role: string;
+											createdAt: string | Date;
+											expiresAt: string | Date;
+										};
+										return (
+											<TableRow key={inv.id}>
+												<TableCell>
+													<div className="flex items-center gap-2">
+														<Mail className="h-4 w-4 text-muted-foreground" />
+														<span>{inv.email}</span>
+													</div>
+												</TableCell>
+												<TableCell>{_getRoleBadge(inv.role)}</TableCell>
+												<TableCell>
+													{new Date(inv.createdAt).toLocaleDateString()}
+												</TableCell>
+												<TableCell>
+													{new Date(inv.expiresAt).toLocaleDateString()}
+												</TableCell>
+												<TableCell className="text-right">
+													<Button
+														variant="ghost"
+														size="sm"
+														className="text-destructive hover:text-destructive"
+														onClick={() => handleCancelInvite(inv.id)}
+														disabled={cancelInvitation.isPending}
+													>
+														<X className="mr-2 h-4 w-4" />
+														Cancel
+													</Button>
+												</TableCell>
+											</TableRow>
+										);
+									})}
 								</TableBody>
 							</Table>
 						</div>

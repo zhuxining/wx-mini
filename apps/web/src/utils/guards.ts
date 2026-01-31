@@ -115,11 +115,19 @@ function getRoleWeight(role: string): number {
 /**
  * 快捷方法：要求 admin 或以上角色
  */
-export const requireAdmin = (ctx: Parameters<typeof requireRole>[0]) =>
-	requireRole({ ...ctx, role: "admin" });
+export async function requireAdmin(ctx: {
+	context: RouterAppContext;
+	location?: { href: string };
+}) {
+	return requireRole({ ...ctx, role: "admin", minimumRole: true });
+}
 
 /**
  * 快捷方法：要求 owner 角色
  */
-export const requireOwner = (ctx: Parameters<typeof requireRole>[0]) =>
-	requireRole({ ...ctx, role: "owner" });
+export async function requireOwner(ctx: {
+	context: RouterAppContext;
+	location?: { href: string };
+}) {
+	return requireRole({ ...ctx, role: "owner" });
+}

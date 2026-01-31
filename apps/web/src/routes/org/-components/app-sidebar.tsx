@@ -120,7 +120,10 @@ const navMainItems = [
 		title: "Settings",
 		url: "/org/settings",
 		icon: Settings2,
-		items: [],
+		items: [
+			{ title: "Profile", url: "/org/settings/profile" },
+			{ title: "Dangerous Zone", url: "/org/settings/dangerous" },
+		],
 	},
 ];
 

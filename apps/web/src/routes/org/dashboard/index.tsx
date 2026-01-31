@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	Card,
@@ -7,51 +7,52 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/org/dashboard/")({
-	// ✅ 继承父路由 /org 的 beforeLoad,无需重复检查
-	loader: async ({ context }) => {
-		const session = await context.queryClient.ensureQueryData(
-			orpc.privateData.queryOptions(),
-		);
-
-		const organizationId = (
-			session.user as {
-				activeOrganizationId?: string | null;
-			}
-		).activeOrganizationId;
-		if (!organizationId) return;
-
-		// 并行预取所有数据
-		await Promise.all([
-			context.queryClient.ensureQueryData(
-				orpc.organization.getFullOrganization.queryOptions({
-					input: { organizationId },
-				}),
-			),
-			context.queryClient.ensureQueryData(
-				orpc.organization.listMembers.queryOptions({ input: {} }),
-			),
-			context.queryClient.ensureQueryData(
-				orpc.organization.listInvitations.queryOptions({ input: {} }),
-			),
-		]);
-	},
 	component: OrgDashboard,
 });
 
 function OrgDashboard() {
-	// 数据已在 loader 中预取，无加载状态
-	const { data: members } = useSuspenseQuery(
-		orpc.organization.listMembers.queryOptions({ input: {} }),
-	);
-	const { data: invitations } = useSuspenseQuery(
-		orpc.organization.listInvitations.queryOptions({ input: {} }),
-	);
+	// 获取当前活跃组织信息
+	const { data: session } = useSuspenseQuery(orpc.privateData.queryOptions());
 
-	const membersCount = members?.members?.length ?? 0;
-	const pendingInvitationsCount = invitations?.length ?? 0;
+	const organizationId = (
+		session?.user as {
+			activeOrganizationId?: string | null;
+		}
+	)?.activeOrganizationId;
+
+	// 获取成员数据
+	const { data: members } = useQuery({
+		queryKey: ["organization", "members", organizationId],
+		queryFn: async () => {
+			if (!organizationId) return { members: [] };
+			return authClient.organization.listMembers({
+				query: { organizationId },
+			});
+		},
+		enabled: !!organizationId,
+	});
+
+	// 获取邀请数据
+	const { data: invitations } = useQuery({
+		queryKey: ["organization", "invitations", organizationId],
+		queryFn: async () => {
+			if (!organizationId) return [];
+			return authClient.organization.listInvitations({
+				query: { organizationId },
+			});
+		},
+		enabled: !!organizationId,
+	});
+
+	const membersCount =
+		(members as unknown as { members?: unknown[] } | null)?.members?.length ??
+		0;
+	const pendingInvitationsCount =
+		(invitations as unknown as unknown[] | null)?.length ?? 0;
 
 	return (
 		<div className="flex flex-1 flex-col gap-4 p-4 pt-0">

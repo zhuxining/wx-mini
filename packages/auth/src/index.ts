@@ -35,3 +35,6 @@ export const auth = betterAuth({
 		}),
 	],
 });
+
+// 导出类型供客户端使用
+export type Auth = typeof auth;

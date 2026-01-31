@@ -46,15 +46,9 @@ apps/web/src/
 **核心功能**:
 
 - 文件系统路由 - 通过文件结构自动生成路由,运行 `bun run dev` 触发
-- 权限守卫 - `requireSession`, `requireActiveOrg`, `requireAdmin`, `requirePermission`, `requireOwner`
 - 数据预加载 - `loader` + `useSuspenseQuery` 模式
 - oRPC 集成 - 端到端类型安全的 API 调用
-
-**权限守卫**:
-
-文件位置: [src/utils/route-guards.ts](src/utils/route-guards.ts) 和 [src/utils/permission-guards.ts](src/utils/permission-guards.ts)
-基础守卫: `requireSession`, `requireActiveOrg`, `requireAdmin`
-权限守卫: `requirePermission(resource, actions, redirectTo?)`, `requireOwner(redirectTo?)`
+- 权限守卫 - `requireSession`, `requireActiveOrganization`, `requireRole`, `requireAdmin`, `requireOwner`
 
 **快速链接**:
 
@@ -66,22 +60,21 @@ apps/web/src/
 
 ## 2.1 权限系统
 
-基于细粒度的权限控制系统，支持动态角色和自定义权限。
+基于**Better-Auth**权限控制系统（使用[Organization Plugin](https://www.better-auth.com/docs/plugins/organization#remove-team)），支持动态角色和自定义权限。
 
-**权限层次**:
+- client 端使用`import { authClient } from "@/lib/auth-client";`
+- server 端使用：`import { auth } from "@org-sass/auth";`
 
-| 层级 | 角色 | 权限范围 |
-|------|------|----------|
-| **组织级** | Owner (`member.role = "owner"`) | 完全控制组织 |
-| | Admin (`member.role = "admin"`) | 管理成员和团队 |
-| | Member (`member.role = "member"`) | 只读访问 |
+### 角色
 
-**前端权限守卫**:
+分为内置角色与动态自定义角色。
 
-文件位置: [src/utils/permission-guards.ts](src/utils/permission-guards.ts)
+**默认内置角色**:`owner`、`admin`、`member`， [参考](/packages/auth/src/permissions.ts)
+**动态自定义角色**: [参考](https://www.better-auth.com/docs/plugins/organization#dynamic-access-control)
 
-- `requirePermission(ctx, resource, actions, redirectTo?)` - 要求特定权限
-- `requireOwner(ctx, redirectTo?)` - 要求所有者权限
+### 权限守卫
+
+文件位置: [src/utils/guards.ts](src/utils/guards.ts)
 
 **权限检查流程**: 访问路由 → `requirePermission` 调用 API → 权限不足则重定向
 
