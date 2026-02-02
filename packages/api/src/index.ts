@@ -22,14 +22,13 @@ const logger = pino({
 export const standardLimiter = new MemoryRatelimiter({
 	maxRequests: 100,
 	window: 60000,
+	blockingUntilReady: {
+		enabled: true,
+		timeout: 5000, // Wait up to 5 seconds
+	},
 });
 
-export const strictLimiter = new MemoryRatelimiter({
-	maxRequests: 10,
-	window: 60000,
-});
-
-// 扩展 Context 类型以包含 LoggerContext
+// 扩展 Context 类型以包含 LoggerContext,Ratelimiter
 export interface EnhancedContext extends Context, LoggerContext {
 	ratelimiter: Ratelimiter;
 }

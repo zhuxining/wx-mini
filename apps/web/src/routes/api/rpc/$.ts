@@ -1,6 +1,8 @@
 import { createContext } from "@org-sass/api/context";
 import { standardLimiter } from "@org-sass/api/index";
 import { appRouter } from "@org-sass/api/routers/index";
+import { RetryAfterPlugin } from "@orpc/client/plugins";
+import { RatelimitHandlerPlugin } from "@orpc/experimental-ratelimit";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
@@ -9,6 +11,7 @@ import { ZodToJsonSchemaConverter } from "@orpc/zod";
 import { createFileRoute } from "@tanstack/react-router";
 
 const rpcHandler = new RPCHandler(appRouter, {
+	plugins: [new RatelimitHandlerPlugin()],
 	interceptors: [
 		onError((error) => {
 			console.error(error);

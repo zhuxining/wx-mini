@@ -3,6 +3,7 @@ import { standardLimiter } from "@org-sass/api/index";
 import { appRouter } from "@org-sass/api/routers/index";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
+import { RetryAfterPlugin } from "@orpc/client/plugins";
 import type { RouterClient } from "@orpc/server";
 import { createRouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
@@ -52,6 +53,16 @@ const getORPCClient = createIsomorphicFn()
 	.client((): RouterClient<typeof appRouter> => {
 		const link = new RPCLink({
 			url: `${window.location.origin}/api/rpc`,
+			plugins: [
+				new RetryAfterPlugin({
+					condition: (response, _options) => {
+						// Override condition to determine if a request should be retried
+						return response.status === 429 || response.status === 503;
+					},
+					maxAttempts: 5, // Maximum retry attempts
+					timeout: 5 * 60 * 1000, // Maximum time to spend retrying (ms)
+				}),
+			],
 			fetch(url, options) {
 				return fetch(url, {
 					...options,
