@@ -1,4 +1,3 @@
-import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -16,11 +15,6 @@ export default defineConfig({
 		tanstackStart(),
 		viteReact(),
 	],
-	resolve: {
-		alias: {
-			"@": path.resolve(__dirname, "./src"),
-		},
-	},
 	server: {
 		port: 3001,
 	},
