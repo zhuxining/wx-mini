@@ -17,8 +17,6 @@
 		"commit-commands@claude-plugins-official": true,
 		"feature-dev@claude-plugins-official": true,
 		"typescript-lsp@claude-plugins-official": true,
-		"playwright@claude-plugins-official": true,
-		"context7@claude-plugins-official": true,
 		"react-best-practices@cc-practice": true
 	}
 }
