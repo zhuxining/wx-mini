@@ -19,13 +19,13 @@ docs/
 
 ## 快速查找
 
-| Task | Location |
-|------|----------|
-| Auth config | src/index.ts |
-| Plugin setup | src/index.ts (plugins 数组) |
-| Web App 使用 authClient | apps/web/src/lib/auth-client.ts |
-| Better-Auth OpenAPI 文档访问 | <http://localhost:3001/api/auth/reference> |
-| Better-Auth API 参考文档 | [packages/api/docs/better-auth-api.md](../api/docs/better-auth-api.md) |
+| Task                         | Location                                                               |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| Auth config                  | src/index.ts                                                           |
+| Plugin setup                 | src/index.ts (plugins 数组)                                            |
+| Web App 使用 authClient      | apps/web/src/lib/auth-client.ts                                        |
+| Better-Auth OpenAPI 文档访问 | <http://localhost:3001/api/auth/reference>                             |
+| Better-Auth API 参考文档     | [packages/api/docs/better-auth-api.md](../api/docs/better-auth-api.md) |
 
 ---
 
@@ -83,16 +83,16 @@ const { data: session } = await auth.api.getSession();
 
 ```typescript
 // 直接 fetch 调用
-const response = await fetch('/api/auth/change-password', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  credentials: 'include',
-  body: JSON.stringify({
-    newPassword: 'newPass123',
-    currentPassword: 'currentPass123',
-  }),
+const response = await fetch("/api/auth/change-password", {
+	method: "POST",
+	headers: {
+		"Content-Type": "application/json",
+	},
+	credentials: "include",
+	body: JSON.stringify({
+		newPassword: "newPass123",
+		currentPassword: "currentPass123",
+	}),
 });
 
 const result = await response.json();
@@ -128,11 +128,11 @@ const result = await response.json();
 
 ### 已启用的插件
 
-| 插件 | 功能 |
-|------|------|
-| OpenAPI | 自动生成 OpenAPI 3.1.1 规范，并提供Better-Auth的 API 端点 |
-| TanStack Start Cookies | SSR 友好的 cookie 管理 |
-| Organization | 多租户组织管理 + 团队系统 |
+| 插件                   | 功能                                                      |
+| ---------------------- | --------------------------------------------------------- |
+| OpenAPI                | 自动生成 OpenAPI 3.1.1 规范，并提供Better-Auth的 API 端点 |
+| TanStack Start Cookies | SSR 友好的 cookie 管理                                    |
+| Organization           | 多租户组织管理 + 团队系统                                 |
 
 #### OpenAPI 插件
 

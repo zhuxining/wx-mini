@@ -1,9 +1,9 @@
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { z } from "zod";
-
+import z from "zod";
 import { authClient } from "@/lib/auth-client";
+import { Loader } from "./fallback/loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -16,6 +16,7 @@ export default function SignUpForm({
 	const navigate = useNavigate({
 		from: "/",
 	});
+	const { isPending } = authClient.useSession();
 
 	const form = useForm({
 		defaultValues: {
@@ -33,9 +34,9 @@ export default function SignUpForm({
 				{
 					onSuccess: () => {
 						navigate({
-							to: "/",
+							to: "/dashboard",
 						});
-						toast.success("注册成功！请联系系统管理员创建组织");
+						toast.success("Sign up successful");
 					},
 					onError: (error) => {
 						toast.error(error.error.message || error.error.statusText);
@@ -51,6 +52,10 @@ export default function SignUpForm({
 			}),
 		},
 	});
+
+	if (isPending) {
+		return <Loader />;
+	}
 
 	return (
 		<div className="mx-auto mt-10 w-full max-w-md p-6">

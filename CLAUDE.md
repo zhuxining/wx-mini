@@ -8,8 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **核心定位**:
 
-- **Org 端**: 组织成员管理团队、成员、邀请（Owner/Admin/Member 三级权限）
-- **Public 端**: 公开访问页面（落地页、关于）
+使用Better-Auth的organization插件实现多组织用户管理，提供基于角色的权限控制，支持用户在多个组织间切换。
 
 **技术栈**: TanStack Start + TanStack Router + React 19 | TailwindCSS 4 + shadcn/ui | oRPC + Better-Auth | PostgreSQL + Drizzle ORM | Turborepo + Bun
 
@@ -17,12 +16,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **详细文档索引**:
 
-| 主题 | 详细文档 | 内容 |
-|------|---------|------|
-| **Web App 开发** | [apps/web/CLAUDE.md](apps/web/CLAUDE.md) | 路由架构、组件开发、数据获取、代码规范 |
-| **API 开发** | [api/CLAUDE.md](packages/api/CLAUDE.md) | 权限模式、错误处理、Zod 验证、端点目录 |
-| **认证流程** | [auth/CLAUDE.md](packages/auth/CLAUDE.md) | Session 结构、Better-Auth 配置、组织切换 |
-| **数据库** | [db/CLAUDE.md](packages/db/CLAUDE.md) | 数据模型、表结构、业务规则、关系定义 |
+| 主题             | 详细文档                                  | 内容                                     |
+| ---------------- | ----------------------------------------- | ---------------------------------------- |
+| **Web App 开发** | [apps/web/CLAUDE.md](apps/web/CLAUDE.md)  | 路由架构、组件开发、数据获取、代码规范   |
+| **API 开发**     | [api/CLAUDE.md](packages/api/CLAUDE.md)   | 权限模式、错误处理、Zod 验证、端点目录   |
+| **认证流程**     | [auth/CLAUDE.md](packages/auth/CLAUDE.md) | Session 结构、Better-Auth 配置、组织切换 |
+| **数据库**       | [db/CLAUDE.md](packages/db/CLAUDE.md)     | 数据模型、表结构、业务规则、关系定义     |
 
 **快速开始**:
 
@@ -73,19 +72,19 @@ bun run db:migrate       # 创建迁移文件 (生产环境)
 
 ```bash
 bun run check            # 格式化和 lint (Biome)
-bun run check-types      # 类型检查  
+bun run check-types      # 类型检查
 ```
 
 ## 架构概览
 
 本项目采用分层架构，各层职责清晰:
 
-| 层级 | 技术 | 详细文档 |
-|------|------|---------|
-| **Web App** | TanStack Start (SSR) + React 19 | [apps/web/CLAUDE.md](apps/web/CLAUDE.md) |
-| **API** | oRPC (端到端类型安全) | [packages/api/src/CLAUDE.md](packages/api/CLAUDE.md) |
-| **认证** | Better-Auth (Admin + Organization 插件) | [packages/auth/src/CLAUDE.md](packages/auth/CLAUDE.md) |
-| **数据库** | PostgreSQL + Drizzle ORM | [packages/db/src/CLAUDE.md](packages/db/CLAUDE.md) |
+| 层级        | 技术                                    | 详细文档                                               |
+| ----------- | --------------------------------------- | ------------------------------------------------------ |
+| **Web App** | TanStack Start (SSR) + React 19         | [apps/web/CLAUDE.md](apps/web/CLAUDE.md)               |
+| **API**     | oRPC (端到端类型安全)                   | [packages/api/src/CLAUDE.md](packages/api/CLAUDE.md)   |
+| **认证**    | Better-Auth (Admin + Organization 插件) | [packages/auth/src/CLAUDE.md](packages/auth/CLAUDE.md) |
+| **数据库**  | PostgreSQL + Drizzle ORM                | [packages/db/src/CLAUDE.md](packages/db/CLAUDE.md)     |
 
 **关键概念**:
 
@@ -105,8 +104,8 @@ bun run check-types      # 类型检查
 ### 导入规范
 
 ```typescript
-import { orpc } from "@/utils/orpc";  // 内部导入
-import { db } from "@org-sass/db";     // 跨包导入
+import { orpc } from "@/utils/orpc"; // 内部导入
+import { db } from "@org-sass/db"; // 跨包导入
 ```
 
 ## 反模式和注意事项

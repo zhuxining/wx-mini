@@ -7,12 +7,12 @@
 ```
 apps/web/src/
 ├── routes/              # 文件系统路由
-│   ├── (public)/        # 公开页面
 │   ├── (auth)/          # 认证流程
-│   ├── org/             # 组织端 (登录用户)
-│   │   └── -components/ # 组织端共享组件
+│   ├── admin/           # 管理组织信息及其成员、内容
+│   ├── org/             # 浏览组织的公开内容
 │   └── __root.tsx       # 根布局
 ├── components/          # 全局共享组件
+│   ├── fallback/        # 反馈组件（Loader、ErrorBoundary等）
 │   └── ui/              # shadcn/ui (DO NOT EDIT)
 ├── middleware/          # 全局中间件
 │   └── auth.ts          # 认证中间件
@@ -26,16 +26,16 @@ apps/web/src/
 
 ### 1.2 快速索引
 
-| 任务 | 详细文档 |
-|------|----------|
-| 添加新路由 | → [docs/routing.md](docs/routing.md) |
-| 路由守卫和权限 | → [docs/routing.md](docs/routing.md) |
-| 数据获取模式 | → [docs/data-loading.md](docs/data-loading.md) |
-| CRUD 页面 | → [docs/crud-patterns.md](docs/crud-patterns.md) |
-| UI 交互模式 | → [docs/ui-patterns.md](docs/ui-patterns.md) |
-| 表单开发 | → [docs/form-patterns.md](docs/form-patterns.md) |
-| 添加 UI 组件 | → [docs/shadcn-usage.md](docs/shadcn-usage.md) |
-| 认证流程 | → [docs/authentication.md](docs/authentication.md) |
+| 任务           | 详细文档                                           |
+| -------------- | -------------------------------------------------- |
+| 添加新路由     | → [docs/routing.md](docs/routing.md)               |
+| 路由守卫和权限 | → [docs/routing.md](docs/routing.md)               |
+| 数据获取模式   | → [docs/data-loading.md](docs/data-loading.md)     |
+| CRUD 页面      | → [docs/crud-patterns.md](docs/crud-patterns.md)   |
+| UI 交互模式    | → [docs/ui-patterns.md](docs/ui-patterns.md)       |
+| 表单开发       | → [docs/form-patterns.md](docs/form-patterns.md)   |
+| 添加 UI 组件   | → [docs/shadcn-usage.md](docs/shadcn-usage.md)     |
+| 认证流程       | → [docs/authentication.md](docs/authentication.md) |
 
 ---
 
@@ -107,17 +107,18 @@ apps/web/src/
 
 ### 详细指南
 
-| 任务 | 详细文档 |
-|------|----------|
+| 任务      | 详细文档                                       |
+| --------- | ---------------------------------------------- |
 | CRUD 页面 | [docs/crud-patterns.md](docs/crud-patterns.md) |
-| UI 交互 | [docs/ui-patterns.md](docs/ui-patterns.md) |
-| 表单开发 | [docs/form-patterns.md](docs/form-patterns.md) |
-| UI 组件 | [docs/shadcn-usage.md](docs/shadcn-usage.md) |
+| UI 交互   | [docs/ui-patterns.md](docs/ui-patterns.md)     |
+| 表单开发  | [docs/form-patterns.md](docs/form-patterns.md) |
+| UI 组件   | [docs/shadcn-usage.md](docs/shadcn-usage.md)   |
 
 ### 组件目录
 
 ```
 src/components/
+├── fallback/             # 反馈组件（Loader、ErrorBoundary等）
 ├── ui/                   # shadcn/ui (auto-generated, DO NOT EDIT)
 ├── loader.tsx            # Loading spinner
 ├── sign-in-form.tsx      # Login form
@@ -126,7 +127,7 @@ src/components/
 
 ### 常见陷阱
 
- **本项目使用 `@base-ui/react`**（非 Radix UI）
+**本项目使用 `@base-ui/react`**（非 Radix UI）
 
 - 不支持 `asChild` prop，使用 `render` prop 替代 `asChild`
 - 创建包装器时使用 `useRender` + `mergeProps`，`mergeProps` 第一个参数必须是 `{}`
