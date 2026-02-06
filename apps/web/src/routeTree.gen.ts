@@ -9,32 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as OrgRouteRouteImport } from './routes/org/route'
 import { Route as publicRouteRouteImport } from './routes/(public)/route'
 import { Route as publicIndexRouteImport } from './routes/(public)/index'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
-import { Route as OrgTeamsRouteRouteImport } from './routes/org/teams/route'
-import { Route as OrgSettingsRouteRouteImport } from './routes/org/settings/route'
-import { Route as OrgTeamsIndexRouteImport } from './routes/org/teams/index'
-import { Route as OrgSettingsIndexRouteImport } from './routes/org/settings/index'
-import { Route as OrgMembersIndexRouteImport } from './routes/org/members/index'
-import { Route as OrgDashboardIndexRouteImport } from './routes/org/dashboard/index'
 import { Route as publicPricingIndexRouteImport } from './routes/(public)/pricing/index'
 import { Route as publicLandingIndexRouteImport } from './routes/(public)/landing/index'
 import { Route as publicAboutIndexRouteImport } from './routes/(public)/about/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as OrgSettingsDangerousRouteRouteImport } from './routes/org/settings/dangerous/route'
-import { Route as OrgMembersMemberIdRouteRouteImport } from './routes/org/members/$memberId/route'
-import { Route as OrgSettingsProfileIndexRouteImport } from './routes/org/settings/profile/index'
-import { Route as OrgSettingsDangerousIndexRouteImport } from './routes/org/settings/dangerous/index'
-import { Route as OrgMembersMemberIdIndexRouteImport } from './routes/org/members/$memberId/index'
 
-const OrgRouteRoute = OrgRouteRouteImport.update({
-  id: '/org',
-  path: '/org',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const publicRouteRoute = publicRouteRouteImport.update({
   id: '/(public)',
   getParentRoute: () => rootRouteImport,
@@ -48,36 +31,6 @@ const authLoginRoute = authLoginRouteImport.update({
   id: '/(auth)/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any)
-const OrgTeamsRouteRoute = OrgTeamsRouteRouteImport.update({
-  id: '/teams',
-  path: '/teams',
-  getParentRoute: () => OrgRouteRoute,
-} as any)
-const OrgSettingsRouteRoute = OrgSettingsRouteRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => OrgRouteRoute,
-} as any)
-const OrgTeamsIndexRoute = OrgTeamsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => OrgTeamsRouteRoute,
-} as any)
-const OrgSettingsIndexRoute = OrgSettingsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => OrgSettingsRouteRoute,
-} as any)
-const OrgMembersIndexRoute = OrgMembersIndexRouteImport.update({
-  id: '/members/',
-  path: '/members/',
-  getParentRoute: () => OrgRouteRoute,
-} as any)
-const OrgDashboardIndexRoute = OrgDashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => OrgRouteRoute,
 } as any)
 const publicPricingIndexRoute = publicPricingIndexRouteImport.update({
   id: '/pricing/',
@@ -104,57 +57,17 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrgSettingsDangerousRouteRoute =
-  OrgSettingsDangerousRouteRouteImport.update({
-    id: '/dangerous',
-    path: '/dangerous',
-    getParentRoute: () => OrgSettingsRouteRoute,
-  } as any)
-const OrgMembersMemberIdRouteRoute = OrgMembersMemberIdRouteRouteImport.update({
-  id: '/members/$memberId',
-  path: '/members/$memberId',
-  getParentRoute: () => OrgRouteRoute,
-} as any)
-const OrgSettingsProfileIndexRoute = OrgSettingsProfileIndexRouteImport.update({
-  id: '/profile/',
-  path: '/profile/',
-  getParentRoute: () => OrgSettingsRouteRoute,
-} as any)
-const OrgSettingsDangerousIndexRoute =
-  OrgSettingsDangerousIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => OrgSettingsDangerousRouteRoute,
-  } as any)
-const OrgMembersMemberIdIndexRoute = OrgMembersMemberIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => OrgMembersMemberIdRouteRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
-  '/org': typeof OrgRouteRouteWithChildren
-  '/org/settings': typeof OrgSettingsRouteRouteWithChildren
-  '/org/teams': typeof OrgTeamsRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/': typeof publicIndexRoute
-  '/org/members/$memberId': typeof OrgMembersMemberIdRouteRouteWithChildren
-  '/org/settings/dangerous': typeof OrgSettingsDangerousRouteRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/about/': typeof publicAboutIndexRoute
   '/landing/': typeof publicLandingIndexRoute
   '/pricing/': typeof publicPricingIndexRoute
-  '/org/dashboard/': typeof OrgDashboardIndexRoute
-  '/org/members/': typeof OrgMembersIndexRoute
-  '/org/settings/': typeof OrgSettingsIndexRoute
-  '/org/teams/': typeof OrgTeamsIndexRoute
-  '/org/members/$memberId/': typeof OrgMembersMemberIdIndexRoute
-  '/org/settings/dangerous/': typeof OrgSettingsDangerousIndexRoute
-  '/org/settings/profile/': typeof OrgSettingsProfileIndexRoute
 }
 export interface FileRoutesByTo {
-  '/org': typeof OrgRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/': typeof publicIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -162,62 +75,30 @@ export interface FileRoutesByTo {
   '/about': typeof publicAboutIndexRoute
   '/landing': typeof publicLandingIndexRoute
   '/pricing': typeof publicPricingIndexRoute
-  '/org/dashboard': typeof OrgDashboardIndexRoute
-  '/org/members': typeof OrgMembersIndexRoute
-  '/org/settings': typeof OrgSettingsIndexRoute
-  '/org/teams': typeof OrgTeamsIndexRoute
-  '/org/members/$memberId': typeof OrgMembersMemberIdIndexRoute
-  '/org/settings/dangerous': typeof OrgSettingsDangerousIndexRoute
-  '/org/settings/profile': typeof OrgSettingsProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(public)': typeof publicRouteRouteWithChildren
-  '/org': typeof OrgRouteRouteWithChildren
-  '/org/settings': typeof OrgSettingsRouteRouteWithChildren
-  '/org/teams': typeof OrgTeamsRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(public)/': typeof publicIndexRoute
-  '/org/members/$memberId': typeof OrgMembersMemberIdRouteRouteWithChildren
-  '/org/settings/dangerous': typeof OrgSettingsDangerousRouteRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(public)/about/': typeof publicAboutIndexRoute
   '/(public)/landing/': typeof publicLandingIndexRoute
   '/(public)/pricing/': typeof publicPricingIndexRoute
-  '/org/dashboard/': typeof OrgDashboardIndexRoute
-  '/org/members/': typeof OrgMembersIndexRoute
-  '/org/settings/': typeof OrgSettingsIndexRoute
-  '/org/teams/': typeof OrgTeamsIndexRoute
-  '/org/members/$memberId/': typeof OrgMembersMemberIdIndexRoute
-  '/org/settings/dangerous/': typeof OrgSettingsDangerousIndexRoute
-  '/org/settings/profile/': typeof OrgSettingsProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/org'
-    | '/org/settings'
-    | '/org/teams'
     | '/login'
     | '/'
-    | '/org/members/$memberId'
-    | '/org/settings/dangerous'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/about/'
     | '/landing/'
     | '/pricing/'
-    | '/org/dashboard/'
-    | '/org/members/'
-    | '/org/settings/'
-    | '/org/teams/'
-    | '/org/members/$memberId/'
-    | '/org/settings/dangerous/'
-    | '/org/settings/profile/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/org'
     | '/login'
     | '/'
     | '/api/auth/$'
@@ -225,40 +106,20 @@ export interface FileRouteTypes {
     | '/about'
     | '/landing'
     | '/pricing'
-    | '/org/dashboard'
-    | '/org/members'
-    | '/org/settings'
-    | '/org/teams'
-    | '/org/members/$memberId'
-    | '/org/settings/dangerous'
-    | '/org/settings/profile'
   id:
     | '__root__'
     | '/(public)'
-    | '/org'
-    | '/org/settings'
-    | '/org/teams'
     | '/(auth)/login'
     | '/(public)/'
-    | '/org/members/$memberId'
-    | '/org/settings/dangerous'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/(public)/about/'
     | '/(public)/landing/'
     | '/(public)/pricing/'
-    | '/org/dashboard/'
-    | '/org/members/'
-    | '/org/settings/'
-    | '/org/teams/'
-    | '/org/members/$memberId/'
-    | '/org/settings/dangerous/'
-    | '/org/settings/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   publicRouteRoute: typeof publicRouteRouteWithChildren
-  OrgRouteRoute: typeof OrgRouteRouteWithChildren
   authLoginRoute: typeof authLoginRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
@@ -266,13 +127,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/org': {
-      id: '/org'
-      path: '/org'
-      fullPath: '/org'
-      preLoaderRoute: typeof OrgRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/(public)': {
       id: '/(public)'
       path: ''
@@ -293,48 +147,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/org/teams': {
-      id: '/org/teams'
-      path: '/teams'
-      fullPath: '/org/teams'
-      preLoaderRoute: typeof OrgTeamsRouteRouteImport
-      parentRoute: typeof OrgRouteRoute
-    }
-    '/org/settings': {
-      id: '/org/settings'
-      path: '/settings'
-      fullPath: '/org/settings'
-      preLoaderRoute: typeof OrgSettingsRouteRouteImport
-      parentRoute: typeof OrgRouteRoute
-    }
-    '/org/teams/': {
-      id: '/org/teams/'
-      path: '/'
-      fullPath: '/org/teams/'
-      preLoaderRoute: typeof OrgTeamsIndexRouteImport
-      parentRoute: typeof OrgTeamsRouteRoute
-    }
-    '/org/settings/': {
-      id: '/org/settings/'
-      path: '/'
-      fullPath: '/org/settings/'
-      preLoaderRoute: typeof OrgSettingsIndexRouteImport
-      parentRoute: typeof OrgSettingsRouteRoute
-    }
-    '/org/members/': {
-      id: '/org/members/'
-      path: '/members'
-      fullPath: '/org/members/'
-      preLoaderRoute: typeof OrgMembersIndexRouteImport
-      parentRoute: typeof OrgRouteRoute
-    }
-    '/org/dashboard/': {
-      id: '/org/dashboard/'
-      path: '/dashboard'
-      fullPath: '/org/dashboard/'
-      preLoaderRoute: typeof OrgDashboardIndexRouteImport
-      parentRoute: typeof OrgRouteRoute
     }
     '/(public)/pricing/': {
       id: '/(public)/pricing/'
@@ -371,41 +183,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/org/settings/dangerous': {
-      id: '/org/settings/dangerous'
-      path: '/dangerous'
-      fullPath: '/org/settings/dangerous'
-      preLoaderRoute: typeof OrgSettingsDangerousRouteRouteImport
-      parentRoute: typeof OrgSettingsRouteRoute
-    }
-    '/org/members/$memberId': {
-      id: '/org/members/$memberId'
-      path: '/members/$memberId'
-      fullPath: '/org/members/$memberId'
-      preLoaderRoute: typeof OrgMembersMemberIdRouteRouteImport
-      parentRoute: typeof OrgRouteRoute
-    }
-    '/org/settings/profile/': {
-      id: '/org/settings/profile/'
-      path: '/profile'
-      fullPath: '/org/settings/profile/'
-      preLoaderRoute: typeof OrgSettingsProfileIndexRouteImport
-      parentRoute: typeof OrgSettingsRouteRoute
-    }
-    '/org/settings/dangerous/': {
-      id: '/org/settings/dangerous/'
-      path: '/'
-      fullPath: '/org/settings/dangerous/'
-      preLoaderRoute: typeof OrgSettingsDangerousIndexRouteImport
-      parentRoute: typeof OrgSettingsDangerousRouteRoute
-    }
-    '/org/members/$memberId/': {
-      id: '/org/members/$memberId/'
-      path: '/'
-      fullPath: '/org/members/$memberId/'
-      preLoaderRoute: typeof OrgMembersMemberIdIndexRouteImport
-      parentRoute: typeof OrgMembersMemberIdRouteRoute
-    }
   }
 }
 
@@ -427,84 +204,8 @@ const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
   publicRouteRouteChildren,
 )
 
-interface OrgSettingsDangerousRouteRouteChildren {
-  OrgSettingsDangerousIndexRoute: typeof OrgSettingsDangerousIndexRoute
-}
-
-const OrgSettingsDangerousRouteRouteChildren: OrgSettingsDangerousRouteRouteChildren =
-  {
-    OrgSettingsDangerousIndexRoute: OrgSettingsDangerousIndexRoute,
-  }
-
-const OrgSettingsDangerousRouteRouteWithChildren =
-  OrgSettingsDangerousRouteRoute._addFileChildren(
-    OrgSettingsDangerousRouteRouteChildren,
-  )
-
-interface OrgSettingsRouteRouteChildren {
-  OrgSettingsDangerousRouteRoute: typeof OrgSettingsDangerousRouteRouteWithChildren
-  OrgSettingsIndexRoute: typeof OrgSettingsIndexRoute
-  OrgSettingsProfileIndexRoute: typeof OrgSettingsProfileIndexRoute
-}
-
-const OrgSettingsRouteRouteChildren: OrgSettingsRouteRouteChildren = {
-  OrgSettingsDangerousRouteRoute: OrgSettingsDangerousRouteRouteWithChildren,
-  OrgSettingsIndexRoute: OrgSettingsIndexRoute,
-  OrgSettingsProfileIndexRoute: OrgSettingsProfileIndexRoute,
-}
-
-const OrgSettingsRouteRouteWithChildren =
-  OrgSettingsRouteRoute._addFileChildren(OrgSettingsRouteRouteChildren)
-
-interface OrgTeamsRouteRouteChildren {
-  OrgTeamsIndexRoute: typeof OrgTeamsIndexRoute
-}
-
-const OrgTeamsRouteRouteChildren: OrgTeamsRouteRouteChildren = {
-  OrgTeamsIndexRoute: OrgTeamsIndexRoute,
-}
-
-const OrgTeamsRouteRouteWithChildren = OrgTeamsRouteRoute._addFileChildren(
-  OrgTeamsRouteRouteChildren,
-)
-
-interface OrgMembersMemberIdRouteRouteChildren {
-  OrgMembersMemberIdIndexRoute: typeof OrgMembersMemberIdIndexRoute
-}
-
-const OrgMembersMemberIdRouteRouteChildren: OrgMembersMemberIdRouteRouteChildren =
-  {
-    OrgMembersMemberIdIndexRoute: OrgMembersMemberIdIndexRoute,
-  }
-
-const OrgMembersMemberIdRouteRouteWithChildren =
-  OrgMembersMemberIdRouteRoute._addFileChildren(
-    OrgMembersMemberIdRouteRouteChildren,
-  )
-
-interface OrgRouteRouteChildren {
-  OrgSettingsRouteRoute: typeof OrgSettingsRouteRouteWithChildren
-  OrgTeamsRouteRoute: typeof OrgTeamsRouteRouteWithChildren
-  OrgMembersMemberIdRouteRoute: typeof OrgMembersMemberIdRouteRouteWithChildren
-  OrgDashboardIndexRoute: typeof OrgDashboardIndexRoute
-  OrgMembersIndexRoute: typeof OrgMembersIndexRoute
-}
-
-const OrgRouteRouteChildren: OrgRouteRouteChildren = {
-  OrgSettingsRouteRoute: OrgSettingsRouteRouteWithChildren,
-  OrgTeamsRouteRoute: OrgTeamsRouteRouteWithChildren,
-  OrgMembersMemberIdRouteRoute: OrgMembersMemberIdRouteRouteWithChildren,
-  OrgDashboardIndexRoute: OrgDashboardIndexRoute,
-  OrgMembersIndexRoute: OrgMembersIndexRoute,
-}
-
-const OrgRouteRouteWithChildren = OrgRouteRoute._addFileChildren(
-  OrgRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   publicRouteRoute: publicRouteRouteWithChildren,
-  OrgRouteRoute: OrgRouteRouteWithChildren,
   authLoginRoute: authLoginRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
