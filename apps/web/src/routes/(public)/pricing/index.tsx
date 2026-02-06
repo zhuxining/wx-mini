@@ -40,15 +40,7 @@ function PricingPage() {
 						<ul className="space-y-3">
 							<li className="flex items-center gap-2">
 								<Check className="h-4 w-4 text-green-600" />
-								<span>Up to 5 team members</span>
-							</li>
-							<li className="flex items-center gap-2">
-								<Check className="h-4 w-4 text-green-600" />
-								<span>1 organization</span>
-							</li>
-							<li className="flex items-center gap-2">
-								<Check className="h-4 w-4 text-green-600" />
-								<span>Basic team management</span>
+								<span>Basic features</span>
 							</li>
 							<li className="flex items-center gap-2">
 								<Check className="h-4 w-4 text-green-600" />
@@ -70,12 +62,10 @@ function PricingPage() {
 				<Card className="border-primary shadow-lg">
 					<CardHeader>
 						<div className="flex items-center justify-between">
-							<CardTitle>Startup</CardTitle>
+							<CardTitle>Pro</CardTitle>
 							<Badge>Popular</Badge>
 						</div>
-						<CardDescription>
-							For growing teams and organizations
-						</CardDescription>
+						<CardDescription>For power users</CardDescription>
 						<div className="mt-4">
 							<span className="font-bold text-4xl">$29</span>
 							<span className="text-muted-foreground">/month</span>
@@ -85,15 +75,7 @@ function PricingPage() {
 						<ul className="space-y-3">
 							<li className="flex items-center gap-2">
 								<Check className="h-4 w-4 text-green-600" />
-								<span>Up to 50 team members</span>
-							</li>
-							<li className="flex items-center gap-2">
-								<Check className="h-4 w-4 text-green-600" />
-								<span>Unlimited organizations</span>
-							</li>
-							<li className="flex items-center gap-2">
-								<Check className="h-4 w-4 text-green-600" />
-								<span>Advanced team features</span>
+								<span>Advanced features</span>
 							</li>
 							<li className="flex items-center gap-2">
 								<Check className="h-4 w-4 text-green-600" />
@@ -117,7 +99,7 @@ function PricingPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Enterprise</CardTitle>
-						<CardDescription>For large organizations</CardDescription>
+						<CardDescription>For large scale needs</CardDescription>
 						<div className="mt-4">
 							<span className="font-bold text-4xl">$99</span>
 							<span className="text-muted-foreground">/month</span>
@@ -125,14 +107,6 @@ function PricingPage() {
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<ul className="space-y-3">
-							<li className="flex items-center gap-2">
-								<Check className="h-4 w-4 text-green-600" />
-								<span>Unlimited team members</span>
-							</li>
-							<li className="flex items-center gap-2">
-								<Check className="h-4 w-4 text-green-600" />
-								<span>Unlimited organizations</span>
-							</li>
 							<li className="flex items-center gap-2">
 								<Check className="h-4 w-4 text-green-600" />
 								<span>Advanced analytics</span>
