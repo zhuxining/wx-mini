@@ -22,7 +22,6 @@ import {
 	PopoverAnchor,
 	PopoverContent,
 } from "@/components/ui/popover";
-import type { DataGridCellProps } from "@/types/data-grid";
 import {
 	Select,
 	SelectContent,
@@ -45,6 +44,7 @@ import {
 	parseLocalDate,
 } from "@/lib/data-grid";
 import { cn } from "@/lib/utils";
+import type { DataGridCellProps } from "@/types/data-grid";
 
 export function ShortTextCell<TData>({
 	cell,

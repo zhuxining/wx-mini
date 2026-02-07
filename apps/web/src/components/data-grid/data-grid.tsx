@@ -2,7 +2,6 @@
 
 import { Plus } from "lucide-react";
 import * as React from "react";
-import type { Direction } from "@/types/data-grid";
 import { DataGridColumnHeader } from "@/components/data-grid/data-grid-column-header";
 import { DataGridContextMenu } from "@/components/data-grid/data-grid-context-menu";
 import { DataGridPasteDialog } from "@/components/data-grid/data-grid-paste-dialog";
@@ -16,6 +15,7 @@ import {
 	getColumnPinningStyle,
 } from "@/lib/data-grid";
 import { cn } from "@/lib/utils";
+import type { Direction } from "@/types/data-grid";
 
 const EMPTY_CELL_SELECTION_SET = new Set<string>();
 
