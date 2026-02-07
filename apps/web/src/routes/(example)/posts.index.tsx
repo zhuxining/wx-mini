@@ -9,8 +9,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DataTable } from "@/components/data-table/data-table";
-import { DataTableAdvancedToolbar } from "@/components/data-table/data-table-advanced-toolbar";
-import { DataTableFilterList } from "@/components/data-table/data-table-filter-list";
+import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { Button } from "@/components/ui/button";
 import {
 	ResponsiveDialog,
@@ -198,7 +197,6 @@ function PostsList() {
 			sort: "sort",
 			filters: "filters",
 		},
-		enableAdvancedFilter: true, // 启用高级过滤，禁用简单过滤工具栏
 	});
 
 	return (
@@ -210,9 +208,7 @@ function PostsList() {
 				</Link>
 			</div>
 
-			<DataTableAdvancedToolbar table={table.table}>
-				<DataTableFilterList table={table.table} />
-			</DataTableAdvancedToolbar>
+			<DataTableToolbar table={table.table} />
 			<DataTable table={table.table} />
 		</div>
 	);
