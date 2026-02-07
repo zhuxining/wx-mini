@@ -27,6 +27,8 @@ export interface RouterAppContext {
 	queryClient: QueryClient;
 }
 
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+
 export const Route = createRootRouteWithContext<RouterAppContext>()({
 	head: () => ({
 		meta: [
@@ -72,7 +74,9 @@ function RootDocument() {
 			<body>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 					<div className="min-h-screen">
-						<Outlet />
+						<NuqsAdapter>
+							<Outlet />
+						</NuqsAdapter>
 					</div>
 					<Toaster richColors />
 					<TanStackDevtools
