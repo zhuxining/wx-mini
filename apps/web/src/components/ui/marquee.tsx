@@ -1,8 +1,8 @@
 "use client";
 
+import { useDirection } from "@radix-ui/react-direction";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot as SlotPrimitive } from "radix-ui";
-import { useDirection } from "@radix-ui/react-direction";
 import * as React from "react";
 import { useComposedRefs } from "@/lib/compose-refs";
 import { cn } from "@/lib/utils";

@@ -1,5 +1,6 @@
 "use client";
 
+import { useDirection } from "@radix-ui/react-direction";
 import {
 	FileArchiveIcon,
 	FileAudioIcon,
@@ -10,7 +11,6 @@ import {
 	FileVideoIcon,
 } from "lucide-react";
 import { Slot as SlotPrimitive } from "radix-ui";
-import { useDirection } from "@radix-ui/react-direction";
 import * as React from "react";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useLazyRef } from "@/hooks/use-lazy-ref";

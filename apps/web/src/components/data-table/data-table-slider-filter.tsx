@@ -142,7 +142,7 @@ export function DataTableSliderFilter<TData>({
 
 	return (
 		<Popover>
-			<PopoverTrigger >
+			<PopoverTrigger asChild>
 				<Button
 					variant="outline"
 					size="sm"

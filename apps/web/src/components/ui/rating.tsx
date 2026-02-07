@@ -1,8 +1,8 @@
 "use client";
 
+import { useDirection } from "@radix-ui/react-direction";
 import { Star } from "lucide-react";
 import { Slot as SlotPrimitive } from "radix-ui";
-import { useDirection } from "@radix-ui/react-direction";
 import * as React from "react";
 import { VisuallyHiddenInput } from "@/components/visually-hidden-input";
 import { useAsRef } from "@/hooks/use-as-ref";

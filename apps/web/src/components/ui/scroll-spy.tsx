@@ -1,7 +1,7 @@
 "use client";
 
-import { Slot as SlotPrimitive } from "radix-ui";
 import { useDirection } from "@radix-ui/react-direction";
+import { Slot as SlotPrimitive } from "radix-ui";
 
 import * as React from "react";
 import { useAsRef } from "@/hooks/use-as-ref";

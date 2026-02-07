@@ -27,7 +27,7 @@ export interface RouterAppContext {
 	queryClient: QueryClient;
 }
 
-import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
 	head: () => ({

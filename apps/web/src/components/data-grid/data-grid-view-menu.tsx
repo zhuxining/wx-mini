@@ -47,7 +47,7 @@ export function DataGridViewMenu<TData>({
 
 	return (
 		<Popover>
-			<PopoverTrigger >
+			<PopoverTrigger asChild>
 				<Button
 					aria-label="Toggle columns"
 					role="combobox"

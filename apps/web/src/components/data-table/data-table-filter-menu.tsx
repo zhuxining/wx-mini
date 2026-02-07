@@ -392,7 +392,7 @@ function DataTableFilterItem<TData>({
 				onKeyDown={onItemKeyDown}
 			>
 				<Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
-					<PopoverTrigger >
+					<PopoverTrigger asChild>
 						<Button
 							variant="ghost"
 							size="sm"

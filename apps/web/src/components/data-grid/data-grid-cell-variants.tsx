@@ -1570,7 +1570,7 @@ export function FileCell<TData>({
 					const filesWithTemp = [...files, ...tempFiles];
 					setFiles(filesWithTemp);
 
-					const uploadingIds = new Set(tempFiles.map((f) => f.id));
+					const uploadingIds: Set<string> = new Set(tempFiles.map((f) => f.id));
 					setUploadingFiles(uploadingIds);
 
 					let uploadedFiles: FileCellData[] = [];
@@ -1588,7 +1588,9 @@ export function FileCell<TData>({
 									? error.message
 									: `Failed to upload ${filesToValidate.length} file${filesToValidate.length !== 1 ? "s" : ""}`,
 							);
-							setFiles((prev) => prev.filter((f) => !uploadingIds.has(f.id)));
+							setFiles((prev) =>
+								prev.filter((f) => !uploadingIds.has(f.id as string)),
+							);
 							setUploadingFiles(new Set());
 							return;
 						}
@@ -1604,7 +1606,7 @@ export function FileCell<TData>({
 
 					const finalFiles = filesWithTemp
 						.map((f) => {
-							if (uploadingIds.has(f.id)) {
+							if (uploadingIds.has(f.id as string)) {
 								return uploadedFiles.find((uf) => uf.name === f.name) ?? f;
 							}
 							return f;

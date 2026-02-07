@@ -12,8 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as examplePostsRouteImport } from './routes/(example)/posts'
+import { Route as examplePostsIndexRouteImport } from './routes/(example)/posts.index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as examplePostsNewRouteImport } from './routes/(example)/posts.new'
+import { Route as examplePostsIdEditRouteImport } from './routes/(example)/posts.$id.edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -30,6 +34,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const examplePostsRoute = examplePostsRouteImport.update({
+  id: '/(example)/posts',
+  path: '/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const examplePostsIndexRoute = examplePostsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => examplePostsRoute,
+} as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
   path: '/api/rpc/$',
@@ -40,41 +54,90 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const examplePostsNewRoute = examplePostsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => examplePostsRoute,
+} as any)
+const examplePostsIdEditRoute = examplePostsIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => examplePostsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/posts': typeof examplePostsRouteWithChildren
+  '/posts/new': typeof examplePostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/posts/': typeof examplePostsIndexRoute
+  '/posts/$id/edit': typeof examplePostsIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/posts/new': typeof examplePostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/posts': typeof examplePostsIndexRoute
+  '/posts/$id/edit': typeof examplePostsIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/(example)/posts': typeof examplePostsRouteWithChildren
+  '/(example)/posts/new': typeof examplePostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/(example)/posts/': typeof examplePostsIndexRoute
+  '/(example)/posts/$id/edit': typeof examplePostsIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/api/auth/$' | '/api/rpc/$'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/posts'
+    | '/posts/new'
+    | '/api/auth/$'
+    | '/api/rpc/$'
+    | '/posts/'
+    | '/posts/$id/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/api/auth/$' | '/api/rpc/$'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/api/auth/$' | '/api/rpc/$'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/posts/new'
+    | '/api/auth/$'
+    | '/api/rpc/$'
+    | '/posts'
+    | '/posts/$id/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/(example)/posts'
+    | '/(example)/posts/new'
+    | '/api/auth/$'
+    | '/api/rpc/$'
+    | '/(example)/posts/'
+    | '/(example)/posts/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  examplePostsRoute: typeof examplePostsRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
@@ -102,6 +165,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(example)/posts': {
+      id: '/(example)/posts'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof examplePostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(example)/posts/': {
+      id: '/(example)/posts/'
+      path: '/'
+      fullPath: '/posts/'
+      preLoaderRoute: typeof examplePostsIndexRouteImport
+      parentRoute: typeof examplePostsRoute
+    }
     '/api/rpc/$': {
       id: '/api/rpc/$'
       path: '/api/rpc/$'
@@ -116,13 +193,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(example)/posts/new': {
+      id: '/(example)/posts/new'
+      path: '/new'
+      fullPath: '/posts/new'
+      preLoaderRoute: typeof examplePostsNewRouteImport
+      parentRoute: typeof examplePostsRoute
+    }
+    '/(example)/posts/$id/edit': {
+      id: '/(example)/posts/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/posts/$id/edit'
+      preLoaderRoute: typeof examplePostsIdEditRouteImport
+      parentRoute: typeof examplePostsRoute
+    }
   }
 }
+
+interface examplePostsRouteChildren {
+  examplePostsNewRoute: typeof examplePostsNewRoute
+  examplePostsIndexRoute: typeof examplePostsIndexRoute
+  examplePostsIdEditRoute: typeof examplePostsIdEditRoute
+}
+
+const examplePostsRouteChildren: examplePostsRouteChildren = {
+  examplePostsNewRoute: examplePostsNewRoute,
+  examplePostsIndexRoute: examplePostsIndexRoute,
+  examplePostsIdEditRoute: examplePostsIdEditRoute,
+}
+
+const examplePostsRouteWithChildren = examplePostsRoute._addFileChildren(
+  examplePostsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  examplePostsRoute: examplePostsRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }

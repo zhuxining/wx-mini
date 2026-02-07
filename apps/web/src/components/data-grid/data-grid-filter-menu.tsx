@@ -253,20 +253,20 @@ export function DataGridFilterMenu<TData>({
 								className="flex max-h-100 flex-col gap-2 overflow-y-auto p-1"
 							>
 								{columnFilters.map((filter, index) => (
-								<DataGridFilterItem
-									key={filter.id}
-									filter={filter}
-									index={index}
-									filterItemId={`${id}-filter-${filter.id}`}
-									dir={dir}
-									columns={columns}
-									columnLabels={columnLabels}
-									columnVariants={columnVariants}
-									table={table}
-									onFilterUpdate={onFilterUpdate}
-									onFilterRemove={onFilterRemove}
-								/>
-							))}
+									<DataGridFilterItem
+										key={filter.id}
+										filter={filter}
+										index={index}
+										filterItemId={`${id}-filter-${filter.id}`}
+										dir={dir}
+										columns={columns}
+										columnLabels={columnLabels}
+										columnVariants={columnVariants}
+										table={table}
+										onFilterUpdate={onFilterUpdate}
+										onFilterRemove={onFilterRemove}
+									/>
+								))}
 							</div>
 						</SortableContent>
 					)}
@@ -419,137 +419,137 @@ function DataGridFilterItem<TData>({
 				onKeyDown={onItemKeyDown}
 			>
 				<div className="min-w-18 text-center">
-				{index === 0 ? (
-					<span className="text-muted-foreground text-sm">Where</span>
-				) : (
-					<span className="text-muted-foreground text-sm">And</span>
-				)}
-			</div>
-			<Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
-				<PopoverTrigger asChild>
-					<Button
-						id={fieldTriggerId}
-						aria-controls={fieldListboxId}
+					{index === 0 ? (
+						<span className="text-muted-foreground text-sm">Where</span>
+					) : (
+						<span className="text-muted-foreground text-sm">And</span>
+					)}
+				</div>
+				<Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
+					<PopoverTrigger asChild>
+						<Button
+							id={fieldTriggerId}
+							aria-controls={fieldListboxId}
+							dir={dir}
+							variant="outline"
+							size="sm"
+							className="w-32 justify-between rounded font-normal"
+						>
+							<span className="truncate">{columnLabels.get(filter.id)}</span>
+							<ChevronsUpDown className="opacity-50" />
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent
+						id={fieldListboxId}
 						dir={dir}
-						variant="outline"
-						size="sm"
-						className="w-32 justify-between rounded font-normal"
+						align="start"
+						className="w-40 p-0"
 					>
-						<span className="truncate">{columnLabels.get(filter.id)}</span>
-						<ChevronsUpDown className="opacity-50" />
-					</Button>
-				</PopoverTrigger>
-				<PopoverContent
-					id={fieldListboxId}
-					dir={dir}
-					align="start"
-					className="w-40 p-0"
-				>
-					<Command>
-						<CommandInput placeholder="Search fields..." />
-						<CommandList>
-							<CommandEmpty>No fields found.</CommandEmpty>
-							<CommandGroup>
-								{columns.map((column) => (
-									<CommandItem
-										key={column.id}
-										value={column.id}
-										onSelect={(value) => {
-											const newVariant =
-												columnVariants.get(value) ?? "short-text";
-											const newOperator = getDefaultOperator(newVariant);
+						<Command>
+							<CommandInput placeholder="Search fields..." />
+							<CommandList>
+								<CommandEmpty>No fields found.</CommandEmpty>
+								<CommandGroup>
+									{columns.map((column) => (
+										<CommandItem
+											key={column.id}
+											value={column.id}
+											onSelect={(value) => {
+												const newVariant =
+													columnVariants.get(value) ?? "short-text";
+												const newOperator = getDefaultOperator(newVariant);
 
-											table.setColumnFilters((prevFilters) =>
-												prevFilters.map((f) =>
-													f.id === filter.id
-														? {
-																id: value,
-																value: {
-																	operator: newOperator,
-																	value: "",
-																},
-															}
-														: f,
-												),
-											);
-											setShowFieldSelector(false);
-										}}
-									>
-										<span className="truncate">{column.label}</span>
-										<Check
-											className={cn(
-												"ms-auto",
-												column.id === filter.id ? "opacity-100" : "opacity-0",
-											)}
-										/>
-									</CommandItem>
-								))}
-							</CommandGroup>
-						</CommandList>
-					</Command>
-				</PopoverContent>
-			</Popover>
-			<Select
-				open={showOperatorSelector}
-				onOpenChange={setShowOperatorSelector}
-				value={operator}
-				onValueChange={onOperatorChange}
-			>
-				<SelectTrigger
-					aria-controls={operatorListboxId}
-					size="sm"
-					className="w-32 rounded lowercase"
+												table.setColumnFilters((prevFilters) =>
+													prevFilters.map((f) =>
+														f.id === filter.id
+															? {
+																	id: value,
+																	value: {
+																		operator: newOperator,
+																		value: "",
+																	},
+																}
+															: f,
+													),
+												);
+												setShowFieldSelector(false);
+											}}
+										>
+											<span className="truncate">{column.label}</span>
+											<Check
+												className={cn(
+													"ms-auto",
+													column.id === filter.id ? "opacity-100" : "opacity-0",
+												)}
+											/>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</CommandList>
+						</Command>
+					</PopoverContent>
+				</Popover>
+				<Select
+					open={showOperatorSelector}
+					onOpenChange={setShowOperatorSelector}
+					value={operator}
+					onValueChange={onOperatorChange}
 				>
-					<div className="truncate">
-						<SelectValue />
-					</div>
-				</SelectTrigger>
-				<SelectContent id={operatorListboxId}>
-					{operators.map((op) => (
-						<SelectItem key={op.value} value={op.value} className="lowercase">
-							{op.label}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
-			<div className="min-w-36 max-w-60 flex-1">
-				{needsValue && column ? (
-					<DataGridFilterInput
-						key={filter.id}
-						variant={variant}
-						operator={operator}
-						column={column}
-						inputId={inputId}
-						dir={dir}
-						value={filterValue?.value}
-						endValue={filterValue?.endValue}
-						onValueChange={onValueChange}
-						onEndValueChange={onEndValueChange}
-					/>
-				) : (
-					<div
-						id={inputId}
-						role="status"
-						aria-label={`${columnLabels.get(filter.id)} filter is empty`}
-						aria-live="polite"
-						className="h-8 w-full rounded border bg-transparent dark:bg-input/30"
-					/>
-				)}
-			</div>
-			<Button
-				aria-controls={filterItemId}
-				variant="outline"
-				size="icon"
-				className="size-8 rounded"
-				onClick={() => onFilterRemove(filter.id)}
-			>
-				<Trash2 />
-			</Button>
-			<SortableItemHandle asChild>
-				<Button variant="outline" size="icon" className="size-8 rounded">
-					<GripVertical />
+					<SelectTrigger
+						aria-controls={operatorListboxId}
+						size="sm"
+						className="w-32 rounded lowercase"
+					>
+						<div className="truncate">
+							<SelectValue />
+						</div>
+					</SelectTrigger>
+					<SelectContent id={operatorListboxId}>
+						{operators.map((op) => (
+							<SelectItem key={op.value} value={op.value} className="lowercase">
+								{op.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+				<div className="min-w-36 max-w-60 flex-1">
+					{needsValue && column ? (
+						<DataGridFilterInput
+							key={filter.id}
+							variant={variant}
+							operator={operator}
+							column={column}
+							inputId={inputId}
+							dir={dir}
+							value={filterValue?.value}
+							endValue={filterValue?.endValue}
+							onValueChange={onValueChange}
+							onEndValueChange={onEndValueChange}
+						/>
+					) : (
+						<div
+							id={inputId}
+							role="status"
+							aria-label={`${columnLabels.get(filter.id)} filter is empty`}
+							aria-live="polite"
+							className="h-8 w-full rounded border bg-transparent dark:bg-input/30"
+						/>
+					)}
+				</div>
+				<Button
+					aria-controls={filterItemId}
+					variant="outline"
+					size="icon"
+					className="size-8 rounded"
+					onClick={() => onFilterRemove(filter.id)}
+				>
+					<Trash2 />
 				</Button>
-			</SortableItemHandle>
+				<SortableItemHandle asChild>
+					<Button variant="outline" size="icon" className="size-8 rounded">
+						<GripVertical />
+					</Button>
+				</SortableItemHandle>
 			</div>
 		</SortableItem>
 	);

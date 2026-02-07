@@ -167,7 +167,7 @@ export function DataTableSortList<TData>({
 			getItemValue={(item) => item.id}
 		>
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger >
+				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
 						size="sm"
@@ -216,16 +216,16 @@ export function DataTableSortList<TData>({
 								className="flex max-h-75 flex-col gap-2 overflow-y-auto p-1"
 							>
 								{sorting.map((sort) => (
-								<DataTableSortItem
-									key={sort.id}
-									sort={sort}
-									sortItemId={`${id}-sort-${sort.id}`}
-									columns={columns}
-									columnLabels={columnLabels}
-									onSortUpdate={onSortUpdate}
-									onSortRemove={onSortRemove}
-								/>
-							))}
+									<DataTableSortItem
+										key={sort.id}
+										sort={sort}
+										sortItemId={`${id}-sort-${sort.id}`}
+										columns={columns}
+										columnLabels={columnLabels}
+										onSortUpdate={onSortUpdate}
+										onSortRemove={onSortRemove}
+									/>
+								))}
 							</div>
 						</SortableContent>
 					)}
@@ -320,85 +320,85 @@ function DataTableSortItem({
 				onKeyDown={onItemKeyDown}
 			>
 				<Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
-				<PopoverTrigger asChild>
-					<Button
-						id={fieldTriggerId}
-						aria-controls={fieldListboxId}
-						variant="outline"
-						size="sm"
-						className="w-44 justify-between rounded font-normal"
+					<PopoverTrigger asChild>
+						<Button
+							id={fieldTriggerId}
+							aria-controls={fieldListboxId}
+							variant="outline"
+							size="sm"
+							className="w-44 justify-between rounded font-normal"
+						>
+							<span className="truncate">{columnLabels.get(sort.id)}</span>
+							<ChevronsUpDown className="opacity-50" />
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent
+						id={fieldListboxId}
+						className="w-(--radix-popover-trigger-width) p-0"
 					>
-						<span className="truncate">{columnLabels.get(sort.id)}</span>
-						<ChevronsUpDown className="opacity-50" />
-					</Button>
-				</PopoverTrigger>
-				<PopoverContent
-					id={fieldListboxId}
-					className="w-(--radix-popover-trigger-width) p-0"
+						<Command>
+							<CommandInput placeholder="Search fields..." />
+							<CommandList>
+								<CommandEmpty>No fields found.</CommandEmpty>
+								<CommandGroup>
+									{columns.map((column) => (
+										<CommandItem
+											key={column.id}
+											value={column.id}
+											onSelect={(value) => onSortUpdate(sort.id, { id: value })}
+										>
+											<span className="truncate">{column.label}</span>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</CommandList>
+						</Command>
+					</PopoverContent>
+				</Popover>
+				<Select
+					open={showDirectionSelector}
+					onOpenChange={setShowDirectionSelector}
+					value={sort.desc ? "desc" : "asc"}
+					onValueChange={(value: SortDirection) =>
+						onSortUpdate(sort.id, { desc: value === "desc" })
+					}
 				>
-					<Command>
-						<CommandInput placeholder="Search fields..." />
-						<CommandList>
-							<CommandEmpty>No fields found.</CommandEmpty>
-							<CommandGroup>
-								{columns.map((column) => (
-									<CommandItem
-										key={column.id}
-										value={column.id}
-										onSelect={(value) => onSortUpdate(sort.id, { id: value })}
-									>
-										<span className="truncate">{column.label}</span>
-									</CommandItem>
-								))}
-							</CommandGroup>
-						</CommandList>
-					</Command>
-				</PopoverContent>
-			</Popover>
-			<Select
-				open={showDirectionSelector}
-				onOpenChange={setShowDirectionSelector}
-				value={sort.desc ? "desc" : "asc"}
-				onValueChange={(value: SortDirection) =>
-					onSortUpdate(sort.id, { desc: value === "desc" })
-				}
-			>
-				<SelectTrigger
-					aria-controls={directionListboxId}
-					size="sm"
-					className="w-24 rounded"
-				>
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent
-					id={directionListboxId}
-					className="min-w-(--radix-select-trigger-width)"
-				>
-					{dataTableConfig.sortOrders.map((order) => (
-						<SelectItem key={order.value} value={order.value}>
-							{order.label}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
-			<Button
-				aria-controls={sortItemId}
-				variant="outline"
-				size="icon"
-				className="size-8 shrink-0 rounded"
-				onClick={() => onSortRemove(sort.id)}
-			>
-				<Trash2 />
-			</Button>
-			<SortableItemHandle asChild>
+					<SelectTrigger
+						aria-controls={directionListboxId}
+						size="sm"
+						className="w-24 rounded"
+					>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent
+						id={directionListboxId}
+						className="min-w-(--radix-select-trigger-width)"
+					>
+						{dataTableConfig.sortOrders.map((order) => (
+							<SelectItem key={order.value} value={order.value}>
+								{order.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 				<Button
+					aria-controls={sortItemId}
 					variant="outline"
 					size="icon"
 					className="size-8 shrink-0 rounded"
+					onClick={() => onSortRemove(sort.id)}
 				>
-					<GripVertical />
+					<Trash2 />
 				</Button>
-			</SortableItemHandle>
+				<SortableItemHandle asChild>
+					<Button
+						variant="outline"
+						size="icon"
+						className="size-8 shrink-0 rounded"
+					>
+						<GripVertical />
+					</Button>
+				</SortableItemHandle>
 			</div>
 		</SortableItem>
 	);

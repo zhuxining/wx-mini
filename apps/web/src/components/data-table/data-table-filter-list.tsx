@@ -222,7 +222,7 @@ export function DataTableFilterList<TData>({
 			getItemValue={(item) => item.filterId}
 		>
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger >
+				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
 						size="sm"
@@ -271,18 +271,18 @@ export function DataTableFilterList<TData>({
 								className="flex max-h-75 flex-col gap-2 overflow-y-auto p-1"
 							>
 								{filters.map((filter, index) => (
-								<DataTableFilterItem<TData>
-									key={filter.filterId}
-									filter={filter}
-									index={index}
-									filterItemId={`${id}-filter-${filter.filterId}`}
-									joinOperator={joinOperator}
-									setJoinOperator={setJoinOperator}
-									columns={columns}
-									onFilterUpdate={onFilterUpdate}
-									onFilterRemove={onFilterRemove}
-								/>
-							))}
+									<DataTableFilterItem<TData>
+										key={filter.filterId}
+										filter={filter}
+										index={index}
+										filterItemId={`${id}-filter-${filter.filterId}`}
+										joinOperator={joinOperator}
+										setJoinOperator={setJoinOperator}
+										columns={columns}
+										onFilterUpdate={onFilterUpdate}
+										onFilterRemove={onFilterRemove}
+									/>
+								))}
 							</div>
 						</SortableContent>
 					) : null}
@@ -399,149 +399,157 @@ function DataTableFilterItem<TData>({
 				onKeyDown={onItemKeyDown}
 			>
 				<div className="min-w-18 text-center">
-				{index === 0 ? (
-					<span className="text-muted-foreground text-sm">Where</span>
-				) : index === 1 ? (
-					<Select
-						value={joinOperator}
-						onValueChange={(value: JoinOperator) => setJoinOperator(value)}
-					>
-						<SelectTrigger
-							aria-label="Select join operator"
-							aria-controls={joinOperatorListboxId}
-							size="sm"
-							className="rounded lowercase"
+					{index === 0 ? (
+						<span className="text-muted-foreground text-sm">Where</span>
+					) : index === 1 ? (
+						<Select
+							value={joinOperator}
+							onValueChange={(value: JoinOperator) => setJoinOperator(value)}
 						>
-							<SelectValue placeholder={joinOperator} />
-						</SelectTrigger>
-						<SelectContent
-							id={joinOperatorListboxId}
-							position="popper"
-							className="min-w-(--radix-select-trigger-width) lowercase"
-						>
-							{dataTableConfig.joinOperators.map((joinOperator) => (
-								<SelectItem key={joinOperator} value={joinOperator}>
-									{joinOperator}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				) : (
-					<span className="text-muted-foreground text-sm">{joinOperator}</span>
-				)}
-			</div>
-			<Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
-				<PopoverTrigger asChild>
-					<Button
-						aria-controls={fieldListboxId}
-						variant="outline"
-						size="sm"
-						className="w-32 justify-between rounded font-normal"
-					>
-						<span className="truncate">
-							{columns.find((column) => column.id === filter.id)?.columnDef.meta
-								?.label ?? "Select field"}
-						</span>
-						<ChevronsUpDown className="opacity-50" />
-					</Button>
-				</PopoverTrigger>
-				<PopoverContent id={fieldListboxId} align="start" className="w-40 p-0">
-					<Command>
-						<CommandInput placeholder="Search fields..." />
-						<CommandList>
-							<CommandEmpty>No fields found.</CommandEmpty>
-							<CommandGroup>
-								{columns.map((column) => (
-									<CommandItem
-										key={column.id}
-										value={column.id}
-										onSelect={(value) => {
-											onFilterUpdate(filter.filterId, {
-												id: value as Extract<keyof TData, string>,
-												variant: column.columnDef.meta?.variant ?? "text",
-												operator: getDefaultFilterOperator(
-													column.columnDef.meta?.variant ?? "text",
-												),
-												value: "",
-											});
-
-											setShowFieldSelector(false);
-										}}
-									>
-										<span className="truncate">
-											{column.columnDef.meta?.label}
-										</span>
-										<Check
-											className={cn(
-												"ml-auto",
-												column.id === filter.id ? "opacity-100" : "opacity-0",
-											)}
-										/>
-									</CommandItem>
+							<SelectTrigger
+								aria-label="Select join operator"
+								aria-controls={joinOperatorListboxId}
+								size="sm"
+								className="rounded lowercase"
+							>
+								<SelectValue placeholder={joinOperator} />
+							</SelectTrigger>
+							<SelectContent
+								id={joinOperatorListboxId}
+								position="popper"
+								className="min-w-(--radix-select-trigger-width) lowercase"
+							>
+								{dataTableConfig.joinOperators.map((joinOperator) => (
+									<SelectItem key={joinOperator} value={joinOperator}>
+										{joinOperator}
+									</SelectItem>
 								))}
-							</CommandGroup>
-						</CommandList>
-					</Command>
-				</PopoverContent>
-			</Popover>
-			<Select
-				open={showOperatorSelector}
-				onOpenChange={setShowOperatorSelector}
-				value={filter.operator}
-				onValueChange={(value: FilterOperator) =>
-					onFilterUpdate(filter.filterId, {
-						operator: value,
-						value:
-							value === "isEmpty" || value === "isNotEmpty" ? "" : filter.value,
-					})
-				}
-			>
-				<SelectTrigger
-					aria-controls={operatorListboxId}
-					size="sm"
-					className="w-32 rounded lowercase"
-				>
-					<div className="truncate">
-						<SelectValue placeholder={filter.operator} />
-					</div>
-				</SelectTrigger>
-				<SelectContent id={operatorListboxId}>
-					{filterOperators.map((operator) => (
-						<SelectItem
-							key={operator.value}
-							value={operator.value}
-							className="lowercase"
+							</SelectContent>
+						</Select>
+					) : (
+						<span className="text-muted-foreground text-sm">
+							{joinOperator}
+						</span>
+					)}
+				</div>
+				<Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
+					<PopoverTrigger asChild>
+						<Button
+							aria-controls={fieldListboxId}
+							variant="outline"
+							size="sm"
+							className="w-32 justify-between rounded font-normal"
 						>
-							{operator.label}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
-			<div className="min-w-36 max-w-60 flex-1">
-				{onFilterInputRender({
-					filter,
-					inputId,
-					column,
-					columnMeta,
-					onFilterUpdate,
-					showValueSelector,
-					setShowValueSelector,
-				})}
-			</div>
-			<Button
-				aria-controls={filterItemId}
-				variant="outline"
-				size="icon"
-				className="size-8 rounded"
-				onClick={() => onFilterRemove(filter.filterId)}
-			>
-				<Trash2 />
-			</Button>
-			<SortableItemHandle asChild>
-				<Button variant="outline" size="icon" className="size-8 rounded">
-					<GripVertical />
+							<span className="truncate">
+								{columns.find((column) => column.id === filter.id)?.columnDef
+									.meta?.label ?? "Select field"}
+							</span>
+							<ChevronsUpDown className="opacity-50" />
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent
+						id={fieldListboxId}
+						align="start"
+						className="w-40 p-0"
+					>
+						<Command>
+							<CommandInput placeholder="Search fields..." />
+							<CommandList>
+								<CommandEmpty>No fields found.</CommandEmpty>
+								<CommandGroup>
+									{columns.map((column) => (
+										<CommandItem
+											key={column.id}
+											value={column.id}
+											onSelect={(value) => {
+												onFilterUpdate(filter.filterId, {
+													id: value as Extract<keyof TData, string>,
+													variant: column.columnDef.meta?.variant ?? "text",
+													operator: getDefaultFilterOperator(
+														column.columnDef.meta?.variant ?? "text",
+													),
+													value: "",
+												});
+
+												setShowFieldSelector(false);
+											}}
+										>
+											<span className="truncate">
+												{column.columnDef.meta?.label}
+											</span>
+											<Check
+												className={cn(
+													"ml-auto",
+													column.id === filter.id ? "opacity-100" : "opacity-0",
+												)}
+											/>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</CommandList>
+						</Command>
+					</PopoverContent>
+				</Popover>
+				<Select
+					open={showOperatorSelector}
+					onOpenChange={setShowOperatorSelector}
+					value={filter.operator}
+					onValueChange={(value: FilterOperator) =>
+						onFilterUpdate(filter.filterId, {
+							operator: value,
+							value:
+								value === "isEmpty" || value === "isNotEmpty"
+									? ""
+									: filter.value,
+						})
+					}
+				>
+					<SelectTrigger
+						aria-controls={operatorListboxId}
+						size="sm"
+						className="w-32 rounded lowercase"
+					>
+						<div className="truncate">
+							<SelectValue placeholder={filter.operator} />
+						</div>
+					</SelectTrigger>
+					<SelectContent id={operatorListboxId}>
+						{filterOperators.map((operator) => (
+							<SelectItem
+								key={operator.value}
+								value={operator.value}
+								className="lowercase"
+							>
+								{operator.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+				<div className="min-w-36 max-w-60 flex-1">
+					{onFilterInputRender({
+						filter,
+						inputId,
+						column,
+						columnMeta,
+						onFilterUpdate,
+						showValueSelector,
+						setShowValueSelector,
+					})}
+				</div>
+				<Button
+					aria-controls={filterItemId}
+					variant="outline"
+					size="icon"
+					className="size-8 rounded"
+					onClick={() => onFilterRemove(filter.filterId)}
+				>
+					<Trash2 />
 				</Button>
-			</SortableItemHandle>
+				<SortableItemHandle asChild>
+					<Button variant="outline" size="icon" className="size-8 rounded">
+						<GripVertical />
+					</Button>
+				</SortableItemHandle>
 			</div>
 		</SortableItem>
 	);

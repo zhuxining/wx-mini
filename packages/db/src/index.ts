@@ -1,5 +1,5 @@
 import { env } from "@org-sass/env/server";
-import { eq } from "drizzle-orm";
+import { and, desc, eq, gt, like, lt, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
@@ -10,4 +10,7 @@ export const db: PostgresJsDatabase<typeof schema> = drizzle(env.DATABASE_URL, {
 });
 
 // Re-export drizzle-orm utilities
-export { eq };
+export { and, desc, eq, gt, like, lt, or, sql };
+
+// Re-export schema
+export * from "./schema";

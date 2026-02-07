@@ -74,7 +74,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger >
+			<PopoverTrigger asChild>
 				<Button
 					variant="outline"
 					size="sm"
