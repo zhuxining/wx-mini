@@ -400,7 +400,7 @@ function Marquee(props: MarqueeProps) {
             "relative flex overflow-hidden motion-reduce:animate-none",
             orientation === "vertical" && "h-full flex-col",
             orientation === "horizontal" && "w-full",
-            paused && "[&_*]:[animation-play-state:paused]",
+            paused && "**:paused",
             pauseOnHover && "group",
             pauseOnKeyboard &&
               "rounded-md focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",

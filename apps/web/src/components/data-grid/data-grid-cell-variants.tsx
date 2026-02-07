@@ -22,6 +22,7 @@ import {
 	PopoverAnchor,
 	PopoverContent,
 } from "@/components/ui/popover";
+import type { DataGridCellProps } from "@/types/data-grid";
 import {
 	Select,
 	SelectContent,
