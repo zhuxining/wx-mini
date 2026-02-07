@@ -29,7 +29,7 @@ publicProcedure.handler(() => "OK");
 
 // 需要认证的 session
 protectedProcedure.handler(({ context }) => {
-	return { user: context.session?.user };
+  return { user: context.session?.user };
 });
 ```
 
@@ -39,8 +39,8 @@ Session 始终可通过 `context.session` 访问：
 
 ```typescript
 protectedProcedure.handler(({ context }) => {
-	if (!context.session?.user) throw new Error("Unauthorized");
-	// 访问: context.session.user.id, context.session.user.role
+  if (!context.session?.user) throw new Error("Unauthorized");
+  // 访问: context.session.user.id, context.session.user.role
 });
 ```
 

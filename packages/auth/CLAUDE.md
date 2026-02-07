@@ -84,15 +84,15 @@ const { data: session } = await auth.api.getSession();
 ```typescript
 // 直接 fetch 调用
 const response = await fetch("/api/auth/change-password", {
-	method: "POST",
-	headers: {
-		"Content-Type": "application/json",
-	},
-	credentials: "include",
-	body: JSON.stringify({
-		newPassword: "newPass123",
-		currentPassword: "currentPass123",
-	}),
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: "include",
+  body: JSON.stringify({
+    newPassword: "newPass123",
+    currentPassword: "currentPass123",
+  }),
 });
 
 const result = await response.json();
