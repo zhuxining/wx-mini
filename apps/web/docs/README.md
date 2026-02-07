@@ -14,6 +14,9 @@ Web App 开发详细文档索引。
 | TanStack Form | 表单状态管理 | form-patterns.md |
 | Better-Auth | 认证和授权 | authentication.md |
 | shadcn/ui | UI 组件库 | shadcn-usage.md |
+| DataTable | 分页数据表格（自定义） | crud-patterns.md |
+| DataGrid | 虚拟滚动可编辑表格（自定义） | crud-patterns.md |
+| Pending | 加载状态管理（自定义） | ui-patterns.md |
 | Sonner | Toast 通知 | ui-patterns.md |
 
 ---
@@ -28,7 +31,9 @@ Web App 开发详细文档索引。
 | 路由守卫和权限 | [routing.md](./routing.md) |
 | 数据获取和缓存 | [data-loading.md](./data-loading.md) |
 | CRUD 页面开发 | [crud-patterns.md](./crud-patterns.md) |
+| 数据表格/网格 | [crud-patterns.md](./crud-patterns.md#data-table-模式) |
 | Toast/对话框交互 | [ui-patterns.md](./ui-patterns.md) |
+| 加载状态处理 | [ui-patterns.md](./ui-patterns.md) |
 | 表单开发 | [form-patterns.md](./form-patterns.md) |
 | 添加 UI 组件 | [shadcn-usage.md](./shadcn-usage.md) |
 | 认证和权限 | [authentication.md](./authentication.md) |
@@ -199,13 +204,14 @@ shadcn/ui 组件库的使用方法、添加组件流程和定制方法。
 ### 项目文档
 
 - **主文档**: [../CLAUDE.md](../CLAUDE.md)
-- **API 开发**: [packages/api/src/CLAUDE.md](../../packages/api/src/CLAUDE.md)
+- **API 开发**: [packages/api/src/CLAUDE.md](../../../packages/api/CLAUDE.md)
 - **认证包**: [packages/auth/CLAUDE.md](../../packages/auth/CLAUDE.md)
-- **数据库**: [packages/db/src/CLAUDE.md](../../packages/db/src/CLAUDE.md)
+- **数据库**: [packages/db/src/CLAUDE.md](../../packages/db/CLAUDE.md)
 
 ### 外部资源
 
 - [shadcn/ui](https://ui.shadcn.com/)
+- [diceui](https://www.diceui.com/docs/)
 - [TanStack Router](https://tanstack.com/router/latest)
 - [TanStack Query](https://tanstack.com/query/latest)
 - [TanStack Form](https://tanstack.com/form/latest)

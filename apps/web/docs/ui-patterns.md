@@ -219,6 +219,71 @@ function DeleteConfirmButton({ item }: { item: Item }) {
 
 ## 加载状态模式
 
+### Pending 组件
+
+项目提供的 `Pending` 组件用于管理按钮的加载状态，防止重复提交。
+
+**导入**:
+
+```typescript
+import { Pending, usePending } from '@/components/pending'
+```
+
+**使用方式 1: 组件包装**
+
+```typescript
+function SubmitButton({ isPending }: { isPending: boolean }) {
+  return (
+    <Pending isPending={isPending}>
+      <Button disabled={isPending}>
+        {isPending ? 'Submitting...' : 'Submit'}
+      </Button>
+    </Pending>
+  )
+}
+```
+
+**使用方式 2: Hook**
+
+```typescript
+function SubmitButton({ isPending }: { isPending: boolean }) {
+  const { pendingProps } = usePending({ isPending })
+
+  return (
+    <Button {...pendingProps}>
+      {isPending ? 'Submitting...' : 'Submit'}
+    </Button>
+  )
+}
+```
+
+**在 Mutation 中使用**:
+
+```typescript
+function SaveButton() {
+  const saveMutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      return await api.save(data)
+    },
+  })
+
+  return (
+    <Pending isPending={saveMutation.isPending}>
+      <Button disabled={saveMutation.isPending}>
+        {saveMutation.isPending ? 'Saving...' : 'Save'}
+      </Button>
+    </Pending>
+  )
+}
+```
+
+**功能特性**:
+
+- 自动禁用交互（点击、键盘事件）
+- 设置 ARIA 属性（`aria-busy`、`aria-disabled`）
+- 支持 `disabled` prop 传递
+- 防止重复提交
+
 ### Skeleton 加载
 
 ```typescript
@@ -464,3 +529,4 @@ function DelayedConfirmButton() {
 - **数据加载**: [docs/data-loading.md](./data-loading.md)
 - [shadcn/ui 文档](https://ui.shadcn.com/)
 - [Sonner 文档](https://sonner.emilkowal.ski/)
+- [diceui](https://www.diceui.com/docs/)

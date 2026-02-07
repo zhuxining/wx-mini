@@ -204,6 +204,380 @@ function MembersList() {
 
 ---
 
+## DataTable 模式
+
+### 概述
+
+`DataTable` 是项目自定义的基于 TanStack Table 的高性能数据表格组件，提供了完整的数据展示、分页、排序和过滤功能。
+
+**导入**:
+
+```typescript
+import { DataTable } from '@/components/data-table/data-table'
+import { useDataTable } from '@/hooks/use-data-table'
+```
+
+**核心功能**:
+
+- 分页（URL 同步，支持书签）
+- 排序（单列/多列）
+- 过滤（文本、数字、范围、日期、多选）
+- 列可见性控制
+- 行选择
+- 列固定
+
+### 基础用法
+
+```typescript
+import { createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { DataTable } from '@/components/data-table/data-table'
+import { useDataTable } from '@/hooks/use-data-table'
+import { columns } from './columns'
+
+export const Route = createFileRoute('/org/members/')({
+  component: MembersList,
+})
+
+function MembersList() {
+  const { data: session } = useSuspenseQuery(
+    orpc.privateData.queryOptions()
+  )
+  const organizationId = session?.user?.activeOrganizationId
+
+  // 获取数据
+  const { data: membersData, pageCount } = useSuspenseQuery({
+    queryKey: ['organization', 'members', organizationId, page, perPage, sort],
+    queryFn: async () => {
+      const response = await fetch(`/api/members?page=${page}&perPage=${perPage}`)
+      return response.json()
+    },
+  })
+
+  // 使用 hook 配置表格
+  const table = useDataTable({
+    columns,
+    pageCount,
+    data: membersData?.members ?? [],
+  })
+
+  return <DataTable table={table} />
+}
+```
+
+### 带工具栏的完整用法
+
+```typescript
+import {
+  DataTableToolbar,
+  DataTablePagination,
+  DataTableViewOptions,
+} from '@/components/data-table'
+
+function MembersList() {
+  const table = useDataTable({
+    columns,
+    pageCount,
+    data: membersData?.members ?? [],
+  })
+
+  return (
+    <div className="space-y-4">
+      <DataTableToolbar table={table}>
+        <DataTableViewOptions table={table} />
+      </DataTableToolbar>
+
+      <DataTable table={table} />
+
+      <DataTablePagination table={table} />
+    </div>
+  )
+}
+```
+
+### 列定义示例
+
+```typescript
+// columns.tsx
+import { columnFactory } from '@/components/data-table/column-factory'
+
+export const columns = [
+  // 文本列（支持搜索过滤）
+  columnFactory.accessor('name', {
+    header: 'Name',
+    enableColumnFilter: true,
+  }),
+
+  // 选择列（多选过滤）
+  columnFactory.accessor('role', {
+    header: 'Role',
+    enableColumnFilter: true,
+    meta: {
+      options: [
+        { label: 'Admin', value: 'admin' },
+        { label: 'Member', value: 'member' },
+      ],
+    },
+    cell: ({ row }) => (
+      <Badge>{row.original.role}</Badge>
+    ),
+  }),
+
+  // 日期列（支持日期过滤）
+  columnFactory.accessor('createdAt', {
+    header: 'Created',
+    enableColumnFilter: true,
+    cell: ({ row }) => formatDate(row.original.createdAt),
+  }),
+
+  // 操作列
+  columnFactory.display({
+    id: 'actions',
+    cell: ({ row }) => (
+      <div className="flex justify-end gap-2">
+        <EditButton member={row.original} />
+        <DeleteButton memberId={row.original.id} />
+      </div>
+    ),
+  }),
+]
+```
+
+### 子组件
+
+**DataTableToolbar** - 工具栏容器
+
+```typescript
+import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
+
+<DataTableToolbar table={table}>
+  <DataTableViewOptions table={table} />
+  <DataTableFacetedFilter column={table.getColumn('status')} />
+  <DataTableDateFilter column={table.getColumn('createdAt')} />
+</DataTableToolbar>
+```
+
+**DataTableFacetedFilter** - 多选过滤
+
+```typescript
+import { DataTableFacetedFilter } from '@/components/data-table/data-table-faceted-filter'
+
+<DataTableFacetedFilter
+  column={table.getColumn('role')}
+  title="Role"
+  options={[
+    { label: 'Admin', value: 'admin', icon: Shield },
+    { label: 'Member', value: 'member', icon: User },
+  ]}
+/>
+```
+
+**DataTableDateFilter** - 日期范围过滤
+
+```typescript
+import { DataTableDateFilter } from '@/components/data-table/data-table-date-filter'
+
+<DataTableDateFilter
+  column={table.getColumn('createdAt')}
+  title="Created Date"
+/>
+```
+
+**DataTableSliderFilter** - 数值范围过滤
+
+```typescript
+import { DataTableSliderFilter } from '@/components/data-table/data-table-slider-filter'
+
+<DataTableSliderFilter
+  column={table.getColumn('age')}
+  title="Age"
+  min={0}
+  max={100}
+/>
+```
+
+**DataTableSkeleton** - 骨架屏加载
+
+```typescript
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
+
+if (isLoading) {
+  return <DataTableSkeleton columnCount={5} rowCount={10} />
+}
+```
+
+### 配置
+
+**自定义 URL 参数键**:
+
+```typescript
+const table = useDataTable({
+  columns,
+  pageCount,
+  data,
+  queryKeys: {
+    page: 'p',
+    perPage: 'size',
+    sort: 'sortBy',
+    filters: 'filter',
+  },
+})
+```
+
+**禁用 URL 同步**:
+
+```typescript
+const table = useDataTable({
+  columns,
+  pageCount,
+  data,
+  history: 'push', // 或 'replace'
+})
+```
+
+### 参考文档
+
+- TanStack Table: <https://tanstack.com/table/latest>
+- 类型定义: `src/types/data-table.ts`
+- 配置文件: `src/config/data-table.ts`
+
+---
+
+## DataGrid 模式
+
+### 概述
+
+`DataGrid` 是项目自定义的虚拟滚动可编辑表格组件，适用于大数据集的展示和编辑。
+
+**导入**:
+
+```typescript
+import { DataGrid } from '@/components/data-grid/data-grid'
+import { useDataGrid } from '@/hooks/use-data-grid'
+```
+
+**核心功能**:
+
+- 虚拟滚动（高性能渲染大数据集）
+- 单元格编辑
+- 键盘导航（箭头键、Tab、Enter）
+- 复制粘贴支持
+- 搜索（快捷键 F）
+- 右键菜单
+- 行高度设置
+- 排序和过滤
+
+### 基础用法
+
+```typescript
+import { DataGrid } from '@/components/data-grid/data-grid'
+import { useDataGrid } from '@/hooks/use-data-grid'
+import { columns } from './columns'
+
+function Spreadsheet() {
+  const [data, setData] = useState(initialData)
+
+  const table = useDataGrid({
+    data,
+    columns,
+    onDataChange: setData,
+  })
+
+  return <DataGrid table={table} />
+}
+```
+
+### 列定义示例
+
+```typescript
+import { columnFactory } from '@/components/data-grid/column-factory'
+
+export const columns = [
+  // 文本列
+  columnFactory.accessor('name', {
+    header: 'Name',
+  }),
+
+  // 数字列
+  columnFactory.accessor('age', {
+    header: 'Age',
+    type: 'number',
+  }),
+
+  // 选择列
+  columnFactory.accessor('status', {
+    header: 'Status',
+    type: 'select',
+    meta: {
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' },
+      ],
+    },
+  }),
+
+  // 日期列
+  columnFactory.accessor('date', {
+    header: 'Date',
+    type: 'date',
+  }),
+
+  // 复选框列
+  columnFactory.accessor('enabled', {
+    header: 'Enabled',
+    type: 'boolean',
+  }),
+]
+```
+
+### 键盘快捷键
+
+| 快捷键 | 功能 |
+|--------|------|
+| `↑↓←→` | 移动单元格焦点 |
+| `Tab` | 移动到下一列 |
+| `Enter` | 编辑单元格 / 确认编辑 |
+| `Esc` | 取消编辑 |
+| `F` | 聚焦搜索框 |
+| `Ctrl+C` | 复制选中单元格 |
+| `Ctrl+V` | 粘贴到选中区域 |
+
+### 子组件
+
+**DataGridSearch** - 搜索框
+
+```typescript
+import { DataGridSearch } from '@/components/data-grid/data-grid-search'
+
+<DataGridSearch table={table} />
+```
+
+**DataGridContextMenu** - 右键菜单
+
+```typescript
+import { DataGridContextMenu } from '@/components/data-grid/data-grid-context-menu'
+
+<DataGridContextMenu table={table}>
+  <MenuItem onClick={handleCopy}>Copy</MenuItem>
+  <MenuItem onClick={handlePaste}>Paste</MenuItem>
+</DataGridContextMenu>
+```
+
+**DataGridKeyboardShortcuts** - 快捷键帮助
+
+```typescript
+import { DataGridKeyboardShortcuts } from '@/components/data-grid/data-grid-keyboard-shortcuts'
+
+<DataGridKeyboardShortcuts />
+```
+
+### 参考文档
+
+- 类型定义: `src/types/data-grid.ts`
+- 单元格变体: `src/components/data-grid/data-grid-cell-variants.tsx`
+
+---
+
 ## 创建对话框模式
 
 ### 基础创建对话框
@@ -648,3 +1022,4 @@ const removeMember = useMutation({
 - **数据加载详解**: [docs/data-loading.md](./data-loading.md)
 - **UI 交互模式**: [docs/ui-patterns.md](./ui-patterns.md)
 - **表单模式**: [docs/form-patterns.md](./form-patterns.md)
+- [diceui](https://www.diceui.com/docs/)
