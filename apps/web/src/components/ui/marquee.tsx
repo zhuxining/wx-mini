@@ -1,7 +1,7 @@
 "use client";
 
-import { useDirection } from "@radix-ui/react-direction";
-import { Slot } from "@radix-ui/react-slot";
+import { useDirection, Slot as SlotPrimitive } from "radix-ui";
+
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { useComposedRefs } from "@/lib/compose-refs";
@@ -382,7 +382,7 @@ function Marquee(props: MarqueeProps) {
     ],
   );
 
-  const MarqueePrimitive = asChild ? Slot : "div";
+  const MarqueePrimitive = asChild ? SlotPrimitive.Slot : "div";
 
   return (
     <MarqueeContext.Provider value={contextValue}>
@@ -525,7 +525,7 @@ function MarqueeContent(props: DivProps) {
     [styleProp, context.reverse],
   );
 
-  const ContentPrimitive = asChild ? Slot : "div";
+  const ContentPrimitive = asChild ? SlotPrimitive.Slot : "div";
 
   return (
     <>
@@ -586,7 +586,7 @@ function MarqueeContent(props: DivProps) {
 function MarqueeItem(props: DivProps) {
   const { className, asChild, ...itemProps } = props;
 
-  const ItemPrimitive = asChild ? Slot : "div";
+  const ItemPrimitive = asChild ? SlotPrimitive.Slot : "div";
 
   return (
     <ItemPrimitive
@@ -657,7 +657,7 @@ interface MarqueeEdgeProps
 function MarqueeEdge(props: MarqueeEdgeProps) {
   const { side, size, className, asChild, ...edgeProps } = props;
 
-  const EdgePrimitive = asChild ? Slot : "div";
+  const EdgePrimitive = asChild ? SlotPrimitive.Slot : "div";
 
   return (
     <EdgePrimitive

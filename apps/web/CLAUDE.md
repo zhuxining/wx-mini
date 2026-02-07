@@ -125,15 +125,6 @@ src/components/
 └── ...
 ```
 
-### 常见陷阱
-
-**本项目使用 `@base-ui/react`**（非 Radix UI）
-
-- 不支持 `asChild` prop，使用 `render` prop 替代 `asChild`
-- 创建包装器时使用 `useRender` + `mergeProps`，`mergeProps` 第一个参数必须是 `{}`
-- **重点关注组件**：`collapsible`、`sidebar`、`dropdown-menu`
-- 参见 [shadcn-usage.md](docs/shadcn-usage.md#base-ui-组件使用规范)
-
 ---
 
 ## 4. 代码规范
@@ -188,7 +179,7 @@ src/components/
 
 ### 5.3 外部资源
 
-- [Shadcn/ui 文档(使用Base UI)](https://ui.shadcn.com/llms.txt)
+- [Shadcn/ui 文档](https://ui.shadcn.com/llms.txt)
 - [TanStack Start 文档](https://tanstack.com/start/latest)
 - [TanStack Router 文档](https://tanstack.com/router/latest)
 - [TanStack Query 文档](https://tanstack.com/query/latest)

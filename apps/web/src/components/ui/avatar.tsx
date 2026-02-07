@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar"
+import { Avatar as AvatarPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
@@ -7,7 +7,7 @@ function Avatar({
   className,
   size = "default",
   ...props
-}: AvatarPrimitive.Root.Props & {
+}: React.ComponentProps<typeof AvatarPrimitive.Root> & {
   size?: "default" | "sm" | "lg"
 }) {
   return (
@@ -23,7 +23,10 @@ function Avatar({
   )
 }
 
-function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
+function AvatarImage({
+  className,
+  ...props
+}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
   return (
     <AvatarPrimitive.Image
       data-slot="avatar-image"
@@ -39,7 +42,7 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
 function AvatarFallback({
   className,
   ...props
-}: AvatarPrimitive.Fallback.Props) {
+}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
@@ -88,7 +91,7 @@ function AvatarGroupCount({
   return (
     <div
       data-slot="avatar-group-count"
-      className={cn("bg-muted text-muted-foreground size-8 rounded-full text-xs group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3 ring-background relative flex shrink-0 items-center justify-center ring-2", className)}
+      className={cn("bg-muted text-muted-foreground size-8 rounded-full text-sm group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3 ring-background relative flex shrink-0 items-center justify-center ring-2", className)}
       {...props}
     />
   )

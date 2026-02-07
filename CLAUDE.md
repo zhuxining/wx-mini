@@ -143,4 +143,4 @@ import { db } from "@org-sass/db"; // 跨包导入
 - [oRPC 文档](https://orpc.unnoq.com/)
 - [Drizzle ORM 文档](https://orm.drizzle.team/)
 - [Better-Auth 文档](https://www.better-auth.com/docs)
-- [Shadcn/ui 文档(使用Base UI)](https://ui.shadcn.com/llms.txt)
+- [Shadcn/ui 文档](https://ui.shadcn.com/llms.txt)
