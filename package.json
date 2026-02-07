@@ -54,7 +54,7 @@
 		"lefthook": "^2.1.0",
 		"turbo": "^2.8.3",
 		"@org-sass/config": "workspace:*",
-		"@typescript/native-preview": "^7.0.0-dev.20260206.1"
+		"@typescript/native-preview": "^7.0.0-dev.20260207.1"
 	},
 	"packageManager": "bun@1.3.8"
 }
