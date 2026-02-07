@@ -222,27 +222,25 @@ export function DataTableFilterList<TData>({
 			getItemValue={(item) => item.filterId}
 		>
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger
-					render={
-						<Button
-							variant="outline"
-							size="sm"
-							className="font-normal"
-							onKeyDown={onTriggerKeyDown}
-							disabled={disabled}
-						/>
-					}
-				>
-					<ListFilter className="text-muted-foreground" />
-					Filter
-					{filters.length > 0 && (
-						<Badge
-							variant="secondary"
-							className="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono font-normal text-[10.4px]"
-						>
-							{filters.length}
-						</Badge>
-					)}
+				<PopoverTrigger >
+					<Button
+						variant="outline"
+						size="sm"
+						className="font-normal"
+						onKeyDown={onTriggerKeyDown}
+						disabled={disabled}
+					>
+						<ListFilter className="text-muted-foreground" />
+						Filter
+						{filters.length > 0 && (
+							<Badge
+								variant="secondary"
+								className="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono font-normal text-[10.4px]"
+							>
+								{filters.length}
+							</Badge>
+						)}
+					</Button>
 				</PopoverTrigger>
 				<PopoverContent
 					aria-describedby={descriptionId}
@@ -267,16 +265,12 @@ export function DataTableFilterList<TData>({
 						</p>
 					</div>
 					{filters.length > 0 ? (
-						<SortableContent
-							render={
-								<div
-									role="list"
-									className="flex max-h-75 flex-col gap-2 overflow-y-auto p-1"
-								/>
-							}
-							nativeButton={false}
-						>
-							{filters.map((filter, index) => (
+						<SortableContent asChild>
+							<div
+								role="list"
+								className="flex max-h-75 flex-col gap-2 overflow-y-auto p-1"
+							>
+								{filters.map((filter, index) => (
 								<DataTableFilterItem<TData>
 									key={filter.filterId}
 									filter={filter}
@@ -289,6 +283,7 @@ export function DataTableFilterList<TData>({
 									onFilterRemove={onFilterRemove}
 								/>
 							))}
+							</div>
 						</SortableContent>
 					) : null}
 					<div className="flex w-full items-center gap-2">
@@ -395,20 +390,15 @@ function DataTableFilterItem<TData>({
 	if (!column) return null;
 
 	return (
-		<SortableItem
-			value={filter.filterId}
-			render={
-				<div
-					role="listitem"
-					id={filterItemId}
-					tabIndex={-1}
-					className="flex items-center gap-2"
-					onKeyDown={onItemKeyDown}
-				/>
-			}
-			nativeButton={false}
-		>
-			<div className="min-w-18 text-center">
+		<SortableItem value={filter.filterId} asChild>
+			<div
+				role="listitem"
+				id={filterItemId}
+				tabIndex={-1}
+				className="flex items-center gap-2"
+				onKeyDown={onItemKeyDown}
+			>
+				<div className="min-w-18 text-center">
 				{index === 0 ? (
 					<span className="text-muted-foreground text-sm">Where</span>
 				) : index === 1 ? (
@@ -552,6 +542,7 @@ function DataTableFilterItem<TData>({
 					<GripVertical />
 				</Button>
 			</SortableItemHandle>
+			</div>
 		</SortableItem>
 	);
 }
@@ -690,25 +681,23 @@ function onFilterInputRender<TData>({
 					}}
 					multiple={multiple}
 				>
-					<FacetedTrigger
-						render={
-							<Button
-								id={inputId}
-								aria-controls={inputListboxId}
-								aria-label={`${columnMeta?.label} filter value${multiple ? "s" : ""}`}
-								variant="outline"
-								size="sm"
-								className="w-full rounded font-normal"
+					<FacetedTrigger asChild>
+						<Button
+							id={inputId}
+							aria-controls={inputListboxId}
+							aria-label={`${columnMeta?.label} filter value${multiple ? "s" : ""}`}
+							variant="outline"
+							size="sm"
+							className="w-full rounded font-normal"
+						>
+							<FacetedBadgeList
+								options={columnMeta?.options}
+								placeholder={
+									columnMeta?.placeholder ??
+									`Select option${multiple ? "s" : ""}...`
+								}
 							/>
-						}
-					>
-						<FacetedBadgeList
-							options={columnMeta?.options}
-							placeholder={
-								columnMeta?.placeholder ??
-								`Select option${multiple ? "s" : ""}...`
-							}
-						/>
+						</Button>
 					</FacetedTrigger>
 					<FacetedContent id={inputListboxId} className="w-50">
 						<FacetedInput
@@ -763,23 +752,21 @@ function onFilterInputRender<TData>({
 
 			return (
 				<Popover open={showValueSelector} onOpenChange={setShowValueSelector}>
-					<PopoverTrigger
-						render={
-							<Button
-								id={inputId}
-								aria-controls={inputListboxId}
-								aria-label={`${columnMeta?.label} date filter`}
-								variant="outline"
-								size="sm"
-								className={cn(
-									"w-full justify-start rounded text-left font-normal",
-									!filter.value && "text-muted-foreground",
-								)}
-							/>
-						}
-					>
-						<CalendarIcon />
-						<span className="truncate">{displayValue}</span>
+					<PopoverTrigger asChild>
+						<Button
+							id={inputId}
+							aria-controls={inputListboxId}
+							aria-label={`${columnMeta?.label} date filter`}
+							variant="outline"
+							size="sm"
+							className={cn(
+								"w-full justify-start rounded text-left font-normal",
+								!filter.value && "text-muted-foreground",
+							)}
+						>
+							<CalendarIcon />
+							<span className="truncate">{displayValue}</span>
+						</Button>
 					</PopoverTrigger>
 					<PopoverContent
 						id={inputListboxId}

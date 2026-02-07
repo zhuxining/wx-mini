@@ -1,7 +1,8 @@
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { Slot as SlotPrimitive, useDirection } from "radix-ui";
+import { Slot as SlotPrimitive } from "radix-ui";
+import { useDirection } from "@radix-ui/react-direction";
 import * as React from "react";
 import { useComposedRefs } from "@/lib/compose-refs";
 import { cn } from "@/lib/utils";
@@ -398,7 +399,7 @@ function Marquee(props: MarqueeProps) {
 						"relative flex overflow-hidden motion-reduce:animate-none",
 						orientation === "vertical" && "h-full flex-col",
 						orientation === "horizontal" && "w-full",
-						paused && "[&_*]:[animation-play-state:paused]",
+						paused && "**:paused",
 						pauseOnHover && "group",
 						pauseOnKeyboard &&
 							"rounded-md focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",

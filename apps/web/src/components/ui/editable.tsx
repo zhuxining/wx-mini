@@ -1,6 +1,7 @@
 "use client";
 
-import { Slot as SlotPrimitive, useDirection } from "radix-ui";
+import { Slot as SlotPrimitive } from "radix-ui";
+import { useDirection } from "@radix-ui/react-direction";
 
 import * as React from "react";
 import { VisuallyHiddenInput } from "@/components/visually-hidden-input";

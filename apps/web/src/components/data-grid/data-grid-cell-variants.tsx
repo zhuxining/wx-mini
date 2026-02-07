@@ -44,7 +44,7 @@ import {
 	parseLocalDate,
 } from "@/lib/data-grid";
 import { cn } from "@/lib/utils";
-import type { DataGridCellProps } from "@/types/data-grid";
+import type { DataGridCellProps, FileCellData } from "@/types/data-grid";
 
 export function ShortTextCell<TData>({
 	cell,
@@ -359,26 +359,24 @@ export function LongTextCell<TData>({
 
 	return (
 		<Popover open={isEditing} onOpenChange={onOpenChange}>
-			<PopoverAnchor
-				render={
-					<DataGridCellWrapper
-						ref={containerRef}
-						cell={cell}
-						tableMeta={tableMeta}
-						rowIndex={rowIndex}
-						columnId={columnId}
-						rowHeight={rowHeight}
-						isEditing={isEditing}
-						isFocused={isFocused}
-						isSelected={isSelected}
-						isSearchMatch={isSearchMatch}
-						isActiveSearchMatch={isActiveSearchMatch}
-						readOnly={readOnly}
-						onKeyDown={onWrapperKeyDown}
-					/>
-				}
-			>
-				<span data-slot="grid-cell-content">{value}</span>
+			<PopoverAnchor asChild>
+				<DataGridCellWrapper
+					ref={containerRef}
+					cell={cell}
+					tableMeta={tableMeta}
+					rowIndex={rowIndex}
+					columnId={columnId}
+					rowHeight={rowHeight}
+					isEditing={isEditing}
+					isFocused={isFocused}
+					isSelected={isSelected}
+					isSearchMatch={isSearchMatch}
+					isActiveSearchMatch={isActiveSearchMatch}
+					readOnly={readOnly}
+					onKeyDown={onWrapperKeyDown}
+				>
+					<span data-slot="grid-cell-content">{value}</span>
+				</DataGridCellWrapper>
 			</PopoverAnchor>
 			<PopoverContent
 				data-grid-cell-editor=""
@@ -1185,10 +1183,9 @@ export function MultiSelectCell<TData>({
 		>
 			{isEditing ? (
 				<Popover open={isEditing} onOpenChange={onOpenChange}>
-					<PopoverAnchor
-						render={<div className="absolute inset-0" />}
-						nativeButton={false}
-					/>
+					<PopoverAnchor asChild>
+						<div className="absolute inset-0" />
+					</PopoverAnchor>
 					<PopoverContent
 						data-grid-cell-editor=""
 						align="start"
@@ -1383,11 +1380,10 @@ export function DateCell<TData>({
 			onKeyDown={onWrapperKeyDown}
 		>
 			<Popover open={isEditing} onOpenChange={onOpenChange}>
-				<PopoverAnchor
-					render={<span data-slot="grid-cell-content" />}
-					nativeButton={false}
-				>
-					{formatDateForDisplay(value)}
+				<PopoverAnchor asChild>
+					<span data-slot="grid-cell-content">
+						{formatDateForDisplay(value)}
+					</span>
 				</PopoverAnchor>
 				{isEditing && (
 					<PopoverContent
@@ -1952,10 +1948,9 @@ export function FileCell<TData>({
 		>
 			{isEditing ? (
 				<Popover open={isEditing} onOpenChange={onOpenChange}>
-					<PopoverAnchor
-						render={<div className="absolute inset-0" />}
-						nativeButton={false}
-					/>
+					<PopoverAnchor asChild>
+						<div className="absolute inset-0" />
+					</PopoverAnchor>
 					<PopoverContent
 						data-grid-cell-editor=""
 						align="start"

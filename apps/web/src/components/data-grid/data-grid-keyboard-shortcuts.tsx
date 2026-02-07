@@ -391,11 +391,10 @@ function DataGridKeyboardShortcutsImpl({
 				onOpenAutoFocus={onOpenAutoFocus}
 				showCloseButton={false}
 			>
-				<DialogClose
-					className="absolute end-6 top-6"
-					render={<Button variant="ghost" size="icon" className="size-6" />}
-				>
-					<XIcon />
+				<DialogClose asChild>
+					<Button variant="ghost" size="icon" className="absolute end-6 top-6 size-6">
+						<XIcon />
+					</Button>
 				</DialogClose>
 				<DialogHeader className="px-6">
 					<DialogTitle>Keyboard shortcuts</DialogTitle>

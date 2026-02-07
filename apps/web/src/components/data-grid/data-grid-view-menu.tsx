@@ -47,21 +47,19 @@ export function DataGridViewMenu<TData>({
 
 	return (
 		<Popover>
-			<PopoverTrigger
-				render={
-					<Button
-						aria-label="Toggle columns"
-						role="combobox"
-						dir={dir}
-						variant="outline"
-						size="sm"
-						className="ms-auto hidden h-8 font-normal lg:flex"
-						disabled={disabled}
-					/>
-				}
-			>
-				<Settings2 className="text-muted-foreground" />
-				View
+			<PopoverTrigger >
+				<Button
+					aria-label="Toggle columns"
+					role="combobox"
+					dir={dir}
+					variant="outline"
+					size="sm"
+					className="ms-auto hidden h-8 font-normal lg:flex"
+					disabled={disabled}
+				>
+					<Settings2 className="text-muted-foreground" />
+					View
+				</Button>
 			</PopoverTrigger>
 			<PopoverContent
 				dir={dir}

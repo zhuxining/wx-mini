@@ -173,28 +173,26 @@ export function DataGridSortMenu<TData>({
 			getItemValue={(item) => item.id}
 		>
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger
-					render={
-						<Button
-							dir={dir}
-							variant="outline"
-							size="sm"
-							className="font-normal"
-							onKeyDown={onTriggerKeyDown}
-							disabled={disabled}
-						/>
-					}
-				>
-					<ArrowDownUp className="text-muted-foreground" />
-					Sort
-					{sorting.length > 0 && (
-						<Badge
-							variant="secondary"
-							className="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono font-normal text-[10.4px]"
-						>
-							{sorting.length}
-						</Badge>
-					)}
+				<PopoverTrigger asChild>
+					<Button
+						dir={dir}
+						variant="outline"
+						size="sm"
+						className="font-normal"
+						onKeyDown={onTriggerKeyDown}
+						disabled={disabled}
+					>
+						<ArrowDownUp className="text-muted-foreground" />
+						Sort
+						{sorting.length > 0 && (
+							<Badge
+								variant="secondary"
+								className="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono font-normal text-[10.4px]"
+							>
+								{sorting.length}
+							</Badge>
+						)}
+					</Button>
 				</PopoverTrigger>
 				<PopoverContent
 					aria-labelledby={labelId}
@@ -220,16 +218,12 @@ export function DataGridSortMenu<TData>({
 						</p>
 					</div>
 					{sorting.length > 0 && (
-						<SortableContent
-							render={
-								<div
-									role="list"
-									className="flex max-h-75 flex-col gap-2 overflow-y-auto p-1"
-								/>
-							}
-							nativeButton={false}
-						>
-							{sorting.map((sort) => (
+						<SortableContent asChild>
+							<div
+								role="list"
+								className="flex max-h-75 flex-col gap-2 overflow-y-auto p-1"
+							>
+								{sorting.map((sort) => (
 								<DataTableSortItem
 									key={sort.id}
 									sort={sort}
@@ -241,6 +235,7 @@ export function DataGridSortMenu<TData>({
 									onSortRemove={onSortRemove}
 								/>
 							))}
+							</div>
 						</SortableContent>
 					)}
 					<div className="flex w-full items-center gap-2">
@@ -327,20 +322,15 @@ function DataTableSortItem({
 	);
 
 	return (
-		<SortableItem
-			value={sort.id}
-			render={
-				<div
-					role="listitem"
-					id={sortItemId}
-					tabIndex={-1}
-					className="flex items-center gap-2"
-					onKeyDown={onItemKeyDown}
-				/>
-			}
-			nativeButton={false}
-		>
-			<Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
+		<SortableItem value={sort.id} asChild>
+			<div
+				role="listitem"
+				id={sortItemId}
+				tabIndex={-1}
+				className="flex items-center gap-2"
+				onKeyDown={onItemKeyDown}
+			>
+				<Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
 				<PopoverTrigger asChild>
 					<Button
 						id={fieldTriggerId}
@@ -421,6 +411,7 @@ function DataTableSortItem({
 					<GripVertical />
 				</Button>
 			</SortableItemHandle>
+			</div>
 		</SortableItem>
 	);
 }
