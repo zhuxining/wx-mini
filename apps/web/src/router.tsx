@@ -1,5 +1,5 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
-import { ErrorBoundary, Loader, NotFoundPage } from "@/components/fallback";
+import { Spin } from "antd";
 import "./index.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen";
@@ -11,9 +11,9 @@ export const getRouter = () => {
 		scrollRestoration: true,
 		defaultPreloadStaleTime: 0,
 		context: { orpc, queryClient },
-		defaultPendingComponent: () => <Loader />,
-		defaultNotFoundComponent: () => <NotFoundPage />,
-		defaultErrorComponent: ({ error }) => <ErrorBoundary error={error} />,
+		defaultPendingComponent: () => <Spin />,
+		defaultNotFoundComponent: () => <Spin />,
+		defaultErrorComponent: () => <Spin />,
 		Wrap: ({ children }) => (
 			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 		),

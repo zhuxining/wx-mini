@@ -1,156 +1,84 @@
-import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
-import { z } from "zod";
-
+import { App, Button, Form, Input } from "antd";
+import type { Rule } from "antd/es/form";
 import { authClient } from "@/lib/auth-client";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+
+interface SignUpFormValues {
+	name: string;
+	email: string;
+	password: string;
+}
 
 export default function SignUpForm({
 	onSwitchToSignIn,
 }: {
 	onSwitchToSignIn: () => void;
 }) {
-	const navigate = useNavigate({
-		from: "/",
-	});
+	const navigate = useNavigate({ from: "/" });
+	const { message } = App.useApp();
+	const [form] = Form.useForm<SignUpFormValues>();
 
-	const form = useForm({
-		defaultValues: {
-			email: "",
-			password: "",
-			name: "",
-		},
-		onSubmit: async ({ value }) => {
-			await authClient.signUp.email(
-				{
-					email: value.email,
-					password: value.password,
-					name: value.name,
+	const nameRules: Rule[] = [
+		{ required: true, message: "Please input your name" },
+		{ min: 2, message: "Name must be at least 2 characters" },
+	];
+
+	const emailRules: Rule[] = [
+		{ required: true, message: "Please input your email" },
+		{ type: "email", message: "Invalid email address" },
+	];
+
+	const passwordRules: Rule[] = [
+		{ required: true, message: "Please input your password" },
+		{ min: 8, message: "Password must be at least 8 characters" },
+	];
+
+	const handleSubmit = async (values: SignUpFormValues) => {
+		await authClient.signUp.email(
+			{ email: values.email, password: values.password, name: values.name },
+			{
+				onSuccess: () => {
+					navigate({ to: "/" });
+					message.success("注册成功！请联系系统管理员创建组织");
 				},
-				{
-					onSuccess: () => {
-						navigate({
-							to: "/",
-						});
-						toast.success("注册成功！请联系系统管理员创建组织");
-					},
-					onError: (error) => {
-						toast.error(error.error.message || error.error.statusText);
-					},
+				onError: (error) => {
+					message.error(error.error.message || error.error.statusText);
 				},
-			);
-		},
-		validators: {
-			onSubmit: z.object({
-				name: z.string().min(2, "Name must be at least 2 characters"),
-				email: z.email("Invalid email address"),
-				password: z.string().min(8, "Password must be at least 8 characters"),
-			}),
-		},
-	});
+			},
+		);
+	};
 
 	return (
 		<div className="mx-auto mt-10 w-full max-w-md p-6">
 			<h1 className="mb-6 text-center font-bold text-3xl">Create Account</h1>
 
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					e.stopPropagation();
-					form.handleSubmit();
-				}}
+			<Form
+				form={form}
+				onFinish={handleSubmit}
+				layout="vertical"
 				className="space-y-4"
 			>
-				<div>
-					<form.Field name="name">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Name</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
+				<Form.Item label="Name" name="name" rules={nameRules}>
+					<Input />
+				</Form.Item>
 
-				<div>
-					<form.Field name="email">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Email</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									type="email"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
+				<Form.Item label="Email" name="email" rules={emailRules}>
+					<Input type="email" />
+				</Form.Item>
 
-				<div>
-					<form.Field name="password">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Password</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									type="password"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
+				<Form.Item label="Password" name="password" rules={passwordRules}>
+					<Input.Password />
+				</Form.Item>
 
-				<form.Subscribe>
-					{(state) => (
-						<Button
-							type="submit"
-							className="w-full"
-							disabled={!state.canSubmit || state.isSubmitting}
-						>
-							{state.isSubmitting ? "Submitting..." : "Sign Up"}
-						</Button>
-					)}
-				</form.Subscribe>
-			</form>
+				<Form.Item>
+					<Button type="primary" htmlType="submit" className="w-full">
+						Sign Up
+					</Button>
+				</Form.Item>
+			</Form>
 
 			<div className="mt-4 text-center">
-				<Button
-					variant="link"
-					onClick={onSwitchToSignIn}
-					className="text-indigo-600 hover:text-indigo-800"
-				>
+				<Button type="link" onClick={onSwitchToSignIn}>
 					Already have an account? Sign In
 				</Button>
 			</div>

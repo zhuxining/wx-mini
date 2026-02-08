@@ -10,15 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "next-themes";
-import { ForbiddenPage } from "@/components/fallback/forbidden";
-import { NotFoundPage } from "@/components/fallback/not-found";
-import { UnauthorizedPage } from "@/components/fallback/unauthorized";
-import { Toaster } from "@/components/ui/sonner";
-import {
-	ForbiddenError,
-	NotFoundError,
-	UnauthorizedError,
-} from "@/utils/errors";
+import { Toaster } from "sonner";
 import type { orpc } from "@/utils/orpc";
 import appCss from "../index.css?url";
 
@@ -49,15 +41,15 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 		],
 	}),
 	errorComponent: ({ error }) => {
-		if (error instanceof NotFoundError) {
-			return <NotFoundPage />;
-		}
-		if (error instanceof ForbiddenError) {
-			return <ForbiddenPage error={error} />;
-		}
-		if (error instanceof UnauthorizedError) {
-			return <UnauthorizedPage error={error} />;
-		}
+		// if (error instanceof NotFoundError) {
+		// 	return <NotFoundPage />;
+		// }
+		// if (error instanceof ForbiddenError) {
+		// 	return <ForbiddenPage error={error} />;
+		// }
+		// if (error instanceof UnauthorizedError) {
+		// 	return <UnauthorizedPage error={error} />;
+		// }
 		throw error;
 	},
 	component: RootDocument,

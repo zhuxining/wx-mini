@@ -9,43 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as publicRouteRouteImport } from './routes/(public)/route'
-import { Route as publicIndexRouteImport } from './routes/(public)/index'
-import { Route as authLoginRouteImport } from './routes/(auth)/login'
-import { Route as publicPricingIndexRouteImport } from './routes/(public)/pricing/index'
-import { Route as publicLandingIndexRouteImport } from './routes/(public)/landing/index'
-import { Route as publicAboutIndexRouteImport } from './routes/(public)/about/index'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
-const publicRouteRoute = publicRouteRouteImport.update({
-  id: '/(public)',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const publicIndexRoute = publicIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => publicRouteRoute,
-} as any)
-const authLoginRoute = authLoginRouteImport.update({
-  id: '/(auth)/login',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const publicPricingIndexRoute = publicPricingIndexRouteImport.update({
-  id: '/pricing/',
-  path: '/pricing/',
-  getParentRoute: () => publicRouteRoute,
-} as any)
-const publicLandingIndexRoute = publicLandingIndexRouteImport.update({
-  id: '/landing/',
-  path: '/landing/',
-  getParentRoute: () => publicRouteRoute,
-} as any)
-const publicAboutIndexRoute = publicAboutIndexRouteImport.update({
-  id: '/about/',
-  path: '/about/',
-  getParentRoute: () => publicRouteRoute,
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
@@ -59,115 +36,54 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/login': typeof authLoginRoute
-  '/': typeof publicIndexRoute
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/about/': typeof publicAboutIndexRoute
-  '/landing/': typeof publicLandingIndexRoute
-  '/pricing/': typeof publicPricingIndexRoute
 }
 export interface FileRoutesByTo {
-  '/login': typeof authLoginRoute
-  '/': typeof publicIndexRoute
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/about': typeof publicAboutIndexRoute
-  '/landing': typeof publicLandingIndexRoute
-  '/pricing': typeof publicPricingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/(public)': typeof publicRouteRouteWithChildren
-  '/(auth)/login': typeof authLoginRoute
-  '/(public)/': typeof publicIndexRoute
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/(public)/about/': typeof publicAboutIndexRoute
-  '/(public)/landing/': typeof publicLandingIndexRoute
-  '/(public)/pricing/': typeof publicPricingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/login'
-    | '/'
-    | '/api/auth/$'
-    | '/api/rpc/$'
-    | '/about/'
-    | '/landing/'
-    | '/pricing/'
+  fullPaths: '/' | '/login' | '/api/auth/$' | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/login'
-    | '/'
-    | '/api/auth/$'
-    | '/api/rpc/$'
-    | '/about'
-    | '/landing'
-    | '/pricing'
-  id:
-    | '__root__'
-    | '/(public)'
-    | '/(auth)/login'
-    | '/(public)/'
-    | '/api/auth/$'
-    | '/api/rpc/$'
-    | '/(public)/about/'
-    | '/(public)/landing/'
-    | '/(public)/pricing/'
+  to: '/' | '/login' | '/api/auth/$' | '/api/rpc/$'
+  id: '__root__' | '/' | '/login' | '/api/auth/$' | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  publicRouteRoute: typeof publicRouteRouteWithChildren
-  authLoginRoute: typeof authLoginRoute
+  IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/(public)': {
-      id: '/(public)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof publicRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(public)/': {
-      id: '/(public)/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof publicIndexRouteImport
-      parentRoute: typeof publicRouteRoute
-    }
-    '/(auth)/login': {
-      id: '/(auth)/login'
+    '/login': {
+      id: '/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof authLoginRouteImport
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(public)/pricing/': {
-      id: '/(public)/pricing/'
-      path: '/pricing'
-      fullPath: '/pricing/'
-      preLoaderRoute: typeof publicPricingIndexRouteImport
-      parentRoute: typeof publicRouteRoute
-    }
-    '/(public)/landing/': {
-      id: '/(public)/landing/'
-      path: '/landing'
-      fullPath: '/landing/'
-      preLoaderRoute: typeof publicLandingIndexRouteImport
-      parentRoute: typeof publicRouteRoute
-    }
-    '/(public)/about/': {
-      id: '/(public)/about/'
-      path: '/about'
-      fullPath: '/about/'
-      preLoaderRoute: typeof publicAboutIndexRouteImport
-      parentRoute: typeof publicRouteRoute
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/rpc/$': {
       id: '/api/rpc/$'
@@ -186,27 +102,9 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface publicRouteRouteChildren {
-  publicIndexRoute: typeof publicIndexRoute
-  publicAboutIndexRoute: typeof publicAboutIndexRoute
-  publicLandingIndexRoute: typeof publicLandingIndexRoute
-  publicPricingIndexRoute: typeof publicPricingIndexRoute
-}
-
-const publicRouteRouteChildren: publicRouteRouteChildren = {
-  publicIndexRoute: publicIndexRoute,
-  publicAboutIndexRoute: publicAboutIndexRoute,
-  publicLandingIndexRoute: publicLandingIndexRoute,
-  publicPricingIndexRoute: publicPricingIndexRoute,
-}
-
-const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
-  publicRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
-  publicRouteRoute: publicRouteRouteWithChildren,
-  authLoginRoute: authLoginRoute,
+  IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
