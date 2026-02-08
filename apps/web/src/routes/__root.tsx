@@ -1,3 +1,4 @@
+import { StyleProvider } from "@ant-design/cssinjs";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 import type { QueryClient } from "@tanstack/react-query";
@@ -9,8 +10,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
+import { AntdThemeProvider } from "@/components/antd-theme-provider";
 import type { orpc } from "@/utils/orpc";
 import appCss from "../index.css?url";
 
@@ -62,28 +62,29 @@ function RootDocument() {
 				<HeadContent />
 			</head>
 			<body>
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-					<div className="min-h-screen">
-						<Outlet />
-					</div>
-					<Toaster richColors />
-					<TanStackDevtools
-						plugins={[
-							{
-								name: "TanStack Query",
-								render: <ReactQueryDevtoolsPanel />,
-							},
-							{
-								name: "TanStack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							{
-								name: "TanStack Form",
-								render: <FormDevtoolsPanel />,
-							},
-						]}
-					/>
-				</ThemeProvider>
+				<StyleProvider layer>
+					<AntdThemeProvider>
+						<div style={{ minHeight: "100vh" }}>
+							<Outlet />
+						</div>
+						<TanStackDevtools
+							plugins={[
+								{
+									name: "TanStack Query",
+									render: <ReactQueryDevtoolsPanel />,
+								},
+								{
+									name: "TanStack Router",
+									render: <TanStackRouterDevtoolsPanel />,
+								},
+								{
+									name: "TanStack Form",
+									render: <FormDevtoolsPanel />,
+								},
+							]}
+						/>
+					</AntdThemeProvider>
+				</StyleProvider>
 				<Scripts />
 			</body>
 		</html>

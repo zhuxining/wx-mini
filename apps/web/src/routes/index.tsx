@@ -1,9 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-
+import { Badge, Card, Flex, Space, Typography } from "antd";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { orpc } from "@/utils/orpc";
 
+const { Text } = Typography;
+
 export const Route = createFileRoute("/")({
+	ssr: "data-only",
 	component: HomeComponent,
 });
 
@@ -27,25 +31,53 @@ function HomeComponent() {
 	const healthCheck = useQuery(orpc.healthCheck.queryOptions());
 
 	return (
-		<div className="container mx-auto max-w-3xl px-4 py-2">
-			<pre className="overflow-x-auto font-mono text-sm">{TITLE_TEXT}</pre>
-			<div className="grid gap-6">
-				<section className="rounded-lg border border-border p-4">
-					<h2 className="mb-2 font-medium">API Status</h2>
-					<div className="flex items-center gap-2">
-						<div
-							className={`h-2 w-2 rounded-full ${healthCheck.data ? "bg-green-500" : "bg-red-500"}`}
+		<div style={{ maxWidth: 800, margin: "0 auto", padding: "24px" }}>
+			<pre
+				style={{
+					overflowX: "auto",
+					fontFamily: "monospace",
+					fontSize: "12px",
+					lineHeight: "1.2",
+					marginBottom: "24px",
+				}}
+			>
+				{TITLE_TEXT}
+			</pre>
+
+			<Space vertical size="large" style={{ width: "100%" }}>
+				<Card title="API Status">
+					<Flex align="center" gap="small">
+						<Badge
+							status={healthCheck.data ? "success" : "error"}
+							text={
+								<Text type="secondary">
+									{healthCheck.isLoading
+										? "Checking..."
+										: healthCheck.data
+											? "Connected"
+											: "Disconnected"}
+								</Text>
+							}
 						/>
-						<span className="text-muted-foreground text-sm">
-							{healthCheck.isLoading
-								? "Checking..."
-								: healthCheck.data
-									? "Connected"
-									: "Disconnected"}
-						</span>
-					</div>
-				</section>
-			</div>
+					</Flex>
+				</Card>
+
+				<Card title="Default size card" style={{ width: 300 }}>
+					<p>Card content</p>
+					<p>Card content</p>
+					<p>Card content</p>
+				</Card>
+
+				<div style={{ width: 300 }}>
+					<ThemeToggle />
+				</div>
+
+				<Card size="small" title="Small size card" style={{ width: 300 }}>
+					<p>Card content</p>
+					<p>Card content</p>
+					<p>Card content</p>
+				</Card>
+			</Space>
 		</div>
 	);
 }

@@ -43,15 +43,19 @@ export default function SignInForm({
 	};
 
 	return (
-		<div className="mx-auto mt-10 w-full max-w-md p-6">
-			<h1 className="mb-6 text-center font-bold text-3xl">Welcome Back</h1>
-
-			<Form
-				form={form}
-				onFinish={handleSubmit}
-				layout="vertical"
-				className="space-y-4"
+		<div style={{ maxWidth: 400, margin: "40px auto", padding: 24 }}>
+			<h1
+				style={{
+					textAlign: "center",
+					marginBottom: 24,
+					fontWeight: "bold",
+					fontSize: 28,
+				}}
 			>
+				Welcome Back
+			</h1>
+
+			<Form form={form} onFinish={handleSubmit} layout="vertical">
 				<Form.Item label="Email" name="email" rules={emailRules}>
 					<Input type="email" />
 				</Form.Item>
@@ -61,13 +65,13 @@ export default function SignInForm({
 				</Form.Item>
 
 				<Form.Item>
-					<Button type="primary" htmlType="submit" className="w-full">
+					<Button type="primary" htmlType="submit" block>
 						Sign In
 					</Button>
 				</Form.Item>
 			</Form>
 
-			<div className="mt-4 text-center">
+			<div style={{ marginTop: 16, textAlign: "center" }}>
 				<Button type="link" onClick={onSwitchToSignUp}>
 					Need an account? Sign Up
 				</Button>
